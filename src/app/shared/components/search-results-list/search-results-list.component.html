@@ -5,7 +5,7 @@
   text block, and with `showAllPages` on the list holds every page of the
   document — 1000+ rows on a large scan. Rendering them all put ~1000 <img>
   elements in the sidebar and made every change-detection pass walk the lot,
-  which is what made the mobile slide-up panel stutter while being dragged.
+  which is what made the former mobile slide-up panel stutter while being dragged.
 
   Rows are a fixed height (see the SCSS) so the viewport's itemSize stays
   honest; the highlighted text clamps rather than growing the row.

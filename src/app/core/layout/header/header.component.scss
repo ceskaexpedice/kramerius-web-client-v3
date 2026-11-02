@@ -5,6 +5,7 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--spacing-x2) var(--spacing-x3);
+  padding-top: calc(var(--spacing-x2) + env(safe-area-inset-top, 0px));
   height: var(--header-height);
   gap: var(--spacing-x4);
   position: relative;
@@ -178,7 +179,10 @@
     transform: scaleY(0);
     transform-origin: top right;
     opacity: 0;
-    transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+    // visibility (delayed until the collapse finishes) takes the closed menu's
+    // links out of the tab order and the accessibility tree.
+    visibility: hidden;
+    transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out, visibility 0s linear 0.2s;
     z-index: 1000;
     box-shadow: 0 2px 16px 2px rgba(0, 0, 0, 0.08);
     border-radius: var(--spacing-x2);
@@ -187,6 +191,8 @@
     &.open {
       transform: scaleY(1);
       opacity: 1;
+      visibility: visible;
+      transition-delay: 0s;
     }
 
     &__content {
@@ -195,6 +201,36 @@
       padding: var(--spacing-x4);
       gap: var(--spacing-x4);
       font-size: var(--font-size-small);
+    }
+
+    &__settings {
+      display: none;
+      align-self: flex-start;
+      background: none;
+      border: none;
+      padding: 0;
+      font: inherit;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  // Narrowest phones: logo + search + favourites + settings + language + menu
+  // overflow ~360px, so settings moves into the hamburger menu.
+  @include m.respond(mobile-xs) {
+    gap: var(--spacing-x2);
+
+    .settings-btn--collapsible {
+      display: none;
+    }
+
+    .mobile-menu__settings {
+      display: inline-flex;
     }
   }
 
@@ -245,12 +281,16 @@
       z-index: 999;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.2s ease-in-out;
+      // Hidden overlay must not be reachable with Tab either.
+      visibility: hidden;
+      transition: opacity 0.2s ease-in-out, visibility 0s linear 0.2s;
       gap: var(--spacing-x2);
 
       &.mobile-search-active {
         opacity: 1;
         pointer-events: all;
+        visibility: visible;
+        transition-delay: 0s;
       }
 
       .desktop-btn {

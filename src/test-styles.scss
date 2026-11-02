@@ -1,0 +1,6 @@
+// Unit tests run in a desktop-sized Karma window, where the desktop UI zoom
+// (styles.scss) would kick in and skew every layout measurement. Specs assert
+// layouts at 100%.
+:root {
+  --ui-zoom: 1 !important;
+}

@@ -18,7 +18,7 @@
       [showHistorySuggestions]="true"
       [showMicrophoneButton]="true"
       [showHelpButton]="false" [prefixIcon]="'icon-search-normal-1'"
-      [autofocus]="true" [showSubmitButton]="breakpointService.isMobile()" [autoSubmit]="false"
+      [autofocus]="!breakpointService.isCoarsePointer()" [showSubmitButton]="breakpointService.isMobile()" [autoSubmit]="false"
       (suggestionSelected)="searchService.onSuggestionSelected($event)">
     </app-autocomplete>
 

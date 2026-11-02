@@ -1,22 +1,46 @@
 @use "_z-index.scss" as z;
 
 .years-timeline {
+  // Proportional scale of the whole timeline (1 = original size)
+  --timeline-scale: 0.9;
+  // Scale of year text and icons (1 = original size); kept separate so the text can be
+  // smaller relative to the boxes
+  --timeline-text-scale: 0.8;
+
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: calc(2rem * var(--timeline-scale));
   width: 100%;
   container-type: inline-size;
+}
+
+// One decade: small range label above its row (or 5 × 2 grid on narrow widths)
+.decade {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-x2) * var(--timeline-scale));
+}
+
+.decade-label {
+  font-size: var(--font-size-xsmall);
+  font-weight: var(--font-weight-semi-bold);
+  line-height: var(--line-height-xs);
+  color: var(--color-text-tertiary);
 }
 
 .year-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: calc(1rem * var(--timeline-scale));
   width: 100%;
 
-  // Use container query to respond to actual available width, not viewport
-  @container (max-width: 950px) {
-    flex-wrap: wrap;
+  // When a whole decade no longer fits on one line, lay it out as a 5 × 2 grid instead of
+  // free wrapping (which left e.g. 9 + 1 or 4 + 4 + 2 rows). Container query responds to the
+  // actual available width, not viewport (950px * timeline scale — container queries cannot
+  // use custom properties)
+  @container (max-width: 855px) {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
@@ -35,15 +59,22 @@
     content: '';
     position: absolute;
     top: 50%;
-    left: -0.5rem;
-    right: -0.5rem;
+    left: calc(-0.5rem * var(--timeline-scale));
+    right: calc(-0.5rem * var(--timeline-scale));
     height: 1px;
     background-color: var(--color-border-additional);
     z-index: z.$timeline-background;
   }
 
-  @container (max-width: 950px) {
-    flex: 0 0 auto;
+  // The line reaches into the gap on both sides to meet its neighbours; at the
+  // row's ends there is no neighbour, and the outward half overflowed the row
+  // by 0.5rem (7px at 90% scale), so the line stops at the item edge there.
+  &:first-child::before {
+    left: 0;
+  }
+
+  &:last-child::before {
+    right: 0;
   }
 
   &:hover {
@@ -53,14 +84,14 @@
   .year-item {
     position: relative;
     z-index: z.$timeline-items;
-    font-size: var(--font-size-large);
+    font-size: calc(var(--font-size-large) * var(--timeline-text-scale));
     font-weight: var(--font-weight-semi-bold);
-    padding: var(--spacing-x2);
+    padding: calc(var(--spacing-x2) * var(--timeline-scale));
     background-color: var(--color-bg-base);
     border: 1px solid var(--color-border-additional);
     color: var(--color-text-dark);
     border-radius: 4px;
-    width: 80px;
+    width: calc(80px * var(--timeline-scale));
 
     &.with-icon {
       font-weight: normal;
@@ -75,17 +106,39 @@
       gap: 2px;
       justify-content: center;
       align-items: center;
-      font-size: calc(17px * var(--accessibility-text-scale));
+      font-size: calc(17px * var(--accessibility-text-scale) * var(--timeline-text-scale));
     }
   }
 
   .year-item--wrapper {
-    padding: 2px 8px;
+    padding: calc(2px * var(--timeline-scale)) calc(8px * var(--timeline-scale));
     border-radius: 2px;
     align-items: center;
-    line-height: var(--line-height-3);
+    line-height: calc(var(--line-height-3) * var(--timeline-scale));
     width: 100%;
     text-align: center;
+    // Flex centering keeps the year centred even if it overflows a narrow cell
+    display: flex;
+    justify-content: center;
+  }
+
+  // Placed after .year-item and .year-item--wrapper so the overrides win
+  @container (max-width: 855px) {
+    // Connecting line makes no sense once the decade is split into grid rows
+    &::before {
+      display: none;
+    }
+
+    // Grid cells are narrow (~60px on phones) — trim horizontal padding so the year (and icon)
+    // fits inside the highlighted wrapper
+    .year-item {
+      width: 100%;
+      padding-inline: var(--spacing-x05);
+    }
+
+    .year-item--wrapper {
+      padding-inline: var(--spacing-x05);
+    }
   }
 
   &.placeholder .year-item--wrapper {
@@ -112,14 +165,14 @@
       transform: none;
     }
 
+    // Muted so a decade with a single volume does not read as a full row
     .year-item {
-      //background-color: var(--color-bg-disabled, #f5f5f5);
-      //border-color: var(--color-border-disabled, #e0e0e0);
+      border-style: dashed;
       color: var(--color-tertiary);
     }
 
     .year-item--wrapper {
-      background-color: var(--color-bg-light);
+      background-color: transparent;
     }
   }
 }
@@ -127,8 +180,8 @@
 .range-years-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: calc(1rem * var(--timeline-scale));
+  margin-bottom: calc(2rem * var(--timeline-scale));
   position: relative;
   width: 100%;
 }
@@ -145,9 +198,9 @@
   }
 
   .range-year-label {
-    font-size: var(--font-size-large);
+    font-size: calc(var(--font-size-large) * var(--timeline-text-scale));
     font-weight: var(--font-weight-semi-bold);
-    padding: var(--spacing-x2);
+    padding: calc(var(--spacing-x2) * var(--timeline-scale));
     border-radius: 4px;
     background-color: var(--color-bg-base);
     border: 1px solid var(--color-border-additional);
@@ -177,10 +230,12 @@
 
 .year-item--dots {
   position: absolute;
-  bottom: 8px;
+  // Sits in the tile's bottom padding, below the highlighted year, so the
+  // volume dots never overlap the digits.
+  bottom: calc(1px * var(--timeline-scale));
   left: 50%;
   transform: translateX(-50%);
-  font-size: calc(10px * var(--accessibility-text-scale, 1));
+  font-size: calc(10px * var(--accessibility-text-scale, 1) * var(--timeline-scale));
   line-height: 1;
   letter-spacing: 1px;
   pointer-events: none;

@@ -60,8 +60,11 @@ $filter-height: 44px;
     background-color: var(--color-bg-light);
   }
 
-  &:focus {
-    box-shadow: 0 0 0 2px var(--color-primary-outline);
+  // --color-primary-outline is not defined anywhere, so the old box-shadow drew
+  // nothing; use the shared focus ring instead (WCAG 2.4.7).
+  &:focus-visible {
+    outline: 2px solid var(--color-border-primary-default);
+    outline-offset: 2px;
   }
 }
 

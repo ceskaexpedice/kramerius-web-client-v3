@@ -54,21 +54,23 @@
   }
 }
 
-// Responsive styles
+// Responsive styles (nested under .search-hero so they outrank the base rules)
 @include m.respond(md) {
 
   .search-hero {
     padding: var(--spacing-x4) var(--spacing-x3) 0;
-  }
 
-  h1 {
-    font-size: var(--font-size-3xlarge);
-    margin-top: 0;
-    margin-bottom: var(--spacing-x4);
-  }
+    h1 {
+      font-size: var(--font-size-3xlarge);
+      line-height: var(--line-height-4);
+      margin-top: 0;
+      margin-bottom: var(--spacing-x4);
+    }
 
-  p {
-    max-width: 100%;
+    p {
+      max-width: 100%;
+      margin-bottom: var(--spacing-x5);
+    }
   }
 
 }

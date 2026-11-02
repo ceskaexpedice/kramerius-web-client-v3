@@ -7,7 +7,7 @@
   border-radius: 12px;
   background-color: var(--color-bg-subtle);
 
-  @include respond(sm) {
+  @include respond(mobile-sm) {
     flex-direction: column;
     background-color: var(--color-bg-base);
   }
@@ -16,7 +16,7 @@
     flex: 1 1 auto;
     padding: 12px 24px 8px 12px;
 
-    @include respond(sm) {
+    @include respond(mobile-sm) {
       padding: 0;
     }
   }
@@ -26,7 +26,7 @@
     flex-direction: column;
     gap: 12px;
 
-    @include respond(sm) {
+    @include respond(mobile-sm) {
       gap: 0;
     }
   }
@@ -38,7 +38,7 @@
     gap: 16px;
     flex-wrap: wrap;
 
-    @include respond(sm) {
+    @include respond(mobile-sm) {
       flex-direction: column;
       align-items: flex-start;
       margin-top: 0;
@@ -138,6 +138,11 @@
 .mobile-condition-section {
   border-top: 1px solid var(--color-border-bright);
   padding: 12px;
+
+  // No group header above it (single group): the card's own border suffices.
+  .filter-group:not(:has(.mobile-group-header)) &:first-child {
+    border-top: none;
+  }
 
   .mobile-condition-header {
     display: flex;

@@ -32,10 +32,27 @@
     max-width: 100%;
   }
 
+  // Without a center slot the right side takes only what its controls need,
+  // leaving the rest to the (often long) title instead of a 50/50 split.
+  &:not(:has(.toolbar-center)) .toolbar-right {
+    flex: 0 1 auto;
+  }
+
+  // With a center slot the three equal thirds can be narrower than the right
+  // controls; they then spill left over the center (year arrows over the view
+  // toggle). Keep the right side at its content width and let the title give
+  // way instead; the center stays between them.
+  &:has(.toolbar-center) .toolbar-right {
+    min-width: max-content;
+  }
+
   .toolbar-right {
     justify-content: flex-end;
     margin-left: auto;
     gap: var(--spacing-x2);
+    // Let the slot shrink below its content so a long control (e.g. the sort
+    // select) can ellipsize instead of pushing past the viewport edge.
+    min-width: 0;
   }
 }
 
@@ -52,5 +69,39 @@
       gap: var(--spacing-x2);
       justify-content: flex-end;
     }
+  }
+
+  // Touch (phones, small tablets): toolbar controls match the 40px header
+  // buttons instead of the 32px (28px for the view toggle) desktop size.
+  :host ::ng-deep .action-toolbar {
+    // The metadata panel toggle is its own component with a 32px size.
+    button.icon-button,
+    button.panel-toggle {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+    }
+
+    .toggle-group .toggle-btn {
+      min-width: 36px;
+      height: 36px;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+// Phones: closes the open fixed panel. Tinted like the active bottom-nav tab so it
+// reads as the panel's own control, not one more neutral toolbar action.
+button.icon-button.action-toolbar__panel-close {
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: var(--color-primary);
+
+  &:hover {
+    background: color-mix(in srgb, var(--color-primary) 18%, transparent);
+  }
+
+  &:active {
+    background: color-mix(in srgb, var(--color-primary) 24%, transparent);
   }
 }

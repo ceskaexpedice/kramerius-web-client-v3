@@ -111,6 +111,7 @@ describe('DocumentAccessDenied.openLicenseDialog', () => {
     (component as any).translationService = { currentLanguage: () => ({ code: 'cs' }) };
     (component as any).translate = { instant: (key: string) => key };
     (component as any).dialog = { open: (_c: unknown, cfg: any) => { opened.push(cfg.data); } };
+    (component as any).router = { url: '/view/uuid:1' };
     return { component, opened };
   }
 
@@ -213,6 +214,16 @@ describe('DocumentAccessDenied license filtering and instructions', () => {
 
     expect(component.uniqueLicenseTypes).toEqual(['dnnto', 'onsite']);
     expect(component.uniqueLicenseTypes).not.toContain('covid');
+  });
+
+  it('lists a license only once when the document carries it repeatedly', () => {
+    // A CDK record can repeat a license (one per source library); listed twice it both
+    // duplicates the label and flips the lead-in to the plural "pod licencemi".
+    const { component } = makeComponent({ documentLicenses: ['dnnto', 'onsite', 'dnnto', 'onsite'] });
+
+    component.detectAllLicenseTypes();
+
+    expect(component.uniqueLicenseTypes).toEqual(['dnnto', 'onsite']);
   });
 
   it('falls back to "other" when every license of the document is undefined in config', () => {
@@ -343,5 +354,49 @@ describe('DocumentAccessDenied license filtering and instructions', () => {
     // The template keys the lead-in off this being empty, so an empty run must
     // stay exactly empty rather than becoming an empty paragraph.
     expect(component.instructionHtml).toBe('');
+  });
+});
+
+/**
+ * Regression coverage for issue #146: after logging in through the access-denied
+ * prompt, the reader landed on the homepage instead of the document. The instruction
+ * pages served by the license server link to the terms page as a plain
+ * `https://ceskadigitalniknihovna.cz/pages/terms`, with no `returnUrl`; only the legacy
+ * `/mzk/terms?redirect_path=${PATH}` form was rewritten, so the terms page fell back to
+ * `/` as the post-login destination.
+ */
+describe('DocumentAccessDenied.resolveLoginLinks', () => {
+  const docUrl = '/view/uuid:1?page=uuid:2';
+  const expectedHref = `/pages/terms?returnUrl=${encodeURIComponent(docUrl)}`;
+
+  function resolve(html: string): string {
+    const component = Object.create(DocumentAccessDenied.prototype) as DocumentAccessDenied;
+    (component as any).router = { url: docUrl };
+    return (component as any).resolveLoginLinks(html);
+  }
+
+  it('adds the returnUrl to an absolute terms link without one', () => {
+    const html = resolve('<p><a href="https://ceskadigitalniknihovna.cz/pages/terms">Přihlaste se</a> účtem.</p>');
+    expect(html).toContain(`href="${expectedHref.replace(/&/g, '&amp;')}"`);
+  });
+
+  it('adds the returnUrl to a relative terms link', () => {
+    expect(resolve('<a href="/pages/terms">log in</a>')).toContain(`href="${expectedHref}"`);
+  });
+
+  it('rewrites the legacy portal link with the ${PATH} placeholder', () => {
+    expect(resolve('<a href="/mzk/terms?redirect_path=${PATH}">se přihlaste</a>')).toContain(`href="${expectedHref}"`);
+    expect(resolve('<a href="https://www.digitalniknihovna.cz/mzk/terms?redirect_path=${PATH}">x</a>'))
+      .toContain(`href="${expectedHref}"`);
+  });
+
+  it('keeps a terms link that already carries its own returnUrl', () => {
+    const html = '<a href="/pages/terms?returnUrl=%2Fsearch">log in</a>';
+    expect(resolve(html)).toBe(html);
+  });
+
+  it('leaves unrelated links untouched', () => {
+    const html = '<a href="https://lib.cas.cz/studovna/">studovna</a> <a href="/pages/about">o projektu</a>';
+    expect(resolve(html)).toBe(html);
   });
 });

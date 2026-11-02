@@ -21,6 +21,8 @@ $detail-page-selection: 10;
 $item-card-selection: 10;
 $record-list-row-selection: 10;
 $detail-layout-toolbar: 10;
+// Bars a list scrolls under (ScrollHideHeaderDirective): above card content (max 10)
+$scroll-hide-chrome: 20;
 $select-dropdown: 10;
 $select-dropdown-options: 11;
 
@@ -33,8 +35,18 @@ $filter-sidebar-backdrop: 800;
 $filter-sidebar: 801;
 $filter-sidebar-overlay: 9999;
 $filter-sidebar-close: 802;
-$slide-up-panel-backdrop: 800;
-$slide-up-panel: 9999;
+// Mobile fixed panel: above sticky page toolbars, below popups (800) and the CDK overlay / header (1000).
+$fixed-panel: 700;
+// While a fixed panel is open, the stacking contexts holding the top edges (page
+// toolbars) are lifted above it, so their own dropdowns (calendar, app-select)
+// overhanging the panel stay on top. The action toolbar keeps its place above the
+// periodical sub-toolbar below it (101 vs 100 without a panel).
+$fixed-panel-toolbar: 751;
+$fixed-panel-subtoolbar: 750;
+// Page-scoped loading veil (app-inline-loader overlay, 1000 otherwise) while a
+// fixed panel is open: still covers the page content, but stays under the panel
+// and the toolbars lifted above it.
+$inline-loader-overlay-under-panel: 600;
 
 // CSS-only fullscreen fallback for browsers without the element Fullscreen API
 // (iOS). Unlike native fullscreen it cannot escape the document, so it must
@@ -53,6 +65,8 @@ $playback-queue: 800;
 $admin-toolbar: 800;
 $music-track-favorites-popup: 800;
 $record-item-favorites-popup: 800;
+// Reader toolbar favorites popup: must clear the mobile fixed panel ($fixed-panel).
+$detail-favorites-popup: 800;
 $date-picker-overlay: 801;
 $date-picker-calendar: 800;
 $calendar-popup-overlay: 800;

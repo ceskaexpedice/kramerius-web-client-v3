@@ -33,6 +33,7 @@ import { ConfigService } from '../../../core/config/config.service';
 import { shouldShowAccessibility, collapsesToPublic } from '../../../core/config/license-variants';
 import { pickCdkCollection, pickCdkSourceRecord } from '../../utils/cdk-collection';
 import { groupLocationsByInstitution } from '../../utils/group-locations';
+import { resolveLoginLinks } from '../../utils/resolve-login-links';
 import { ALL_SOURCES } from '../../utils/cdk-source.constants';
 import { RecordHandlerService } from '../../services/record-handler.service';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
@@ -42,6 +43,11 @@ import { SettingsService } from '../../../modules/settings/settings.service';
 import { getLanguageFallbackChain } from '../../translation/translation-fallback-chain';
 import { SOLR_LANG_TO_APP_LANG, resolveLocalizedValue } from '../../utils/language-utils';
 import { SoundTrackModel } from '../../../modules/models/sound-track.model';
+
+import { MetadataGroupComponent } from './metadata-group/metadata-group.component';
+import { CopyButtonComponent } from '../copy-button/copy-button.component';
+import { PeriodicalNeighborsComponent } from './periodical-neighbors/periodical-neighbors.component';
+import { MetadataPairDirective } from './metadata-pair.directive';
 
 @Component({
   selector: 'app-metadata-section',
@@ -57,7 +63,11 @@ import { SoundTrackModel } from '../../../modules/models/sound-track.model';
     RouterLink,
     SelectComponent,
     SafeHtmlPipe,
-    CdkTooltipDirective
+    CdkTooltipDirective,
+    MetadataGroupComponent,
+    CopyButtonComponent,
+    PeriodicalNeighborsComponent,
+    MetadataPairDirective
   ],
   templateUrl: './metadata-section.html',
   styleUrl: './metadata-section.scss'
@@ -835,11 +845,10 @@ export class MetadataSection implements OnInit, OnChanges {
 
   // Model shown in the document-type badge. For a unit of a multivolume monograph we
   // show the root monograph ("Knihy (n)") rather than the unit itself ("Díl").
+  // A part (periodical volume/issue, monograph unit…) is labelled by the work
+  // it belongs to — its rootModel — not by its own level.
   get badgeModel(): string {
-    if (this.isMonographUnitDoc()) {
-      return this._solrData()?.rootModel || this.data?.model || '';
-    }
-    return this.data?.model || '';
+    return this._solrData()?.rootModel || this.data?.model || '';
   }
 
   // Unit count passed to the badge so a multivolume root renders as "Knihy (n)".
@@ -852,6 +861,11 @@ export class MetadataSection implements OnInit, OnChanges {
 
   // True when this document is a child of a periodical hierarchy (volume/issue/supplement)
   // and clicking the title should navigate up to the periodical (volumes screen).
+  /** An issue of a periodical: the only level the previous/next issue block applies to (#200). */
+  isPeriodicalItem(): boolean {
+    return (this._solrData()?.model || this.data?.model) === DocumentTypeEnum.periodicalitem;
+  }
+
   isPeriodicalChild(): boolean {
     const sd = this._solrData();
     const rootModel = sd?.rootModel;
@@ -1128,7 +1142,7 @@ export class MetadataSection implements OnInit, OnChanges {
       restoreFocus: false,
       maxWidth: '1205px',
       width: '90%',
-      maxHeight: '90vh'
+      maxHeight: 'calc(90vh / var(--ui-zoom, 1))'
     });
   }
 
@@ -1144,7 +1158,7 @@ export class MetadataSection implements OnInit, OnChanges {
       restoreFocus: false,
       maxWidth: '600px',
       width: '40%',
-      maxHeight: '90vh'
+      maxHeight: 'calc(90vh / var(--ui-zoom, 1))'
     });
   }
 
@@ -1185,7 +1199,8 @@ export class MetadataSection implements OnInit, OnChanges {
     const url = this.configService.getMessagePageUrl(license, MetadataSection.LICENSE_INFO_PAGE_KEY, lang);
     if (!url) return;
 
-    const content = await this.configService.loadHtmlContent(url);
+    // A login link in the license text returns the reader to this document after login.
+    const content = resolveLoginLinks(await this.configService.loadHtmlContent(url), this.router.url);
     const title = this.configService.getLocalizedLabel('license', license, lang);
 
     this.dialog.open(LicenseInfoDialogComponent, {

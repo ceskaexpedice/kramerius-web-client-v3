@@ -26,6 +26,7 @@ import {DontShowDialogs} from '../../../shared/services/dont-show-again.service'
 import {UserService} from '../../../shared/services/user.service';
 import {DetailViewService} from '../../detail-view-page/services/detail-view.service';
 import {APP_ROUTES_ENUM} from '../../../app.routes';
+import {BreakpointService} from '../../../shared/services/breakpoint.service';
 
 @Injectable({
   providedIn: 'root'
@@ -41,6 +42,7 @@ export class MusicService {
   private toastService = inject(ToastService);
   private userService = inject(UserService);
   private detailViewService = inject(DetailViewService);
+  private breakpointService = inject(BreakpointService);
 
   // Store selectors as observables
   metadata$ = this.store.select(selectMusicMetadata);
@@ -156,8 +158,9 @@ export class MusicService {
       return;
     }
 
+    // 60vw left a phone's dialog too narrow for its text and buttons.
     this.dialog.open(PlaybackStopDialogComponent, {
-      width: '60vw',
+      width: this.breakpointService.isMobile() ? 'calc(90vw / var(--ui-zoom, 1))' : 'calc(60vw / var(--ui-zoom, 1))',
       panelClass: 'simple-dialog-panel'
     })
       .afterClosed().subscribe({

@@ -28,6 +28,16 @@
   line-height: var(--line-height-xs);
   white-space: nowrap;
 
+  &.view-toggle--icon-only {
+    justify-content: center;
+    min-width: 44px;
+    padding: var(--spacing-x3);
+
+    i {
+      font-size: var(--font-size-large);
+    }
+  }
+
   &.active {
     color: var(--color-text-base);
 
@@ -75,9 +85,16 @@
   }
 }
 
-// Mobile menu mode
+// Mobile menu mode: the "more" menu closes the row it sits in (after the
+// sort, view toggle, ...), wherever the page placed it in the template.
+:host:has(.mobile-menu-trigger) {
+  order: 1;
+}
+
+// Secondary action: borderless, so the title (not the menu) stays the
+// strongest element in the row; outlines are left to the global header.
 .mobile-menu-trigger {
   &.active {
-    background: var(--color-primary-pressed);
+    background: var(--color-bg-contrast);
   }
 }

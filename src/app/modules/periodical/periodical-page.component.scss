@@ -31,8 +31,9 @@
   // Ensure sidebar pushes content by default (relative positioning in flex)
   position: relative;
 
-  // On very small screens, float over content instead of pushing it
-  @media (max-width: 900px) {
+  // Below desktop (1280px) float over content instead of squeezing it —
+  // same breakpoint as the document detail panel (detail-layout).
+  @media (max-width: 1279px) {
     &,
     &--relative {
       position: absolute;
@@ -41,7 +42,8 @@
       bottom: 0;
       height: auto;
       z-index: 100;
-      margin: var(--spacing-x3);
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
+      margin: 0;
     }
   }
 }
@@ -63,16 +65,6 @@
   }
 }
 
-.floating-sidebar-toggle {
-  position: absolute;
-  bottom: var(--spacing-x3);
-  right: var(--spacing-x3);
-  width: 40px;
-  height: 40px;
-  z-index: 50;
-  box-shadow: var(--shadow-elevated);
-}
-
 // Mobile sub-toolbar: view toggle (left) + sort (right), below the action toolbar.
 // Only rendered on mobile (≤603px) via *isMobile()* guard in the template.
 .mobile-subtoolbar {
@@ -91,36 +83,80 @@
   app-results-sort {
     margin-left: auto;
   }
+
+  // Year arrows match the 40px touch controls beside them (sort, toolbar).
+  ::ng-deep app-date-navigator button.icon-button {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+  }
+
+  .mobile-subtoolbar__year {
+    margin-left: auto;
+
+    + app-results-sort {
+      margin-left: auto;
+    }
+  }
+
+  // While the list scrolls down the header and the toolbars slide away
+  // (ScrollHideHeaderDirective). With a year to page through this bar stays
+  // and ends at the screen top (data-scroll-hide-keep); without one (years
+  // overview, search) it only holds view + sort, which nobody needs
+  // mid-scroll, so it leaves with the header.
 }
 
-// Mobile bottom bar: year date-navigator, pinned to the bottom of the screen.
-// Only rendered on mobile via *isMobile()* guard in the template.
-.mobile-date-bar {
+@media (prefers-reduced-motion: reduce) {
+  .mobile-subtoolbar {
+    transition: none;
+  }
+}
+
+// Bottom nav bar: fixed like on the detail page and above the fixed panels (700).
+// It is a panel edge and stays usable while a section panel is open (the panel
+// ends at its top edge), so sections switch without closing the panel first.
+app-mobile-nav-bar {
   position: fixed;
   left: 0;
   right: 0;
+  // The global mini-player rides on top of it (styles.scss).
   bottom: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-x2) var(--spacing-x3);
-  background-color: var(--color-bg-base);
-  border-top: 1px solid var(--color-border-light);
+  z-index: 850;
+  // Same timing as the app header slide in styles.scss.
+  transition: transform 0.3s ease-in-out;
+
+  // Hidden together with the header while the list scrolls down.
+  &.mobile-nav-bar--hidden {
+    transform: translateY(100%);
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 }
 
-// Keep scrollable content clear of the fixed bottom bar on mobile,
-// but only when the bar is actually rendered (a year is selected).
+
+// Keep scrollable content clear of the floating filter button on mobile (40px),
+// so the last row of years / issues can be scrolled out from under it. It rests
+// 12px above the bottom nav bar (60px when shown, plus the playback bar when one
+// plays; see filterToggleBottomOffset).
 @include mixins.respond(mobile-sm) {
-  .page-content:has(.mobile-date-bar) {
-    .page-content__main {
-      padding-bottom: calc(var(--spacing-x3) + 56px);
-    }
+  .page-content__main {
+    padding-bottom: calc(var(--mobile-nav-space, 60px) + var(--mobile-nav-safe-bottom, 0px) + var(--playback-bar-height, 0px) + 12px + 40px + var(--spacing-x3));
   }
+
 }
 
 .no-results-message {
   padding: var(--spacing-x6) var(--spacing-x3);
   text-align: center;
   color: var(--color-text-tertiary);
+}
+
+// Phones without the bottom nav: the description toggle next to the "more" menu.
+// Open state matches the active bottom-nav tab.
+.periodical-info-toggle.active {
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  color: var(--color-primary);
 }

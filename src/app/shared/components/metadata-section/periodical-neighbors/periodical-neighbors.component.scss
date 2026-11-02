@@ -1,0 +1,117 @@
+:host {
+  display: block;
+}
+
+.periodical-neighbors__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  // Previous and next side by side; a missing one shows as a placeholder.
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-x2);
+
+  li {
+    display: flex;
+    min-width: 0;
+  }
+}
+
+.periodical-neighbors__link {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x2);
+  min-width: 0;
+  padding: var(--spacing-x2);
+  // Same edge as the source select and article card; --color-border-light all
+  // but disappears on the dark panel background.
+  border: 1px solid var(--color-border-bright);
+  border-radius: var(--spacing-x2);
+  color: var(--color-text-base);
+  text-decoration: none;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-1);
+
+  i {
+    font-size: var(--font-size-base);
+    color: var(--color-icon-tertiary-default);
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: var(--color-bg-light);
+
+    .periodical-neighbors__date {
+      color: var(--color-text-link);
+      text-decoration: underline;
+    }
+
+    // The card now has the badge's background; flip it so it stays visible.
+    .periodical-neighbors__volume {
+      background: var(--color-bg-base);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-border-primary-default);
+    outline-offset: 2px;
+  }
+
+  // Arrow on the outer edge: the row reads like the header arrows.
+  &--next {
+    flex-direction: row-reverse;
+    text-align: end;
+
+    .periodical-neighbors__text {
+      align-items: flex-end;
+    }
+  }
+}
+
+.periodical-neighbors__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-x0-5);
+  min-width: 0;
+  flex: 1;
+  color: var(--color-text-secondary);
+}
+
+.periodical-neighbors__date {
+  font-weight: var(--font-weight-semi-bold);
+  color: var(--color-text-base);
+}
+
+// The neighbour lies in another volume — usually a change of calendar year.
+.periodical-neighbors__volume {
+  margin-top: var(--spacing-x0-5);
+  padding: var(--spacing-x0-5) var(--spacing-x2);
+  border-radius: var(--spacing-x1);
+  background: var(--color-bg-light);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xsmall);
+  font-weight: var(--font-weight-semi-bold);
+  white-space: nowrap;
+}
+
+// First / last issue: the empty side of the pair. Same footprint as a card, but
+// a dashed edge and no arrow so it never reads as a control.
+.periodical-neighbors__missing {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: var(--spacing-x2);
+  border: 1px dashed var(--color-border-bright);
+  border-radius: var(--spacing-x2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-1);
+
+  &--next {
+    justify-content: flex-end;
+    text-align: end;
+  }
+}

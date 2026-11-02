@@ -35,5 +35,7 @@ export class TabItemComponent {
   @Input() label!: string;
   @Input() onlyIcon: boolean = false;
   @Input() tooltip: string = '';
+  /** Optional count/marker shown next to the tab label (e.g. number of results). */
+  @Input() badge: string | number | null = null;
   @ViewChild('content', { static: true }) content!: TemplateRef<unknown>;
 }

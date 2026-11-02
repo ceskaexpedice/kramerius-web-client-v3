@@ -26,6 +26,8 @@ import {TranslatePipe} from '@ngx-translate/core';
 export class PlaybackQueueItemComponent implements OnInit, OnDestroy {
   @Input() track!: SoundTrackModel;
   @Input() isCurrentTrack = false;
+  /** Phones ("now playing" sheet): smaller cover, borderless action icons. */
+  @Input() compact = false;
 
   onPlay = output<SoundTrackModel>();
   onRemove = output<SoundTrackModel>();

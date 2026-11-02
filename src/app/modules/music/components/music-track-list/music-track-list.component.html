@@ -14,11 +14,14 @@
   </div>
 }
 
-<table class="track-table">
+<!-- Phones: the table keeps readable column widths and scrolls sideways
+     instead of squeezing the titles, as the search results list view does. -->
+<div class="track-table-wrapper">
+<table class="track-table" [class.track-table--folder]="viewType === 'folder'">
   <thead>
   <tr>
     <th class="index-col">#</th>
-    <th>{{'track-list-table--title' | translate}}</th>
+    <th class="title-col">{{'track-list-table--title' | translate}}</th>
     <th class="duration-col">{{'track-list-table--duration' | translate}}</th>
     <th class="actions-col">{{'track-list-table--actions' | translate}}</th>
   </tr>
@@ -46,6 +49,7 @@
   ></tr>
   </tbody>
 </table>
+</div>
 
 <!-- Favorites Popup positioned fixed to avoid overflow clipping -->
 @if (favoritesPopupState.showPopup()) {

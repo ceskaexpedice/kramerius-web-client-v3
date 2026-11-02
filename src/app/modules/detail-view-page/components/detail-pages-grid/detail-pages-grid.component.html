@@ -4,7 +4,7 @@
   A 1000-page document used to render 1000 `app-detail-page-item`s (~10k DOM
   nodes and 1000 `<img>`s). Every zone change-detection tick then swept all of
   them, which made anything animating on top of the sidebar — most visibly the
-  mobile slide-up panel, which calls detectChanges() on each touchmove — drop
+  former mobile slide-up panel, which called detectChanges() on each touchmove — drop
   frames. The viewport keeps only the visible rows in the DOM.
 
   Rows, not items, are the virtual unit: the grid is multi-column, and

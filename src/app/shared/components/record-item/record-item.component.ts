@@ -20,7 +20,7 @@ import { ModelBadgeComponent } from '../model-badge/model-badge.component';
 import { getLocalizedField } from '../../utils/language-utils';
 import { Metadata, fromSolrToMetadata } from '../../models/metadata.model';
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
-import { SlideUpPanelComponent } from '../slide-up-panel/slide-up-panel.component';
+import { FixedPanelComponent } from '../fixed-panel/fixed-panel.component';
 import { MetadataSection } from '../metadata-section/metadata-section';
 import { PluralizePipe } from '../../pipes/pluralize.pipe';
 import { CdkTooltipDirective } from '../../directives/cdk-tooltip/cdk-tooltip.directive';
@@ -38,7 +38,7 @@ import { trimSnippetToHighlight } from '../../utils/highlight-snippet';
     NgIf,
     ModelBadgeComponent,
     ThumbnailImageComponent,
-    SlideUpPanelComponent,
+    FixedPanelComponent,
     MetadataSection,
     PluralizePipe,
     CdkTooltipDirective,
@@ -147,7 +147,14 @@ export class RecordItemComponent implements OnChanges, OnDestroy {
       e.preventDefault();
       this.adminModeService.toggleItem(this.item.id);
     } else if (this.item.externalUrl) {
-
+      // Config tiles often link inside the app (e.g. homepage authors → /search?...).
+      // Following the href natively reloads the page and kills the playing audio.
+      const isModifiedClick = e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0;
+      const isInternal = this.item.externalUrl.startsWith('/') && !this.item.externalUrl.startsWith('//');
+      if (isInternal && !isModifiedClick) {
+        e.preventDefault();
+        this.router.navigateByUrl(this.item.externalUrl);
+      }
     } else {
       this.recordHandler.onNavigate(e, this.getDocumentUrl());
     }

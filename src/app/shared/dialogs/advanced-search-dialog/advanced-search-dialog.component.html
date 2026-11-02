@@ -11,7 +11,9 @@
   <div class="advanced-search-dialog--container">
 
     <!-- Left: Active Filters -->
-    <aside class="active--filters filters-section" [attr.aria-label]="'active-filters-region' | translate">
+    <!-- Phones: hidden while empty - "nothing selected yet" only costs height there. -->
+    <aside class="active--filters filters-section" [attr.aria-label]="'active-filters-region' | translate"
+           [class.active--filters--empty]="advancedSearchService.filters().length === 0">
       <h3>{{ 'active-filters' | translate }}</h3>
       <div class="filters--content">
         <ng-container *ngIf="advancedSearchService.filters().length > 0; else noFilters">
@@ -52,6 +54,7 @@
                 [filters]="group.filters"
                 [operator]="group.operator"
                 [groupIndex]="i"
+                [groupCount]="advancedSearchService.pendingGroups().length"
                 (filtersChange)="advancedSearchService.updateGroupFilters(i, $event)"
                 (operatorChange)="advancedSearchService.updateGroupOperator(i, $event)"
                 (removeGroup)="advancedSearchService.removeGroup(i)"

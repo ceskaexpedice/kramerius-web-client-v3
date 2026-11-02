@@ -1,23 +1,25 @@
 import { Component, HostBinding, Input, inject, computed, OnDestroy, OnInit, Renderer2, ElementRef } from '@angular/core';
-import { NgClass, NgIf, NgTemplateOutlet } from '@angular/common';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { BreakpointService } from '../../../../shared/services/breakpoint.service';
 import { TranslatePipe } from '@ngx-translate/core';
-import { SlideUpPanelComponent } from '../../../../shared/components/slide-up-panel/slide-up-panel.component';
+import { FixedPanelComponent } from '../../../../shared/components/fixed-panel/fixed-panel.component';
+import { FixedPanelService } from '../../../../shared/components/fixed-panel/fixed-panel.service';
 
 @Component({
   selector: 'app-filter-sidebar',
   imports: [
     NgClass,
-    NgIf,
     NgTemplateOutlet,
     TranslatePipe,
-    SlideUpPanelComponent,
+    FixedPanelComponent,
   ],
   templateUrl: './filter-sidebar.component.html',
   styleUrl: './filter-sidebar.component.scss'
 })
 export class FilterSidebarComponent implements OnInit, OnDestroy {
   protected breakpointService = inject(BreakpointService);
+  /** Phones: the floating toggle (z 800) would paint over an open fixed panel (z 700). */
+  protected fixedPanel = inject(FixedPanelService);
   private renderer = inject(Renderer2);
   private el = inject(ElementRef);
 
@@ -27,6 +29,9 @@ export class FilterSidebarComponent implements OnInit, OnDestroy {
   @Input() dimmed = false;
   @Input() toggleButtonPosition: 'left' | 'right' = 'right';
   @Input() toggleButtonIcon: string = 'icon-filter';
+  /** Translation keys of the open/close buttons' accessible names (default: filters). */
+  @Input() openLabelKey = 'open-filters';
+  @Input() closeLabelKey = 'close-filters';
   @Input() hideToggleButton = false;
   /**
    * Translation key for the mobile slide-up header. Defaults to "Filtry", which
@@ -79,6 +84,14 @@ export class FilterSidebarComponent implements OnInit, OnDestroy {
 
   // Backdrop click handler
   onBackdropClick() {
+    this.closeSidebar();
+  }
+
+  /** Escape closes the tablet overlay, unless an open popup inside it consumes the key first. */
+  onOverlayEscape(event: Event) {
+    if (!this.isOverlay() || !this.breakpointService.isVisible() || event.defaultPrevented) return;
+    const target = event.target as Element | null;
+    if (target?.closest('[role="listbox"], [role="menu"], [aria-expanded="true"]')) return;
     this.closeSidebar();
   }
 }

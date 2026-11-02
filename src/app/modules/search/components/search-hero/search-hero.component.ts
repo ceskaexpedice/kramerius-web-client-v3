@@ -66,7 +66,12 @@ export class SearchHeroComponent implements AfterViewInit, OnInit, OnDestroy {
     );
     this.intersectionObserver.observe(this.el.nativeElement);
 
-    // Focus the autocomplete input after view initialization
+    // Focus the autocomplete input after view initialization - but not on touch
+    // devices, where it pops the on-screen keyboard and the history dropdown
+    // over the hero before the user has decided to search.
+    if (this.breakpointService.isCoarsePointer()) {
+      return;
+    }
     setTimeout(() => {
       const inputComponent = this.autocompleteComponent?.inputComponent;
       const autocompleteTrigger = inputComponent?.autocompleteTrigger;

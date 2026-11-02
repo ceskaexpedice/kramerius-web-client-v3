@@ -4,6 +4,13 @@
   gap: var(--spacing-x4);
 }
 
+// Outside admin mode the host holds only comment nodes; drop it from the
+// layout so it doesn't add a trailing flex gap (pushed the mobile results
+// toolbar 2px past the viewport edge).
+:host(:empty) {
+  display: none;
+}
+
 .selection-count {
   color: var(--color-text-base);
   font-size: var(--font-size-small);

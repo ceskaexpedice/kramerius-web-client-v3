@@ -4,13 +4,10 @@
 // Shared layout styles for full-height pages with sidebar and content areas
 
 .page-container {
-  height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px));
+  height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--header-height) - var(--playback-bar-height, 0px));
   overflow: hidden;
-  transition: height 0.3s ease-in-out;
-
-  body.header-hidden & {
-    height: calc(100vh - var(--playback-bar-height, 0px));
-  }
+  // No change when a phone list slides the header away: the list runs under
+  // the header (ScrollHideHeaderDirective), so the page keeps its height.
 
   /* Responsive layout adjustments */
   @media (max-width: 853px) {
@@ -61,6 +58,19 @@
     gap: var(--spacing-x3);
   }
 
+  // Phones: room below the last item for the floating filter button (40px,
+  // 12px above the content edge) so card actions can scroll clear of it.
+  // Pages that scroll an inner .page-content__main get it there instead.
+  @include m.respond(mobile-sm) {
+    &:not(:has(> .page-content__main)) {
+      padding-bottom: calc(40px + var(--spacing-x3) * 2);
+    }
+
+    > .page-content__main {
+      padding-bottom: calc(40px + var(--spacing-x3) * 2);
+    }
+  }
+
   &.wrapper--no-top-padding,
   &:has(> .page-content__sticky-tags) {
     padding-top: 0;
@@ -89,20 +99,56 @@
 
 .page-content__sticky-tags {
   position: sticky;
-  top: 0;
+  // Below the bars a phone list scrolls under (ScrollHideHeaderDirective sets
+  // the offset on the list; it follows the bars as they slide away and back).
+  top: var(--scroll-hide-sticky-top, 0px);
+  transition: top 0.3s ease-in-out;
   z-index: 100;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
   background: var(--color-bg-light);
   padding: var(--spacing-x2) var(--spacing-x4) var(--spacing-x2) 0;
   width: 100%;
 
   @include m.respond(mobile-sm) {
-    padding-left: var(--spacing-x2);
-    padding-right: var(--spacing-x2);
+    // The page wrapper already insets content 12px from the screen edge; extra
+    // side padding here pushed the scope toggle and tags 8px in from the cards.
+    padding-left: 0;
+    padding-right: 0;
 
+    // Tags take one scrollable line instead of wrapping: every added filter
+    // would otherwise grow this sticky block and eat the list's height.
     app-selected-tags {
       display: block;
-      max-height: 12vh;
-      overflow-y: auto;
+      flex: 1 1 100%;
+      min-width: 0;
+    }
+
+    // Cap the scope toggle at the row width so its pill group scrolls
+    // sideways instead of overhanging the screen edge.
+    app-toggle-button-group {
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    app-selected-tags .mdc-evolution-chip-set__chips {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+      // Fade the right edge so a clipped tag reads as "scroll for more".
+      mask-image: linear-gradient(to right, #000 calc(100% - var(--spacing-x6)), transparent);
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      > * {
+        flex-shrink: 0;
+      }
     }
   }
 }

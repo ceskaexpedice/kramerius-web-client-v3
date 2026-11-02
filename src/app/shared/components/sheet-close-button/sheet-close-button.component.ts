@@ -5,13 +5,12 @@ import { BreakpointService } from '../../services/breakpoint.service';
 /**
  * Dismisses the collapsible sidebar from inside its own first row.
  *
- * Two viewports need this, for the same reason - a lone X costs a whole row:
- * - portrait phone, where the slide-up sheet hides its caption header (see
- *   `SlideUpPanelComponent`'s `hideTitle`);
- * - landscape phone, where the sidebar renders as a tablet overlay whose own
- *   floating close button sat where the "Filtry" caption used to be.
+ * Needed on the landscape phone, where the sidebar renders as a tablet overlay
+ * whose own floating close button sat where the "Filtry" caption used to be
+ * (a lone X costs a whole row). On a portrait phone the sidebar is a fixed
+ * panel, closed from the action toolbar's X, so this renders nothing there.
  *
- * In both the button pairs with whatever leads the sidebar - the in-document
+ * The button pairs with whatever leads the sidebar - the in-document
  * search field, or the playlist toggle in the sound-recording one. Renders
  * nothing on roomy viewports, where the sidebar is not collapsible
  * (GitHub issue #177).
@@ -33,12 +32,13 @@ export class SheetCloseButtonComponent {
   protected breakpointService = inject(BreakpointService);
 
   /**
-   * Shown whenever the sidebar is a dismissible layer: the portrait slide-up,
-   * or the landscape overlay. On roomy viewports the sidebar is docked and
-   * needs no close control here.
+   * Shown whenever the sidebar is a dismissible overlay: the landscape-phone or
+   * the tablet overlay (sidebar not docked). Not on a portrait phone (the toolbar
+   * closes the fixed panel) nor on roomy viewports (the sidebar is docked).
    */
   protected visible = computed(() =>
-    this.breakpointService.isMobile() || this.breakpointService.isShortViewport()
+    !this.breakpointService.isMobile()
+    && (this.breakpointService.isShortViewport() || !this.breakpointService.sidebarVisible())
   );
 
   close(): void {

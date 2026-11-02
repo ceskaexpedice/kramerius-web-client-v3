@@ -15,20 +15,23 @@
   .header-action-btn {
     display: flex;
     align-items: center;
-    gap: var(--spacing-x1);
+    gap: var(--spacing-x2);
     white-space: nowrap;
     font-size: var(--font-size-small);
+    font-weight: 500;
 
     i {
-      font-size: var(--font-size-small);
+      font-size: var(--font-size-base);
     }
   }
 }
 
 .metadata-section--item-label {
-  color: var(--color-text-secondary);
+  // Labels recede (smaller, tertiary colour — still ≥ 6:1), values carry the reading weight.
+  color: var(--color-text-tertiary);
   font-weight: var(--font-weight-semi-bold);
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-xsmall);
+  letter-spacing: 0.01em;
   line-height: var(--line-height-1);
   margin: 0;
   font-family: var(--font-family-body);
@@ -43,9 +46,23 @@ app-collapsible-content {
   font-size: var(--font-size-small);
   line-height: var(--line-height-1);
 
+  color: var(--color-text-base);
+
   p {
     margin: 0;
     padding: 0;
+  }
+
+  .with-copy {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x1);
+    min-width: 0;
+
+    > span {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
   }
 
   // Shared row rhythm for every section; only the indent differs, so a list
@@ -70,18 +87,6 @@ app-collapsible-content {
 
   .uppercase {
     text-transform: uppercase;
-  }
-}
-
-.items-more-inline {
-  display: inline-block;
-  text-decoration: none;
-  color: var(--color-text-tertiary);
-  cursor: pointer;
-  margin-left: var(--spacing-x1);
-
-  &:hover {
-    color: var(--color-primary);
   }
 }
 
@@ -159,5 +164,93 @@ app-collapsible-content {
 
   i {
     font-size: var(--font-size-small);
+  }
+}
+
+// Identifier grid: label column | value | copy button, rows aligned.
+.key-value-grid {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  column-gap: var(--spacing-x2);
+  row-gap: var(--spacing-x1);
+  margin: 0;
+  align-items: center;
+
+  &__row {
+    display: contents;
+  }
+
+  dt {
+    color: var(--color-text-tertiary);
+    font-weight: var(--font-weight-semi-bold);
+    font-size: var(--font-size-xsmall);
+    white-space: nowrap;
+  }
+
+  dd {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .key-value-grid__action {
+    justify-self: end;
+  }
+}
+
+// Target size ≥ 24px (WCAG 2.5.8) for stacked links and the header action.
+.clickable-list li > a.item-link,
+.clickable-list li > .item-content {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+
+// Opens a dialog: a link with "→", like the panel's other toggles (14px, primary)
+// whose "˅" expands in place instead.
+.metadata-section--item-header .header-action-btn {
+  min-height: 24px;
+  line-height: var(--line-height-1);
+}
+
+// "Show all (N)" under a clamped list — same look as collapsible-content's toggle.
+.list-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-x2);
+  align-self: flex-start;
+  margin-top: var(--spacing-x1);
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-1);
+  font-weight: 500;
+  cursor: pointer;
+
+  // Hover only darkens, like the button.link toggles; underlines mark data links.
+  &:hover {
+    color: var(--color-primary-hover);
+  }
+
+  &:active {
+    color: var(--color-primary-pressed);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-border-primary-default);
+    outline-offset: 2px;
+    border-radius: var(--spacing-x1);
+  }
+
+  i {
+    font-size: var(--font-size-base);
+    transition: transform 0.2s ease;
+  }
+
+  // Same chevron as collapsible-content's toggle: up when open, down when closed.
+  .rotated {
+    transform: rotate(180deg);
   }
 }

@@ -111,3 +111,22 @@
   }
 
 }
+
+// Phones: the page row must fit the content width (7 buttons max, see
+// generatePages); drop the extra gap before the arrows and centre the row.
+@include m.respond(mobile-sm) {
+  .paginator .pages {
+    justify-content: center;
+    max-width: 100%;
+
+    // Arrows flank the numbers (← 1 … 5 … 123 →) instead of trailing them.
+    .arrow-button.prev-button {
+      margin-left: 0;
+      order: -1;
+    }
+
+    .arrow-button.next-button {
+      order: 1;
+    }
+  }
+}

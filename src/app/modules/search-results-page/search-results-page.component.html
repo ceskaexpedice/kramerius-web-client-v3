@@ -2,7 +2,10 @@
   <h1 class="visually-hidden">{{ 'results' | translate }}</h1>
   <div class="page-container__inner">
 
-    <app-filter-sidebar [isDisabled]="adminModeService.adminMode()" [dimmed]="(noResults$ | async) ?? false">
+    <!-- Phones: lift the filter button 12px above the 60px bottom nav bar; when
+         the bar scrolls away the button follows it down to the default 12px. -->
+    <app-filter-sidebar [isDisabled]="adminModeService.adminMode()" [dimmed]="(noResults$ | async) ?? false"
+      [toggleButtonBottomOffset]="breakpointService.isMobile() && !mobileNavHidden() ? 72 : 0">
       <app-search-filters></app-search-filters>
     </app-filter-sidebar>
 
@@ -31,13 +34,15 @@
           <div left>
             <!-- Map tab switcher -->
             <ng-container *ngIf="!adminModeService.adminMode()">
-              <div class="view-tabs">
-                <button class="view-tabs__tab" [class.active]="view() !== ViewOptions.map" (click)="onTabChanged('all')">
-                  <i class="icon-element-3"></i>
+              <div class="view-tabs" role="group" [attr.aria-label]="'results-view--label' | translate">
+                <button type="button" class="view-tabs__tab" [class.active]="view() !== ViewOptions.map"
+                        [attr.aria-pressed]="view() !== ViewOptions.map" (click)="onTabChanged('all')">
+                  <i class="icon-element-3" aria-hidden="true"></i>
                   {{ 'tab-all' | translate }}
                 </button>
-                <button class="view-tabs__tab" [class.active]="view() === ViewOptions.map" (click)="onTabChanged('map')">
-                  <i class="icon-location"></i>
+                <button type="button" class="view-tabs__tab" [class.active]="view() === ViewOptions.map"
+                        [attr.aria-pressed]="view() === ViewOptions.map" (click)="onTabChanged('map')">
+                  <i class="icon-location" aria-hidden="true"></i>
                   {{ 'tab-maps' | translate }}
                 </button>
               </div>
@@ -123,6 +128,8 @@
 <!-- Mobile navigation bar -->
 @if (breakpointService.isMobile()) {
   <app-mobile-nav-bar
+    [class.mobile-nav-bar--hidden]="mobileNavHidden()"
+    [attr.inert]="mobileNavHidden() ? '' : null"
     [items]="mobileNavItems"
     [activeId]="mobileActiveTab"
     (activeIdChange)="onMobileNavChange($event)">

@@ -3,7 +3,7 @@
     <ng-container *ngIf="!showOnlyArrows">
 
       <ng-container *ngFor="let p of pages()">
-        <button *ngIf="p > 0" [class.active]="p === page" (click)="goToPage(p)"
+        <button *ngIf="p > 0" type="button" [class.active]="p === page" [attr.aria-current]="p === page ? 'page' : null" (click)="goToPage(p)"
           [attr.aria-label]="('go-to-page' | translate).replace('{{p}}', p)" [disabled]="disabledPagination">
           {{ p }}
         </button>
@@ -30,20 +30,22 @@
       <button class="button tertiary outlined arrow-button prev-button"
               [attr.aria-label]="'go-to-previous-page' | translate" (click)="goToPage(page - 1)"
               [disabled]="page === 1 || disabledPagination">
-        <i class="icon-arrow-left-3"></i>
+        <i class="icon-arrow-left-3" aria-hidden="true"></i>
       </button>
 
       <button class="button tertiary outlined arrow-button next-button" [attr.aria-label]="'go-to-next-page' | translate"
               (click)="goToPage(page + 1)" [disabled]="page === lastPage() || disabledPagination">
-        <i class="icon-arrow-right-3"></i>
+        <i class="icon-arrow-right-3" aria-hidden="true"></i>
       </button>
     }
   </div>
 
-  <div class="page-size" *ngIf="showPageSizeOptions">
+  <!-- Hidden on phones: rarely used there, and the page size is also in Settings. -->
+  <div class="page-size" *ngIf="showPageSizeOptions && !breakpointService.isMobile()">
     {{'paginator-page-size' | translate}}:
 
     <app-select [disabled]="disabledPageSize" [options]="pageSizeOptions" [value]="pageSize"
+      [ariaLabel]="'page-size--label' | translate"
       (valueChange)="changePageSize($event)">
     </app-select>
     <!--    -->

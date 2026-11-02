@@ -1,6 +1,7 @@
 {
-    "access-denied.title": "K tomuto dokumentu nemáte prístup",
+    "access-denied.title": "K tomuto dokumentu teraz nemáte prístup",
     "access-denied.document-available-under": "Dokument je dostupný pod licenciou",
+    "access-denied.document-available-under-plural": "Dokument je dostupný pod licenciami",
     "access-denied.license-dnnto": "Diela nedostupné na trhu",
     "access-denied.license-dnntt": "Diela nedostupné na trhu - študovňa",
     "access-denied.license-onsite": "Neverejné diela / Študovňa",

@@ -1,4 +1,5 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
+import { uiZoom } from '../utils/ui-zoom';
 
 export interface PopupPositionConfig {
   triggerEvent?: Event;
@@ -107,9 +108,16 @@ export class PopupPositioningService {
     if (triggerEvent) {
       // Position relative to trigger element
       const button = triggerEvent.target as HTMLElement;
-      const rect = button.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
+      // Work in CSS px (what popup.style takes): rects and the viewport size are
+      // visual px, which differ under the desktop UI zoom.
+      const zoom = uiZoom();
+      const visual = button.getBoundingClientRect();
+      const rect = {
+        left: visual.left / zoom, right: visual.right / zoom, top: visual.top / zoom,
+        bottom: visual.bottom / zoom, width: visual.width / zoom,
+      };
+      const viewportWidth = window.innerWidth / zoom;
+      const viewportHeight = window.innerHeight / zoom;
 
       let leftPosition: number;
       let topPosition = rect.bottom + offsetY;
@@ -153,9 +161,10 @@ export class PopupPositioningService {
       popup.style.top = `${topPosition}px`;
       popup.style.left = `${leftPosition}px`;
     } else {
-      // Fallback to center positioning
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
+      // Fallback to center positioning (CSS px, see above)
+      const zoom = uiZoom();
+      const viewportWidth = window.innerWidth / zoom;
+      const viewportHeight = window.innerHeight / zoom;
 
       const leftPosition = Math.max(viewportMargin, (viewportWidth - measuredWidth) / 2);
       const topPosition = Math.max(viewportMargin, (viewportHeight - measuredHeight) / 2);

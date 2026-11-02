@@ -16,7 +16,7 @@ export class ErrorDialogService {
 
     if (!isDialogOpen) {
       this.dialog.open(ServerErrorDialogComponent, {
-        maxWidth: '90vw',
+        maxWidth: 'calc(90vw / var(--ui-zoom, 1))',
         disableClose: false,
         panelClass: 'server-error-dialog-panel'
       });

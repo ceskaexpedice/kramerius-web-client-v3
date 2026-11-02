@@ -1,9 +1,9 @@
 <div class="year-navigator">
 
   <button (click)="prev()" class="icon-button outlined tertiary square-button"
-          [attr.aria-label]="'go-prev-date-navigator--arialabel' | translate"
+          [attr.aria-label]="previousTooltip || ('go-prev-date-navigator--arialabel' | translate)"
           [appCdkTooltip]="previousTooltip || ''" [tooltipPosition]="'bottom'">
-    <i class="icon-arrow-left-3"></i>
+    <i class="icon-arrow-left-3" aria-hidden="true"></i>
   </button>
 
   <h2 [class.clickable]="enableCalendarPopup">
@@ -22,9 +22,9 @@
   </h2>
 
   <button (click)="next()" class="icon-button outlined tertiary square-button"
-          [attr.aria-label]="'go-next-date-navigator--arialabel' | translate"
+          [attr.aria-label]="nextTooltip || ('go-next-date-navigator--arialabel' | translate)"
           [appCdkTooltip]="nextTooltip || ''"  [tooltipPosition]="'bottom'">
-    <i class="icon-arrow-right-3"></i>
+    <i class="icon-arrow-right-3" aria-hidden="true"></i>
   </button>
 
   <app-calendar-popup

@@ -9,23 +9,37 @@
     background: var(--color-bg-base);
     border-top: 1px solid var(--color-border-light);
     width: 100%;
+    // Clear the home indicator / Safari toolbar (and the notch in landscape).
+    padding-bottom: var(--mobile-nav-safe-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
 
     &__tab {
         flex: 1;
+        // Five sections at 375px leave ~70px each: let the label shrink and
+        // ellipsize instead of overflowing the bar.
+        min-width: 0;
+        min-height: 56px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-end;
         gap: var(--spacing-x1);
-        padding: 6px 12px;
+        padding: 6px 4px;
         background: none;
         border: none;
         cursor: pointer;
         -webkit-tap-highlight-color: transparent;
 
+        &:focus-visible {
+            outline: 2px solid var(--color-border-primary-default);
+            outline-offset: -2px;
+            border-radius: var(--spacing-x2);
+        }
+
         &.active {
             .mobile-nav-bar__icon-wrapper {
-                background: #007BFF1A;
+                background: color-mix(in srgb, var(--color-primary) 10%, transparent);
             }
 
             .mobile-nav-bar__label {
@@ -59,6 +73,9 @@
         line-height: 20px;
         color: var(--color-text-tertiary);
         white-space: nowrap;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
         transition: color 0.2s ease;
     }
 }

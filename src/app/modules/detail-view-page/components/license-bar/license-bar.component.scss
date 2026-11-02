@@ -1,3 +1,5 @@
+@use "mixins" as m;
+
 :host {
   display: block;
 }
@@ -31,9 +33,39 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-x2);
+    min-width: 0;
 
     img {
       height: 21px;
+      // The logo squeezed to fit the text broke "DNNT" into "DN / NT".
+      flex-shrink: 0;
+    }
+  }
+
+  // The bar has a fixed height: each part keeps to one line and ellipsizes.
+  .license-bar--text,
+  .license-bar--session {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .license-bar--session {
+    flex-shrink: 0;
+    max-width: 50%;
+  }
+
+  // Phones: the licence and its expiry fill the row; the user id would only
+  // push both into an ellipsis.
+  @include m.respond(mobile-sm) {
+    .license-bar--inner {
+      padding-left: var(--spacing-x3);
+      padding-right: var(--spacing-x3);
+    }
+
+    .license-bar--user {
+      display: none;
     }
   }
 }

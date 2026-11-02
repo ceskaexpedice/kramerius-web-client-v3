@@ -23,6 +23,16 @@
 .collection-toolbar-right {
   align-self: stretch;
   gap: var(--spacing-x3);
+
+  // Phones: let the controls shrink so they share the row with the title
+  // instead of sliding underneath it (the sort is an icon menu there).
+  @include mixins.respond(mobile-sm) {
+    min-width: 0;
+
+    > .flex {
+      min-width: 0;
+    }
+  }
 }
 
 // Same tab strip as the reader and the map series view. The slot chain is
@@ -137,6 +147,12 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: var(--spacing-x4);
+
+  // Phones: 12px side inset like the toolbar and the other result pages, and
+  // room below the last card for the floating filter button.
+  @include mixins.respond(mobile-sm) {
+    padding: var(--spacing-x3) var(--spacing-x3) calc(40px + var(--spacing-x3) * 2);
+  }
 }
 
 
@@ -144,8 +160,9 @@
   @include mixins.floating-sidebar;
   position: relative;
 
-  // On very small screens, float over content instead of pushing it
-  @media (max-width: 900px) {
+  // Below desktop (1280px) float over content instead of squeezing it —
+  // same breakpoint as the document detail panel (detail-layout).
+  @media (max-width: 1279px) {
     &,
     &--relative {
       position: absolute;
@@ -154,26 +171,9 @@
       bottom: 0;
       height: auto;
       z-index: 100;
-      margin: var(--spacing-x3);
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
+      margin: 0;
     }
-  }
-}
-
-.floating-sidebar-toggle {
-  position: absolute;
-  bottom: var(--spacing-x3);
-  right: var(--spacing-x3);
-  width: 40px;
-  height: 40px;
-  z-index: 50;
-  box-shadow: var(--shadow-elevated);
-
-  // With the map-series nav bar on screen this button would sit behind it, and
-  // the filter toggle (lifted to 85px) would land on top of it. Stack both
-  // above the bar. This one is absolute while the filter toggle is fixed, so
-  // the offset is tuned to the gap it actually produces, not their difference.
-  :host:has(app-mobile-nav-bar) & {
-    bottom: calc(50px + 40px - var(--spacing-x3));
   }
 }
 
@@ -181,13 +181,25 @@
 // static element would sit below the fold and never be seen.
 app-mobile-nav-bar {
   position: fixed;
-  bottom: var(--playback-bar-height, 0px);
+  // The global mini-player rides on top of it (styles.scss).
+  bottom: 0;
   left: 0;
   right: 0;
   z-index: 100;
+  transition: transform 0.3s ease-in-out;
+
+  // Hidden together with the header while the list scrolls down.
+  &.mobile-nav-bar--hidden {
+    transform: translateY(100%);
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 }
 
 // Room for the fixed bar so it never covers the last cards.
 :host:has(app-mobile-nav-bar) .page-container {
-  padding-bottom: 60px;
+  padding-bottom: calc(60px + var(--mobile-nav-safe-bottom, 0px));
 }

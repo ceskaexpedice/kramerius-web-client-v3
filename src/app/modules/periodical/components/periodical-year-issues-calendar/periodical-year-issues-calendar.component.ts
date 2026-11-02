@@ -11,7 +11,7 @@ import {
   ViewChildren,
 } from '@angular/core';
 import { MatCalendar } from '@angular/material/datepicker';
-import { NgForOf, NgIf } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { selectPeriodicalChildren } from '../../state/periodical-detail/periodical-detail.selectors';
 import { Router } from '@angular/router';
@@ -42,7 +42,6 @@ interface CalendarIssue {
   selector: 'app-periodical-year-issues-calendar',
   imports: [
     MatCalendar,
-    NgForOf,
     NgIf,
     TranslatePipe,
     PeriodicalDayIssuesPopupComponent,
@@ -87,6 +86,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
   lazyLoadingEnabled = signal(false);
 
   months = Array.from({ length: 12 }, (_, i) => i);
+
   monthNames = [
     'months.january', 'months.february', 'months.march', 'months.april', 'months.may', 'months.june',
     'months.july', 'months.august', 'months.september', 'months.october', 'months.november', 'months.december',
@@ -188,6 +188,13 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
 
     return classes;
   };
+
+  /**
+   * Days without an issue are disabled: not selectable, and announced as
+   * unavailable by screen readers instead of as 365 identical buttons.
+   */
+  hasIssueOnDate = (date: Date | null): boolean =>
+    !!date && (this.issueMap().get(this.formatDateKey(date))?.length ?? 0) > 0;
 
   getIssueCount(date: Date): number {
     const issues = this.issueMap().get(this.formatDateKey(date));

@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, effect, computed } from '@angular/core';
+import { inject, Injectable, signal, effect, computed, untracked } from '@angular/core';
 import { getTerminalLicenses } from '../../../core/solr/solr-misc';
 import { Page } from '../../../shared/models/page.model';
 import { Store } from '@ngrx/store';
@@ -125,12 +125,22 @@ export class DetailViewService {
       }
     });
 
-    // Initialize sidebar state based on device type if not already set by user interaction
-    if (!this.breakpointService.isMobile()) {
-      this.uiStateService.setMetadataSidebarState(true);
-    } else {
-      this.uiStateService.setMetadataSidebarState(false);
-    }
+    // Initialize sidebar state: open only where it sits beside the content. On
+    // phones and portrait tablets it floats over the grid / page image, so it
+    // starts collapsed behind the toolbar panel toggle.
+    let sidebarOverlays = this.breakpointService.rightSidebarOverlaysContent();
+    this.uiStateService.setMetadataSidebarState(!sidebarOverlays);
+
+    // Crossing the overlay threshold (e.g. rotating a tablet) re-applies the
+    // default; within one band the user's own toggle is left alone.
+    effect(() => {
+      const overlays = this.breakpointService.rightSidebarOverlaysContent();
+      if (overlays === sidebarOverlays) {
+        return;
+      }
+      sidebarOverlays = overlays;
+      untracked(() => this.uiStateService.setMetadataSidebarState(!overlays));
+    });
 
     // Listen to pages changes and update the signal automatically
     this.pages$.pipe(takeUntil(this.destroy$)).subscribe(pages => {
@@ -559,6 +569,22 @@ export class DetailViewService {
       // Skip for periodicalvolume — its pages are already loaded as children
       if (doc?.model !== DocumentTypeEnum.periodicalvolume &&
           ((doc?.rootModel === DocumentTypeEnum.periodical && doc?.model !== DocumentTypeEnum.supplement) || doc?.model === DocumentTypeEnum.periodicalitem)) {
+        this.loadPeriodicalChildren(doc);
+      }
+    });
+  }
+
+  /**
+   * The detail page is reused between documents, so loadDocument() (run once,
+   * on init) does not reload the volume's issues. An issue reached by a plain
+   * link (the neighbour block, search results) from another volume would keep
+   * the old volume's list: the date arrows and the neighbour block then find
+   * nothing. Load its volume unless the issue is already in the list.
+   */
+  syncPeriodicalChildren(doc: any) {
+    if (doc?.model !== DocumentTypeEnum.periodicalitem || !doc.uuid) return;
+    this.periodicalChildren$.pipe(take(1)).subscribe(children => {
+      if (!children?.some(child => child.pid === doc.uuid)) {
         this.loadPeriodicalChildren(doc);
       }
     });

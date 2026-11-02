@@ -45,7 +45,7 @@ export class FavoritesService {
       // so it never offers a "don't show again" option.
       const isMobileOrTablet = this.breakpointService.isMobile() || this.breakpointService.isTablet();
       const dialogRef = this.dialog.open(LoginPromptDialogComponent, {
-        width: isMobileOrTablet ? '90vw' : '60vw',
+        width: isMobileOrTablet ? 'calc(90vw / var(--ui-zoom, 1))' : 'calc(60vw / var(--ui-zoom, 1))',
         panelClass: 'simple-dialog-panel',
         disableClose: false
       });

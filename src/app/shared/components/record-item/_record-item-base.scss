@@ -152,6 +152,7 @@
         justify-content: center;
         opacity: 0;
         transition: opacity 0.2s ease;
+        @include m.touch-target(44px, 44px);
 
         &:hover {
           background-color: var(--color-secondary-hover);
@@ -385,5 +386,27 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+// Hover-revealed actions must also show for keyboard focus and on touch
+// screens (no hover), where they were invisible yet tappable.
+.record-item-card:focus-within .record-item-card__image>.record-item-card__actions {
+  opacity: 1;
+
+  .favorites-button,
+  .other-button {
+    opacity: 1;
+  }
+}
+
+@media (hover: none) {
+  .record-item-card .record-item-card__image>.record-item-card__actions {
+    opacity: 1;
+
+    .favorites-button,
+    .other-button {
+      opacity: 1;
+    }
   }
 }

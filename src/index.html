@@ -4,7 +4,10 @@
   <meta charset="utf-8">
   <title>CDK</title>
   <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- viewport-fit=cover: draw edge to edge on notched phones (under the status
+       bar, home indicator and Safari's floating toolbar); the header, bottom
+       bars and body pad themselves with env(safe-area-inset-*). -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="icon" type="image/x-icon" href="/img/favicon/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,9 +56,17 @@
     // class itself once it boots, so this is only about the pre-boot frame.
     (function () {
       try {
+        // Must match SettingsService.loadInitialSettings(): with no stored
+        // settings (or no stored theme) the app defaults to LIGHT, not to the
+        // OS preference. Only an explicit 'system' follows prefers-color-scheme.
+        // Falling back to the OS here made first-time visitors with a dark OS
+        // see a dark frame that flipped to light once Angular booted.
         var raw = localStorage.getItem('app-settings');
-        var theme = raw ? (JSON.parse(raw) || {}).theme : null;
-        if (theme !== 'light' && theme !== 'dark') {
+        var stored = raw ? (JSON.parse(raw) || {}).theme : null;
+        var theme = 'light';
+        if (stored === 'dark') {
+          theme = 'dark';
+        } else if (stored === 'system') {
           theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
         document.documentElement.classList.add(theme);

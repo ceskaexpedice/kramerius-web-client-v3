@@ -59,11 +59,12 @@
 /* Sidebar toggle button */
 .sidebar-toggle-btn {
   position: fixed;
-  // Sit at the normal 12px, unless a peeking slide-up panel needs the button
-  // lifted above it (host sets --filter-toggle-bottom-offset to the target bottom).
+  // Sit at the normal 12px, unless a fixed bottom bar on the page needs the
+  // button lifted above it (host sets --filter-toggle-bottom-offset, via the
+  // toggleButtonBottomOffset input, to the target bottom).
   // The global mini-player is fixed to the same viewport bottom, so its height
   // is added on top of whichever of the two wins (GitHub issue #172).
-  bottom: calc(max(12px, var(--filter-toggle-bottom-offset, 0px)) + var(--playback-bar-height, 0px));
+  bottom: calc(max(12px, var(--filter-toggle-bottom-offset, 0px)) + var(--playback-bar-height, 0px) + var(--mobile-nav-safe-bottom, 0px));
   right: 12px;
   z-index: $filter-sidebar-backdrop;
   width: 40px;
@@ -78,10 +79,6 @@
   justify-content: center;
   transition: all 0.3s ease;
 
-  @include respond(mobile-sm) {
-    bottom: calc(max(72px, var(--filter-toggle-bottom-offset, 0px)) + var(--playback-bar-height, 0px));
-  }
-
   &.left {
     left: 12px;
     right: auto;
@@ -94,6 +91,11 @@
 
   i {
     font-size: var(--font-size-xlarge);
+  }
+
+  // Phones: hidden while a fixed panel is open (kept in the DOM for focus return).
+  &--hidden {
+    display: none;
   }
 }
 
@@ -110,6 +112,14 @@
   align-items: center;
   justify-content: center;
   z-index: $filter-sidebar-close;
+  // 44px hit area on touch screens (the mixin would reset position: absolute).
+  @media (pointer: coarse) {
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -10px;
+    }
+  }
   // The global `button` rule sets padding: 12px 16px, which fights the fixed
   // 24x24 box and pushes the glyph off-centre. Zero it so the icon sits in the
   // middle and the button keeps the footprint the reserved inset assumes.

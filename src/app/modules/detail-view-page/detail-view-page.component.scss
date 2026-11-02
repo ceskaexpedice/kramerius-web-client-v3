@@ -1,4 +1,5 @@
 @use 'mixins' as m;
+@use "_z-index.scss" as *;
 
 .sidebar--container {
   height: 100%;
@@ -6,6 +7,12 @@
 
 .toolbar-right-content {
   gap: var(--spacing-x3);
+
+  // The panel toggle's divider sits 8px from the buttons before it, as on the
+  // periodical, collection, monograph and music toolbars.
+  > app-panel-toggle-button {
+    margin-left: calc(var(--spacing-x2) - var(--spacing-x3));
+  }
 }
 
 .view-tabs {
@@ -232,15 +239,6 @@ hr {
   margin: 0;
 }
 
-.floating-sidebar-toggle {
-  position: fixed;
-  right: var(--spacing-x3);
-  // Clear the global mini-player; see public/styles/_sidebar.scss (issue #172).
-  bottom: calc(var(--spacing-x3) + var(--playback-bar-height, 0px));
-  transition: all 0.2s ease;
-  z-index: 1000;
-}
-
 app-image-viewer,
 app-iiif-viewer,
 app-epub-viewer,
@@ -273,7 +271,7 @@ app-viewer-controls {
 
 .favorites-popup-wrapper {
   position: fixed;
-  z-index: 10;
+  z-index: $detail-favorites-popup;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
@@ -292,15 +290,16 @@ app-document-access-denied {
   margin: var(--spacing-x4);
 }
 
-// Offset by the global mini-player (app-playback-bar), which is fixed to the
-// same viewport bottom and would otherwise cover this bar instead of stacking
-// above it. Resolves to 0px whenever nothing is playing (GitHub issue #172).
+// Pinned to the screen bottom; the global mini-player (app-playback-bar) rides
+// on top of it (styles.scss, GitHub issue #172).
 app-mobile-nav-bar {
   position: fixed;
-  bottom: var(--playback-bar-height, 0px);
+  bottom: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  // Above the fixed panels (700): the nav is a panel edge and stays usable while
+  // a section panel is open (the panel ends at its top edge).
+  z-index: 850;
 }
 
 // Immersive nav bar: slide down out of view when hidden, respecting motion prefs.
@@ -325,3 +324,73 @@ app-mobile-nav-bar.mobile-nav-bar--immersive {
 // The reserved height (--mobile-nav-bar-height) is driven imperatively from the
 // component so it can be tweened; see animateMobileNavBarHeight(). It defaults
 // to 0 (viewer full height) via the calc() fallback in detail-layout.
+
+.mobile-sheet-body {
+  padding: var(--spacing-x4);
+}
+
+// Phone page pill above the bottom nav bar.
+.mobile-page-pill {
+  position: fixed;
+  left: 50%;
+  bottom: calc(60px + var(--spacing-x3) + env(safe-area-inset-bottom, 0px) + var(--playback-bar-height, 0px));
+  transform: translateX(-50%);
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-x1);
+  padding: var(--spacing-x1);
+  border-radius: 24px;
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border-bright);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+
+  &__count {
+    min-width: 56px;
+    text-align: center;
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-base);
+  }
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    border-radius: 20px;
+    background: transparent;
+    color: var(--color-primary);
+    font-size: var(--font-size-large);
+    cursor: pointer;
+
+    &:disabled {
+      color: var(--color-text-tertiary);
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-border-primary-default);
+      outline-offset: 0;
+    }
+  }
+}
+
+// Tablet / narrow window variant: no bottom nav underneath, so it sits just
+// above the viewer's bottom edge. Touch targets grow to 44px for fingers.
+.tablet-page-pill {
+  bottom: calc(var(--spacing-x4) + env(safe-area-inset-bottom, 0px) + var(--playback-bar-height, 0px));
+
+  @media (pointer: coarse) {
+    .mobile-page-pill__btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 22px;
+    }
+  }
+}

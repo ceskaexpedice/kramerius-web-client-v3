@@ -1,7 +1,7 @@
 <app-detail-layout
   [showBottomToolbar]="false"
   [constrainBottomToolbar]="true"
-  [showRightSidebar]="true"
+  [showRightSidebar]="!breakpointService.isMobile()"
   [hideFilterToggle]="breakpointService.isMobile()"
   [hideLeftSidebarMobileTitle]="true"
   [rightSidebarCollapsed]="!detailViewService.metadataSidebarVisible">
@@ -68,7 +68,7 @@
         </div>
 
         <div right>
-          <div class="flex flex--align-center">
+          <div class="flex flex--align-center flex--gap-x2">
             <!-- Hidden viewer-controls instance: on compact viewports it supplies
                  the viewer actions merged into the toolbar's "more" menu (no
                  floating UI). Only meaningful in images mode - the records track
@@ -87,13 +87,20 @@
               [showQuote]="true"
               [actions]="showMobileViewerMenu ? mobileViewerControls.getMenuItems() : []"
               [mobileMenuMode]="breakpointService.isCompactViewer()"
-              [showInfo]="false" [showEdit]="true"
+              [showInfo]="false" [showEditSingle]="!breakpointService.isMobile()"
               (infoClicked)="detailViewService.openRecordInfo()"
               (favoritesClicked)="onFavoritesClicked($event)"
               (shareClicked)="recordHandler.openShareDialog(document)"
               (quoteClicked)="recordHandler.openCitationDialog(document)"
+              (editSingleClicked)="adminActionsService.performSingleEditAction(document)"
               (actionClicked)="onToolbarAction($event, mobileViewerControls)">
             </app-toolbar-controls>
+
+            @if (!breakpointService.isMobile()) {
+              <app-panel-toggle-button [open]="detailViewService.metadataSidebarVisible"
+                                       (toggle)="detailViewService.toggleMetadataSidebar()">
+              </app-panel-toggle-button>
+            }
           </div>
         </div>
 
@@ -110,8 +117,11 @@
            [class.ai-split-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'split'"
            [class.ai-only-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
 
+        <!-- Phones, track list: scrolling down slides the header, the toolbar and
+             the nav bar away (as on search results); scrolling up restores them. -->
         <div class="detail-view--page--content--wrapper"
-             [class.records-view]="detailViewService.soundRecordingViewMode() === 'records'">
+             [class.records-view]="detailViewService.soundRecordingViewMode() === 'records'"
+             [appScrollHideHeader]="breakpointService.isMobile() && detailViewService.soundRecordingViewMode() === 'records'">
 
           @let checkState = documentInfoService.state();
           @let accessDenied = checkState === 'LOADED' && isAccessDenied(document);
@@ -190,12 +200,6 @@
           <app-ai-content-panel></app-ai-content-panel>
         }
 
-        @if (!detailViewService.metadataSidebarVisible && documentInfoService.canAccessDocument() && !breakpointService.isMobile()) {
-        <button class="floating-sidebar-toggle button icon-button primary rounded"
-          (click)="detailViewService.showMetadataSidebar()">
-          <i class="icon-info-full"></i>
-        </button>
-        }
 
       </div>
     </ng-container>
@@ -222,26 +226,25 @@
      mirrors the right metadata sidebar's tabs (GitHub issue #172). -->
 @if (breakpointService.isMobile()) {
   <app-mobile-nav-bar
-    [class.mobile-nav-bar--immersive]="isImmersiveMode()"
+    appFixedPanelEdge="bottom"
     [class.mobile-nav-bar--hidden]="!mobileNavShown()"
+    [attr.inert]="mobileNavShown() ? null : ''"
+    ariaLabel="metadata-panel--tabs"
     [items]="mobileNavItems"
     [activeId]="mobileActivePanel()"
     (activeIdChange)="onMobileNavChange($event)">
   </app-mobile-nav-bar>
 
-  <!-- Mobile slide-up panels. "records" is absent on purpose: it opens the left
-       filter-sidebar, which renders its own slide-up. -->
+  <!-- Mobile section panels. "records" is absent on purpose: it opens the left
+       filter-sidebar, which renders its own fixed panel. -->
   @if (detailViewService.document$ | async; as document) {
-    <app-slide-up-panel
+    <app-fixed-panel
       [title]="getMobilePanelTitle()"
-      [(isOpen)]="mobileSlideUpOpen"
-      (closed)="onMobileSlideUpClosed()"
-      [initialHeight]="60"
-      [maxHeight]="90">
+      [(isOpen)]="mobileSectionOpen"
+      (closed)="onMobileSectionClosed()">
       @switch (mobileActivePanel()) {
         @case ('description') {
-          <!-- Panel header already shows the title, so hide the section's own. -->
-          <app-metadata-section [showTitle]="false" [metadata]="document" [track]="soundService.currentTrack"
+          <app-metadata-section [metadata]="document" [track]="soundService.currentTrack"
                                 [uuid]="detailViewService.document?.uuid || document.uuid || ''">
           </app-metadata-section>
         }
@@ -258,7 +261,7 @@
           </app-search-results-sidebar>
         }
       }
-    </app-slide-up-panel>
+    </app-fixed-panel>
   }
 }
 

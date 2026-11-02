@@ -4,45 +4,51 @@
 
     @if (getNonNullCells(row).length > 0) {
 
-      <div class="year-row">
+      <div class="decade" role="group" [attr.aria-label]="getDecadeStartYear(row) + '–' + (getDecadeStartYear(row) + 9)">
 
-        <div
-          class="year-item--container"
-          *ngFor="let cell of row; let i = index"
-          [ngClass]="cell === null ? 'missing' : 'accessibility-' + getCellLicenseForBadge(cell)"
-          [class.multi-volume]="cell !== null && cell.entries.length > 1"
-          [attr.role]="cell !== null ? 'button' : null"
-          [attr.tabindex]="cell !== null ? 0 : null"
-          [attr.aria-label]="cell !== null ? ('select-year' | translate:{ y: cell.yearKey }) : null"
-          (click)="cell !== null && onCellClick(cell, $event)"
-          (keydown.enter)="cell !== null && onCellClick(cell, $event)"
-          (keydown.space)="$event.preventDefault(); cell !== null && onCellClick(cell, $event)"
-        >
-          <div class="year-item"
-            [class.with-icon]="cell === null || (cell !== null && isCellLocked(cell))"
+        <div class="decade-label" aria-hidden="true">{{ getDecadeStartYear(row) }}–{{ getDecadeStartYear(row) + 9 }}</div>
+
+        <div class="year-row">
+
+          <div
+            class="year-item--container"
+            *ngFor="let cell of row; let i = index"
+            [ngClass]="cell === null ? 'missing' : 'accessibility-' + getCellLicenseForBadge(cell)"
+            [class.multi-volume]="cell !== null && cell.entries.length > 1"
+            [attr.role]="cell !== null ? 'button' : null"
+            [attr.tabindex]="cell !== null ? 0 : null"
+            [attr.aria-label]="cell !== null ? ('select-year' | translate:{ y: cell.yearKey }) : null"
+            (click)="cell !== null && onCellClick(cell, $event)"
+            (keydown.enter)="cell !== null && onCellClick(cell, $event)"
+            (keydown.space)="$event.preventDefault(); cell !== null && onCellClick(cell, $event)"
           >
-            <div class="year-item--wrapper">
+            <div class="year-item"
+              [class.with-icon]="cell === null || (cell !== null && isCellLocked(cell))"
+            >
+              <div class="year-item--wrapper">
 
-              @if (cell === null) {
-                <i class="icon-slash"></i>
-              }
+                @if (cell === null) {
+                  <i class="icon-slash"></i>
+                }
 
-              @if (cell !== null && isCellLocked(cell)) {
-                <i class="icon-lock-1"></i>
-              }
+                @if (cell !== null && isCellLocked(cell)) {
+                  <i class="icon-lock-1"></i>
+                }
 
-              {{ cell !== null ? cell.yearKey : getDecadeStartYear(row) + i }}
-            </div>
-
-            @if (cell !== null && cell.entries.length > 1) {
-              <div class="year-item--dots"
-                [class.dots-2]="cell.entries.length === 2"
-                [class.dots-3plus]="cell.entries.length >= 3">
-                {{ cell.entries.length === 2 ? '••' : '•••' }}
+                {{ cell !== null ? cell.yearKey : getDecadeStartYear(row) + i }}
               </div>
-            }
+
+              @if (cell !== null && cell.entries.length > 1) {
+                <div class="year-item--dots"
+                  [class.dots-2]="cell.entries.length === 2"
+                  [class.dots-3plus]="cell.entries.length >= 3">
+                  {{ cell.entries.length === 2 ? '••' : '•••' }}
+                </div>
+              }
+            </div>
           </div>
         </div>
+
       </div>
 
     }

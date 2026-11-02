@@ -13,21 +13,76 @@
 
 :host ::ng-deep .action-toolbar--tabs-visible .action-toolbar {
   padding-left: 0;
+
+  // The All/Maps view tabs that sit flush left are hidden on phones (see
+  // .view-tabs below), so the result range would otherwise touch the screen edge.
+  @include m.respond(mobile-sm) {
+    padding-left: var(--spacing-x3);
+  }
 }
 
-// Stack above the global mini-player instead of hiding underneath it; 0px when
-// nothing is playing. Matches the .page-container calc() below (issue #172).
+// Phones: tighter gaps so range, view toggle, download and sort fit one row.
+@include m.respond(mobile-sm) {
+  // The left slot only holds the All/Maps view tabs, hidden on phones; without
+  // this it still claims half the row (flex: 1) and squeezes the right slot.
+  :host ::ng-deep .page-content__filters.action-toolbar--tabs-visible .action-toolbar .toolbar-left {
+    flex: 0 0 auto;
+  }
+
+  .page-content__filters [right],
+  .page-content__filters [right] > .flex {
+    min-width: 0;
+  }
+
+  // Fill the row: the range sits at the left content edge (12px, in line with
+  // the cards) and the controls at the right one, instead of centring as a block.
+  // width, not flex: the toolbar's own `flex` on .toolbar-right is more
+  // specific. The wide sort select used to stretch the row; the icon does not.
+  :host ::ng-deep .page-content__filters .action-toolbar .toolbar-right {
+    width: 100%;
+  }
+
+  .page-content__filters [right] {
+    flex: 1 1 auto;
+  }
+
+  .page-content__filters [right] > .flex {
+    flex: 1 1 auto;
+    gap: var(--spacing-x2);
+
+    app-paginator-info {
+      margin-right: auto;
+    }
+  }
+}
+
+// Pinned to the screen bottom; the global mini-player rides on top of it
+// (styles.scss). Matches the .page-container calc() below (issue #172).
 app-mobile-nav-bar {
   position: fixed;
-  bottom: var(--playback-bar-height, 0px);
+  bottom: 0;
   left: 0;
   right: 0;
   z-index: 100;
+  // Same timing as the app header slide in styles.scss.
+  transition: transform 0.3s ease-in-out;
+
+  // Hidden together with the header while the list scrolls down.
+  &.mobile-nav-bar--hidden {
+    transform: translateY(100%);
+    pointer-events: none;
+  }
 }
 
 :host:has(app-mobile-nav-bar) {
   .page-container {
-    height: calc(100vh - var(--header-height) - var(--playback-bar-height, 0px) - 60px);
+    height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--header-height) - var(--playback-bar-height, 0px) - var(--mobile-nav-bar-height, 60px) - var(--mobile-nav-safe-bottom, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  app-mobile-nav-bar {
+    transition: none;
   }
 }
 

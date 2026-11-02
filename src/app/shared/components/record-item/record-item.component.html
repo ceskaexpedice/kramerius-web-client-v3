@@ -35,6 +35,7 @@
       <div class="record-item-card__actions">
         <button class="button secondary rounded icon-button favorites-button" *ngIf="shouldShowFavoriteButton()"
           [class.favorited]="isItemFavorited$ | async" (click)="onToggleFavorites($event)"
+          [attr.aria-pressed]="(isItemFavorited$ | async) ? 'true' : 'false'"
           [appCdkTooltip]="('add-to-favorites') | translate"
           [attr.aria-label]="('add-to-favorites') | translate">
           <i [ngClass]="(isItemFavorited$ | async) ? 'icon-heart-filled' : 'icon-heart'" aria-hidden="true"></i>
@@ -176,9 +177,9 @@
 </div>
 }
 
-<!-- Mobile info bottom sheet -->
+<!-- Mobile info panel -->
 @if (item && infoSheetOpen()) {
-<app-slide-up-panel [title]="getTitle()" [(isOpen)]="infoSheetOpen">
-  <app-metadata-section [uuid]="item.id" [metadata]="infoSheetMetadata()" [showTitle]="false"></app-metadata-section>
-</app-slide-up-panel>
+<app-fixed-panel [title]="getTitle()" [(isOpen)]="infoSheetOpen">
+  <app-metadata-section [uuid]="item.id" [metadata]="infoSheetMetadata()"></app-metadata-section>
+</app-fixed-panel>
 }

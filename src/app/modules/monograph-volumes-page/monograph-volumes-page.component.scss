@@ -32,8 +32,9 @@
   // Ensure sidebar pushes content by default (relative positioning in flex)
   position: relative;
 
-  // On very small screens, float over content instead of pushing it
-  @media (max-width: 900px) {
+  // Below desktop (1280px) float over content instead of squeezing it —
+  // same breakpoint as the document detail panel (detail-layout).
+  @media (max-width: 1279px) {
     &,
     &--relative {
       position: absolute;
@@ -42,7 +43,8 @@
       bottom: 0;
       height: auto;
       z-index: 100;
-      margin: var(--spacing-x4);
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
+      margin: 0;
     }
   }
 }
@@ -67,12 +69,3 @@
   }
 }
 
-.floating-sidebar-toggle {
-  position: absolute;
-  bottom: var(--spacing-x3);
-  right: var(--spacing-x3);
-  width: 40px;
-  height: 40px;
-  z-index: 50;
-  box-shadow: var(--shadow-elevated);
-}

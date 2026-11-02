@@ -214,7 +214,7 @@ body.text-scale-300 {
 
   @media (max-width: 768px) {
     .mat-dialog-container {
-      max-width: 95vw;
+      max-width: calc(95vw / var(--ui-zoom, 1));
     }
 
     .search-grid,

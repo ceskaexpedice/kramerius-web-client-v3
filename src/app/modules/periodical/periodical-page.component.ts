@@ -1,4 +1,6 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { METADATA_PANEL_ID } from '../../shared/components/detail-layout/metadata-panel-id';
+import { Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import { PANEL_TABS } from '../../shared/components/metadata-sidebar/panel-tabs';
 import { ViewMode } from './models/view-mode.enum';
 import { RecordInfoService } from '../../shared/services/record-info.service';
 import { PeriodicalService } from '../../shared/services/periodical.service';
@@ -36,19 +38,48 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   private searchService = inject(SearchService);
   private translate = inject(TranslateService);
 
-  // Mobile right-panel state (bottom nav bar + slide-up panel).
-  private static readonly MOBILE_DATE_BAR_HEIGHT = 48;
-  // Height of the collapsed peek band (mirrors --slide-up-peek-height), used to
-  // lift the filter toggle button clear of the peeking panel.
-  private static readonly MOBILE_PEEK_BAND_HEIGHT = 56;
-  // Gap between the peek band's top edge and the lifted toggle button.
+  // Mobile right-panel state (bottom nav bar + fixed panel).
+  private static readonly MOBILE_NAV_BAR_HEIGHT = 60;
+  // Gap between a bottom bar's top edge and the floating filter button.
   private static readonly FILTER_TOGGLE_GAP = 12;
   public hasSearchResults = signal(false);
   public mobileActivePanel = signal<string>('');
-  public mobileSlideUpOpen = signal(false);
+  public mobileSectionOpen = signal(false);
+
+  /**
+   * Below this content width (CSS px, before the UI zoom, like the controls
+   * themselves) the full desktop row no longer fits: right controls ~570px,
+   * year ~140px centred, and the title keeps ~180px.
+   */
+  private static readonly FULL_TOOLBAR_MIN_WIDTH = 960;
+
+  private pageContent = viewChild('pageContent', { read: ElementRef });
+  private pageContentWidth = signal(Number.POSITIVE_INFINITY);
+
+  // The toolbar spans the content column, not the viewport, so a breakpoint
+  // alone misses e.g. a 1100px window minus the filter sidebar.
+  private observePageContentWidth = effect(onCleanup => {
+    const el: HTMLElement | undefined = this.pageContent()?.nativeElement;
+    if (!el) {
+      return;
+    }
+    const observer = new ResizeObserver(([entry]) => this.pageContentWidth.set(entry.contentRect.width));
+    observer.observe(el);
+    onCleanup(() => observer.disconnect());
+  });
+
+  /**
+   * Phones, small tablets (≤853px) and any content column too narrow for the
+   * full row: title + "more" menu in the toolbar, view toggle / year / sort in
+   * a sub-toolbar. The full desktop row overlaps itself there.
+   */
+  public compactToolbar = computed(() => this.breakpointService.isMobile()
+    || !this.breakpointService.sidebarVisible()
+    || this.pageContentWidth() < PeriodicalPageComponent.FULL_TOOLBAR_MIN_WIDTH);
 
   private subscriptions: Subscription[] = [];
   public showMetadataSidebar = this.uiStateService.metadataSidebarOpen;
+  readonly metadataPanelId = METADATA_PANEL_ID;
   sidebarPositionMode: 'absolute' | 'relative' = 'relative'; // 'absolute' = over content, 'relative' = beside content
 
   // Favorites popup helper
@@ -98,14 +129,14 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Mobile: tabs appear in the bottom nav only when there are search results.
+    // Mobile: the "results" nav item appears only when there are search results.
     this.subscriptions.push(
       this.searchService.totalCount$.subscribe(count => {
         this.hasSearchResults.set((count || 0) > 0);
         if ((count || 0) === 0 && this.mobileActivePanel() === 'results') {
           // The results tab vanished — collapse it.
           this.mobileActivePanel.set('');
-          this.mobileSlideUpOpen.set(false);
+          this.mobileSectionOpen.set(false);
         }
       })
     );
@@ -168,18 +199,14 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     return document?.uuid !== rootPid || mode === ViewMode.SearchResults;
   }
 
-  openRecordInfo() {
-    this.toggleMetadataSidebar();
-  }
-
   toggleMetadataSidebar() {
     this.uiStateService.toggleMetadataSidebar();
   }
 
   private mobileNavItemsBase: MobileNavItem[] = [
-    { id: 'description', label: 'description', icon: 'icon-note' },
+    { id: 'description', label: PANEL_TABS.description.label, icon: PANEL_TABS.description.icon },
   ];
-  private mobileResultsNavItem: MobileNavItem = { id: 'results', label: 'results', icon: 'icon-receipt-search' };
+  private mobileResultsNavItem: MobileNavItem = { id: 'results', label: PANEL_TABS.search.label, icon: PANEL_TABS.search.icon };
 
   get mobileNavItems(): MobileNavItem[] {
     const items = [...this.mobileNavItemsBase];
@@ -189,37 +216,57 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     return items;
   }
 
-  /** Mode A (nav bar) when there are 2+ tabs; Mode B (peek panel) otherwise. */
-  get hasMobileTabs(): boolean {
-    return this.hasSearchResults();
-  }
-
-  /** Peek sits above the fixed date bar when a year is selected. */
-  get mobilePeekOffset(): number {
-    return this.periodical.selectedYear() ? PeriodicalPageComponent.MOBILE_DATE_BAR_HEIGHT : 0;
+  /**
+   * The bottom nav bar only switches sections, so it shows with 2+ of them
+   * (description + search results). With the description alone it would be a
+   * lone tab: the description opens from the toolbar "more" menu > Info instead.
+   */
+  get hasMobileNav(): boolean {
+    return this.mobileNavItems.length > 1;
   }
 
   /**
-   * Extra bottom offset for the filter-sidebar toggle button so it clears the
-   * peeking slide-up panel (Mode B). The button's own base bottom acts as the gap.
+   * The bottom nav bar slides away together with the header while the list
+   * scrolls down (same as search results) and returns on scroll up. It stays
+   * while a section panel is open, since it switches the panel's sections.
    */
-  get filterToggleBottomOffset(): number {
-    // Only Mode B renders a peeking panel that overlaps the toggle. Mode A shows a
-    // (non-fixed) nav bar, and with no metadata / in admin mode no panel renders.
-    const peekPanelShown = !!this.periodical.metadata && !this.adminModeService.adminMode() && !this.hasMobileTabs;
-    if (!peekPanelShown) {
-      return 0;
-    }
-    // Target the button's bottom just above the peek band's top edge
-    // (band spans [peekOffset, peekOffset + bandHeight]) with a small gap.
-    return this.mobilePeekOffset
-      + PeriodicalPageComponent.MOBILE_PEEK_BAND_HEIGHT
-      + PeriodicalPageComponent.FILTER_TOGGLE_GAP;
+  readonly mobileNavHidden = computed(() =>
+    this.breakpointService.isMobile() && !this.uiStateService.headerVisible() && !this.mobileSectionOpen());
+
+  /** Height of the visible fixed bottom nav bar on phones, else 0. */
+  private get mobileNavBarHeight(): number {
+    return this.breakpointService.isMobile() && this.periodical.metadata
+      && !this.adminModeService.adminMode() && this.hasMobileNav && !this.mobileNavHidden()
+      ? PeriodicalPageComponent.MOBILE_NAV_BAR_HEIGHT : 0;
   }
 
+  /**
+   * Lifts the floating filter button above the nav bar on phones; without one
+   * (admin mode, or scrolled away) it rests at its default 12px.
+   */
+  get filterToggleBottomOffset(): number {
+    if (!this.breakpointService.isMobile()) {
+      return 0;
+    }
+    const bar = this.mobileNavBarHeight;
+    return bar > 0 ? bar + PeriodicalPageComponent.FILTER_TOGGLE_GAP : 0;
+  }
+
+  /** Toolbar "more" menu > Info, for when there is no nav bar to open the description. */
+  /** Info toggle (phones without the bottom nav): opens the description, or closes it. */
+  toggleMobileInfo(): void {
+    if (this.mobileSectionOpen()) {
+      this.mobileSectionOpen.set(false);
+      this.mobileActivePanel.set('');
+      return;
+    }
+    this.breakpointService.manualToggle.set(false);
+    this.mobileActivePanel.set('description');
+    this.mobileSectionOpen.set(true);
+  }
+
+  /** Accessible name of the section panel. */
   getMobilePanelTitle(): string {
-    // The description panel's header shows the document title (next to the close button),
-    // so the metadata-section inside hides its own title to avoid duplication.
     if (this.mobileActivePanel() === 'description') {
       return this.periodical.metadata?.mainTitle || '';
     }
@@ -228,17 +275,20 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
   }
 
   onMobileNavChange(id: string): void {
-    if (this.mobileActivePanel() === id && this.mobileSlideUpOpen()) {
-      this.mobileSlideUpOpen.set(false);
+    if (this.mobileActivePanel() === id && this.mobileSectionOpen()) {
+      this.mobileSectionOpen.set(false);
       this.mobileActivePanel.set('');
     } else {
+      // A section panel never stacks on top of the open filter panel.
+      this.breakpointService.manualToggle.set(false);
       this.mobileActivePanel.set(id);
-      this.mobileSlideUpOpen.set(true);
+      this.mobileSectionOpen.set(true);
     }
   }
 
-  onMobileSlideUpClosed(): void {
-    this.mobileSlideUpOpen.set(false);
+  /** Section panel dismissed (its close button or Escape): no section active. */
+  onMobileSectionClosed(): void {
+    this.mobileSectionOpen.set(false);
     this.mobileActivePanel.set('');
   }
 

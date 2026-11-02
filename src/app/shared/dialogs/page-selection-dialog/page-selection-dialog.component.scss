@@ -64,7 +64,7 @@
 
 // The viewport now owns the scrolling that .page-selection-grid used to do.
 .page-selection-grid__viewport {
-  height: 60vh;
+  height: calc(60vh / var(--ui-zoom, 1));
   width: 100%;
 }
 

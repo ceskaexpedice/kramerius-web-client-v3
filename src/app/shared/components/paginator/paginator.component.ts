@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Input, OnChanges, Output, signal, SimpleChanges } from '@angular/core';
+import { Component, effect, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChanges, untracked } from '@angular/core';
 import { NgForOf, NgIf } from '@angular/common';
 import { MatButton } from '@angular/material/button';
 import { SelectComponent } from '../select/select.component';
 import { TranslatePipe } from '@ngx-translate/core';
+import { BreakpointService } from '../../services/breakpoint.service';
 
 @Component({
   selector: 'app-paginator',
@@ -11,7 +12,18 @@ import { TranslatePipe } from '@ngx-translate/core';
   styleUrl: './paginator.component.scss'
 })
 export class PaginatorComponent implements OnChanges {
+  protected breakpointService = inject(BreakpointService);
+
   pages = signal<number[]>([]);
+
+  constructor() {
+    // The page window depends on the viewport (see generatePages), so rebuild
+    // it when crossing the mobile breakpoint, not only on input changes.
+    effect(() => {
+      this.breakpointService.isMobile();
+      untracked(() => this.generatePages());
+    });
+  }
 
   @Input() page = 1;
   @Input() totalCount = 0;
@@ -54,8 +66,11 @@ export class PaginatorComponent implements OnChanges {
         pages.push(totalPages);
       }
     } else {
-      // Normal Mode
-      const delta = 1; // Number of pages around current to show
+      // Normal Mode. Phones show only first / current / last (+ ellipses): with
+      // the arrows that is at most 7 buttons, which fits a 360px screen; the
+      // wider window (current +/- 1 and 3-page buffers) overflowed it.
+      const narrow = this.breakpointService.isMobile();
+      const delta = narrow ? 0 : 1; // Number of pages around current to show
       const left = this.page - delta;
       const right = this.page + delta;
       const range: number[] = [];
@@ -68,8 +83,8 @@ export class PaginatorComponent implements OnChanges {
           i === 1 ||
           i === last ||
           (i >= left && i <= right) ||
-          (this.page < 3 && i <= 3) ||
-          (this.page > last - 2 && i >= last - 2)
+          (!narrow && this.page < 3 && i <= 3) ||
+          (!narrow && this.page > last - 2 && i >= last - 2)
         ) {
           range.push(i);
         }

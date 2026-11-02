@@ -1,3 +1,5 @@
+@use "mixins" as m;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -30,6 +32,9 @@ label {
   display: flex;
   gap: var(--spacing-x2);
 
+  // Taller hit area only: neighbours sit 4px apart, so widening would overlap.
+  @include m.touch-target(0px, 44px);
+
   &.active {
     background-color: var(--color-bg-base);
     color: var(--color-text-base);
@@ -60,8 +65,20 @@ label {
   border-radius: var(--spacing-x2);
   padding: var(--spacing-x05);
   gap: var(--spacing-x1);
+  // Scope tabs ("Strany v tituloch", "Samostatné strany", ...) stay on one
+  // line and scroll sideways on phones instead of wrapping into 3-line tabs.
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   .toggle-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
     border-radius: 6px;
     padding: var(--spacing-x1) var(--spacing-x2);
     gap: var(--spacing-x1);

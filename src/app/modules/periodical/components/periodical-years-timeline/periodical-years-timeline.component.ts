@@ -47,7 +47,8 @@ export class PeriodicalYearsTimelineComponent implements OnChanges, OnDestroy {
       const allYears = changes['years'].currentValue as PeriodicalItemYear[];
 
       const singleYearRe = /^\d{4}$/;
-      const rangeYearRe = /^\d{4}\s*-\s*\d{4}$/;
+      // Accepts hyphen, en dash and em dash as the range separator (e.g. "1964–1965")
+      const rangeYearRe = /^(\d{4})\s*[–—-]\s*(\d{4})$/;
 
       const yearCellMap = new Map<number, PeriodicalItemYear[]>();
       this.otherYears = [];
@@ -68,20 +69,16 @@ export class PeriodicalYearsTimelineComponent implements OnChanges, OnDestroy {
         }
       }
 
-      // Second pass: ranges spanning ≤1 year are placed at their start year (creating a new
-      // cell if needed, or merging as dots into an existing one). Wider ranges and
-      // unparseable values go to the bottom row.
+      // Second pass: ranges are placed at their start year (creating a new cell if needed,
+      // or merging as dots into an existing one). Only unparseable values go to the bottom row.
       for (const y of allYears) {
         const trimmed = y.year?.trim() ?? '';
         if (singleYearRe.test(trimmed)) continue;
 
-        if (rangeYearRe.test(trimmed)) {
-          const startYear = Number(trimmed.split('-')[0].trim());
-          const endYear = Number(trimmed.split('-')[1].trim());
-          if (endYear - startYear <= 1) {
-            addToMap(startYear, y);
-            continue;
-          }
+        const range = rangeYearRe.exec(trimmed);
+        if (range) {
+          addToMap(Number(range[1]), y);
+          continue;
         }
 
         this.otherYears.push(y);

@@ -2,9 +2,15 @@
   <div class="page-container__inner">
 
     @if (isLoggedIn$ | async) {
-    <app-filter-sidebar>
-      <app-saved-lists-filters [activeFolder]="(activeFolder | async) ?? null"
-        (newListRequested)="startCreatingList($event)"></app-saved-lists-filters>
+    <!-- Phones: the filter button opens search + filters, as on the search page;
+         the lists move to the sheet behind the list name. -->
+    <app-filter-sidebar [mobileTitleKey]="breakpointService.isMobile() ? 'search-and-filter-in-list--title' : 'filters'">
+      @if (breakpointService.isMobile()) {
+        <ng-container *ngTemplateOutlet="facetFiltersTpl"></ng-container>
+      } @else {
+        <app-saved-lists-filters [activeFolder]="(activeFolder | async) ?? null"
+          (newListRequested)="startCreatingList($event)"></app-saved-lists-filters>
+      }
     </app-filter-sidebar>
     }
 
@@ -20,7 +26,18 @@
               <div class="flex flex--align-center flex--gap-2">
                 <app-toolbar-header [title]="folderDisplayName(folder)" [showBackButton]="false">
                 </app-toolbar-header>
-                @if (isLoggedIn$ | async) {
+                <!-- Phones: the filter button (FAB) opens search + filters, so this
+                     slot opens the sheet with the lists instead. -->
+                @if ((isLoggedIn$ | async) && breakpointService.isMobile()) {
+                  <button class="icon-button transparent" aria-haspopup="dialog"
+                          [attr.aria-expanded]="foldersSheetOpen()"
+                          [attr.aria-label]="'my-saved-lists' | translate"
+                          [appCdkTooltip]="'my-saved-lists' | translate"
+                          (click)="foldersSheetOpen.set(true)">
+                    <i class="icon-folder-2" aria-hidden="true"></i>
+                  </button>
+                }
+                @if ((isLoggedIn$ | async) && !breakpointService.isMobile()) {
                   <button class="icon-button transparent" [class.active]="showFacetFilters()"
                           [attr.aria-label]="'open-filters' | translate" [attr.aria-pressed]="showFacetFilters()"
                           [appCdkTooltip]="'open-filters' | translate"
@@ -28,7 +45,8 @@
                     <i class="icon-search-normal-1"></i>
                   </button>
                 }
-                @if (isCurrentUserOwner(folder) && !isFavoritesFolder(folder)) {
+                <!-- Phones: renaming moves into the "more" menu to leave the row to the name. -->
+                @if (isCurrentUserOwner(folder) && !isFavoritesFolder(folder) && !breakpointService.isMobile()) {
                 <button class="icon-button transparent" [attr.aria-label]="'edit-title-button--arialabel' | translate"
                   [appCdkTooltip]="'edit-title-button--arialabel' | translate"
                   (click)="startEditingTitle(folder.uuid, folder.name, $event)">
@@ -45,7 +63,7 @@
 
             <div class="flex flex--align-center flex--gap-x2">
 
-              @if (activeFolder | async) {
+              @if ((activeFolder | async) && !breakpointService.isMobile()) {
               <div class="items-count-display">
                 <span class="count-label">{{ 'count' | translate }}:</span>
                 <span class="count-value">{{ (resultsCount$ | async) ?? 0 }}</span>
@@ -55,6 +73,7 @@
               <app-toggle-button-group [options]="viewOptions" [value]="view()" [size]="'md'" (valueChange)="setView($event)" />
 
               <app-toolbar-controls [actions]="getToolbarActions((activeFolder | async) || null)"
+                [mobileMenuMode]="breakpointService.isMobile()"
                 (actionClicked)="onToolbarAction($event)" [themeDefault]="false">
               </app-toolbar-controls>
 
@@ -71,53 +90,15 @@
         </app-action-toolbar>
       </div>
 
-      @if (savedBannerVisible()) {
-        <app-info-banner
-          variant="success"
-          icon="icon-tick-circle"
-          [title]="'shared-folder-banner--saved-success'
-              | translate:{ folderName: (activeFolder | async)?.name }">
-        </app-info-banner>
-      } @else if (bannerState$ | async; as banner) {
-        @if (banner.kind === 'login') {
-        <app-info-banner
-          icon="icon-notification-2"
-          variant="primary"
-          [title]="'shared-folder-banner--login-title'
-              | translate:{ folderName: banner.folderName, ownerName: banner.ownerName }"
-          [message]="'shared-folder-banner--login-message' | translate"
-          [actions]="bannerActions(banner)"
-          (actionClick)="onBannerAction($event)">
-        </app-info-banner>
-        } @else if (banner.kind === 'invite') {
-        <app-info-banner
-          icon="icon-notification-2"
-          variant="primary"
-          [title]="'shared-folder-banner--invite-title'
-              | translate:{ folderName: banner.folderName, ownerName: banner.ownerName }"
-          [actions]="bannerActions(banner)"
-          (actionClick)="onBannerAction($event)">
-        </app-info-banner>
-        } @else if (banner.kind === 'follower' && shouldShowSharedBanner() && !bannerDismissed()) {
-        <app-info-banner
-          icon="icon-info"
-          variant="light"
-          [title]="'shared-folder-banner--shared-title'
-              | translate:{ folderName: banner.folderName, ownerName: banner.ownerName }"
-          [message]="'shared-folder-banner--shared-message' | translate"
-          [actions]="bannerActions(banner)"
-          dontShowId="shared-folder-banner"
-          [dontShowChecked]="pendingDontShow()"
-          [closable]="true"
-          (actionClick)="onBannerAction($event)"
-          (dontShowAgainChange)="onBannerDontShow($event)"
-          (close)="onBannerClose()">
-        </app-info-banner>
-        }
+      <!-- Phones: the banners scroll with the list (inside the wrapper below),
+           so they do not stay pinned once the toolbar slides away. -->
+      @if (!breakpointService.isMobile()) {
+        <ng-container *ngTemplateOutlet="bannersTpl"></ng-container>
       }
 
       <div class="content-with-sidebar">
 
+      @if (!breakpointService.isMobile()) {
       <aside class="facet-filter-column" [class.open]="showFacetFilters()"
         role="complementary" [attr.aria-label]="'search-filters' | translate" [attr.aria-hidden]="!showFacetFilters()">
         @if (facetFiltersContentVisible()) {
@@ -130,29 +111,40 @@
               </button>
             </div>
             <div class="facet-filter-column__content">
-              <app-input
-                class="facet-filter-column__search"
-                [theme]="'dark'"
-                [size]="'sm'"
-                [type]="'text'"
-                [prefixIcon]="'icon-search-normal-1'"
-                [placeholder]="'search-in-list--placeholder' | translate"
-                [ariaLabel]="'search-in-list--placeholder' | translate"
-                [showHelpButton]="false"
-                [showSubmitButton]="false"
-                [showMicButton]="true"
-                [showClearButton]="true"
-                [signalInput]="searchInput"
-                (enter)="onSearchQuery($event)"
-                (clearEmit)="onClearSearchQuery()">
-              </app-input>
-              <app-saved-lists-facet-filters></app-saved-lists-facet-filters>
+              <ng-container *ngTemplateOutlet="facetFiltersTpl"></ng-container>
             </div>
           </div>
         }
       </aside>
+      }
 
-      <div class="page-content__wrapper">
+      <ng-template #facetFiltersTpl>
+        <app-input
+          class="facet-filter-column__search"
+          [theme]="'dark'"
+          [size]="'sm'"
+          [type]="'text'"
+          [prefixIcon]="'icon-search-normal-1'"
+          [placeholder]="'search-in-list--placeholder' | translate"
+          [ariaLabel]="'search-in-list--placeholder' | translate"
+          [showHelpButton]="false"
+          [showSubmitButton]="false"
+          [showMicButton]="true"
+          [showClearButton]="true"
+          [signalInput]="searchInput"
+          (enter)="onSearchQuery($event)"
+          (clearEmit)="onClearSearchQuery()">
+        </app-input>
+        <app-saved-lists-facet-filters></app-saved-lists-facet-filters>
+      </ng-template>
+
+      <!-- Phones: scrolling down slides the app header and the toolbar away,
+           scrolling up restores them (as on the search results page). -->
+      <div class="page-content__wrapper" [appScrollHideHeader]="breakpointService.isMobile()">
+
+        @if (breakpointService.isMobile()) {
+          <ng-container *ngTemplateOutlet="bannersTpl"></ng-container>
+        }
 
         @if (selectedTags$ | async; as selectedTags) {
           <div class="page-content__sticky-tags">
@@ -310,10 +302,18 @@
           }
         </ng-container>
 
-        <!-- Empty state: a search term or filter left the list with no matches -->
-        @if ({ loading: loading$ | async, count: resultsCount$ | async, query: submittedQuery$ | async, tags: selectedTags$ | async }; as empty) {
+        <!-- Empty states: a search term or filter left the list with no matches,
+             or the list itself has nothing in it yet. -->
+        @if ({ loading: loading$ | async, count: resultsCount$ | async, query: submittedQuery$ | async, tags: selectedTags$ | async, folder: activeFolder | async }; as empty) {
           @if (!empty.loading && empty.count === 0 && (empty.query || empty.tags?.length)) {
             <app-no-results [term]="empty.query"></app-no-results>
+          } @else if (!empty.loading && empty.count === 0 && empty.folder) {
+            <div class="saved-list-empty" role="status">
+              <i class="icon-heart saved-list-empty__icon" aria-hidden="true"></i>
+              <h2 class="saved-list-empty__title">{{ 'saved-lists--empty-title' | translate }}</h2>
+              <p class="saved-list-empty__text">{{ 'saved-lists--empty-text' | translate }}</p>
+              <a class="button primary sm" routerLink="/">{{ 'saved-lists--empty-cta' | translate }}</a>
+            </div>
           }
         }
 
@@ -344,6 +344,61 @@
     </div>
   </div>
 </div>
+
+<!-- Phones: switching lists lives behind the list name -->
+@if (breakpointService.isMobile() && (isLoggedIn$ | async)) {
+<app-fixed-panel [title]="'my-saved-lists' | translate" [(isOpen)]="foldersSheetOpen">
+  <app-saved-lists-filters [activeFolder]="(activeFolder | async) ?? null"
+    (newListRequested)="foldersSheetOpen.set(false); startCreatingList($event)"></app-saved-lists-filters>
+</app-fixed-panel>
+}
+
+<ng-template #bannersTpl>
+  @if (savedBannerVisible()) {
+    <app-info-banner
+      variant="success"
+      icon="icon-tick-circle"
+      [title]="'shared-folder-banner--saved-success'
+          | translate:{ folderName: (activeFolder | async)?.name }">
+    </app-info-banner>
+  } @else if (bannerState$ | async; as banner) {
+    @if (banner.kind === 'login') {
+    <app-info-banner
+      icon="icon-notification-2"
+      variant="primary"
+      [title]="'shared-folder-banner--login-title'
+          | translate:{ folderName: banner.folderName, ownerName: banner.ownerName }"
+      [message]="'shared-folder-banner--login-message' | translate"
+      [actions]="bannerActions(banner)"
+      (actionClick)="onBannerAction($event)">
+    </app-info-banner>
+    } @else if (banner.kind === 'invite') {
+    <app-info-banner
+      icon="icon-notification-2"
+      variant="primary"
+      [title]="'shared-folder-banner--invite-title'
+          | translate:{ folderName: banner.folderName, ownerName: banner.ownerName }"
+      [actions]="bannerActions(banner)"
+      (actionClick)="onBannerAction($event)">
+    </app-info-banner>
+    } @else if (banner.kind === 'follower' && shouldShowSharedBanner() && !bannerDismissed()) {
+    <app-info-banner
+      icon="icon-info"
+      variant="light"
+      [title]="'shared-folder-banner--shared-title'
+          | translate:{ folderName: banner.folderName, ownerName: banner.ownerName }"
+      [message]="'shared-folder-banner--shared-message' | translate"
+      [actions]="bannerActions(banner)"
+      dontShowId="shared-folder-banner"
+      [dontShowChecked]="pendingDontShow()"
+      [closable]="true"
+      (actionClick)="onBannerAction($event)"
+      (dontShowAgainChange)="onBannerDontShow($event)"
+      (close)="onBannerClose()">
+    </app-info-banner>
+    }
+  }
+</ng-template>
 
 <!-- Title Edit Popup -->
 @if (titleEditPopupState.showPopup() && currentEditingFolder()) {

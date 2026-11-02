@@ -16,3 +16,33 @@
     width: fit-content;
   }
 }
+
+.results-sort__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--spacing-x2);
+
+  i {
+    font-size: var(--font-size-large);
+  }
+}
+
+// In a page toolbar the trigger matches the icon buttons beside it: 32px for
+// a mouse, 40px on phones (see action-toolbar).
+:host-context(.action-toolbar) .results-sort__trigger {
+  width: 32px;
+  height: 32px;
+
+  i {
+    font-size: var(--font-size-base);
+  }
+
+  @include m.respond(mobile-sm) {
+    width: 40px;
+    height: 40px;
+  }
+}

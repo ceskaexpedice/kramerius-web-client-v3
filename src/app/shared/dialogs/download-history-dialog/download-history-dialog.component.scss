@@ -1,6 +1,8 @@
+@use "mixins" as m;
+
 .download-history {
   width: 100%;
-  height: 80vh;
+  height: calc(80vh / var(--ui-zoom, 1));
 
   .dialog-body .content {
     flex: 1;
@@ -52,6 +54,29 @@
       width: 56px;
       text-align: right;
     }
+
+    // Short columns stay on one line; the name column takes what is left.
+    td:not(.col-name) {
+      white-space: nowrap;
+    }
+  }
+
+  // Phones: readable column widths, the table scrolls sideways (as the
+  // music track list and the search results list view do).
+  @include m.respond(mobile-sm) {
+    .dialog-body .content {
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+    }
+
+    .history-table {
+      width: max-content;
+      min-width: 100%;
+
+      .col-name {
+        width: 220px;
+      }
+    }
   }
 
   .name-cell {
@@ -70,12 +95,15 @@
       background-color: var(--color-bg-bright);
     }
 
+    // Two lines at most: on one unbreakable line a long title stretched the
+    // table thousands of pixels wide and pushed the other columns out of view.
     .name-text {
       font-weight: var(--font-weight-semi-bold);
       font-size: var(--font-size-base);
       overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
     }
   }
 

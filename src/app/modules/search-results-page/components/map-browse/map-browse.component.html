@@ -57,25 +57,54 @@
           <i class="icon-minus"></i>
         </button>
       </div>
+
+      <!-- Phones: the map keeps the whole area; the results open full-size in
+           a fixed panel (closed from the toolbar X or Escape, back to the map).
+           Stays in the DOM while the panel is open (only hidden), so closing it
+           can return focus here. -->
+      @let totalCount = (mapSearchService.totalCount$ | async) || 0;
+      @if (breakpointService.isMobile() && totalCount > 0) {
+        <button type="button" class="button primary map-browse__results-toggle"
+                [class.map-browse__results-toggle--hidden]="resultsOpen()"
+                aria-haspopup="true"
+                [attr.aria-expanded]="resultsOpen()"
+                (click)="resultsOpen.set(true)">
+          <i class="icon-element-3" aria-hidden="true"></i>
+          {{ 'results' | translate }}
+          <span class="map-browse__results-count">{{ totalCount | formatNumber }}</span>
+        </button>
+      }
     </div>
 
     @if (((mapSearchService.totalCount$ | async) || 0) > 0) {
 
-      <div class="map-browse__sidebar" >
-        <app-search-results-sidebar
-          [externalResults$]="mapSearchService.results$"
-          [externalLoading$]="mapSearchService.loading$"
-          [externalTotalCount$]="mapSearchService.totalCount$"
-          [externalPage]="((mapSearchService.page$ | async) ?? 0) + 1"
-          [externalPageSize]="mapSearchService.pageSize"
-          (itemHover)="onItemHover($event)"
-          (itemLeave)="onItemLeave()"
-          (pageChange)="onPageChange($event)">
-        </app-search-results-sidebar>
-      </div>
+      @if (breakpointService.isMobile()) {
+        <app-fixed-panel [title]="'search-results' | translate" [flush]="true" [(isOpen)]="resultsOpen">
+          <div class="map-browse__panel-results">
+            <ng-container *ngTemplateOutlet="resultsList"></ng-container>
+          </div>
+        </app-fixed-panel>
+      } @else {
+        <div class="map-browse__sidebar">
+          <ng-container *ngTemplateOutlet="resultsList"></ng-container>
+        </div>
+      }
 
     }
 
   </div>
 
 </div>
+
+<ng-template #resultsList>
+  <app-search-results-sidebar
+    [externalResults$]="mapSearchService.results$"
+    [externalLoading$]="mapSearchService.loading$"
+    [externalTotalCount$]="mapSearchService.totalCount$"
+    [externalPage]="((mapSearchService.page$ | async) ?? 0) + 1"
+    [externalPageSize]="mapSearchService.pageSize"
+    (itemHover)="onItemHover($event)"
+    (itemLeave)="onItemLeave()"
+    (pageChange)="onPageChange($event)">
+  </app-search-results-sidebar>
+</ng-template>

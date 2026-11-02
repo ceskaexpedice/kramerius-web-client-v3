@@ -76,7 +76,7 @@ export class DownloadHistoryService {
         await import('../dialogs/download-history-dialog/download-history-dialog.component');
 
       this.currentDialogRef = this.dialog.open(DownloadHistoryDialogComponent, {
-        width: '80vw',
+        width: 'calc(80vw / var(--ui-zoom, 1))',
         maxWidth: '1024px',
         panelClass: 'download-history-dialog-panel'
       });

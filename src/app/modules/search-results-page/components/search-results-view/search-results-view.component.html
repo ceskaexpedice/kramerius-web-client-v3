@@ -11,11 +11,14 @@
     </app-selected-tags>
   </ng-template>
 
+  <!-- Phones: scrolling down slides the app header, the results toolbar and the
+       bottom nav bar away so the list gets the screen; scrolling up restores them. -->
   <div class="page-content__wrapper"
-    [class.wrapper--no-top-padding]="showSelectedTags$ | async">
+    [class.wrapper--no-top-padding]="showSelectedTags$ | async"
+    [appScrollHideHeader]="breakpointService.isMobile()">
 
     <!-- Sticky tags: hidden on mobile when tabs are shown (tags move inside tabs via tab-common-up) -->
-    <div class="page-content__sticky-tags" *ngIf="!(breakpointService.isMobile() && showSectionHeaders)">
+    <div class="page-content__sticky-tags" *ngIf="!(showMobileTabs() && showSectionHeaders)">
       <ng-container *ngTemplateOutlet="stickyTagsContent"></ng-container>
     </div>
 
@@ -29,8 +32,9 @@
       <!-- GRID VIEW -->
       @if (view === ViewOptions.grid) {
 
-      <!-- MOBILE: Tabbed view when multiple sections exist -->
-      @if (breakpointService.isMobile() && showSectionHeaders) {
+      <!-- MOBILE: Tabbed view when multiple sections exist and no "where to search"
+           toggle switches between them -->
+      @if (showMobileTabs() && showSectionHeaders) {
       <app-tabs headerBackground="base">
         <div tab-common-up *ngIf="showSelectedTags$ | async" class="page-content__sticky-tags">
           <ng-container *ngTemplateOutlet="stickyTagsContent"></ng-container>
@@ -207,9 +211,20 @@
 
     </div>
 
-    <!-- No results state -->
-    @if (!(searchService.loading$ | async) && searchService.totalCount === 0 && searchService.submittedTerm) {
-      <app-no-results [term]="searchService.submittedTerm"></app-no-results>
+    <!-- Error / no results state. Filter-only searches (no term) get the empty
+         state too, so a facet combination with no hits never renders a blank page. -->
+    @if (!(searchService.loading$ | async)) {
+      @if (searchError()) {
+        <div class="search-error" role="alert">
+          <h2 class="search-error__title">{{ 'search-error--title' | translate }}</h2>
+          <p class="search-error__message">{{ 'search-error--message' | translate }}</p>
+          <button type="button" class="button primary sm" (click)="searchService.reloadCurrentSearch()">
+            {{ 'search-error--retry' | translate }}
+          </button>
+        </div>
+      } @else if (searchService.totalCount === 0 && (searchService.submittedTerm || hasSearched())) {
+        <app-no-results [term]="searchService.submittedTerm"></app-no-results>
+      }
     }
 
     <app-paginator [disabledPagination]="adminModeService.adminMode()" [page]="searchService.page"

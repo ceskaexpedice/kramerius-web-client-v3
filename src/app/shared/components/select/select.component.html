@@ -1,5 +1,6 @@
 <div class="select-wrapper" #wrapper (click)="toggle()" [attr.aria-expanded]="open()" role="button" tabindex="0"
   aria-haspopup="listbox"
+  [attr.aria-label]="ariaLabel ? ariaLabel + ': ' + displayLabel(value) : null"
   [attr.aria-activedescendant]="!filterable && open() && focusedIndex >= 0 ? 'option-' + focusedIndex : null"
   [ngClass]="[theme, class, 'size-' + size]" (keydown)="onKeyDown($event)">
   <span class="select-value">

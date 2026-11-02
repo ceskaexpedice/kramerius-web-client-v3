@@ -55,7 +55,7 @@
 
   &__image {
     max-width: 100%;
-    max-height: calc(100vh - 120px);
+    max-height: calc(calc(100vh / var(--ui-zoom, 1)) - 120px);
     object-fit: contain;
     border-radius: var(--base-border-radius);
     transition: opacity 0.3s ease;

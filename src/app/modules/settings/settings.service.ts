@@ -167,10 +167,10 @@ export class SettingsService {
     this.updateUrlParams(section || 'display', expandMoreInfo);
 
     this.currentDialogRef = this.dialog.open(SettingsDialogComponent, {
-      width: isMobileOrTablet ? '100vw' : '80vw',
-      height: isMobileOrTablet ? '100vh' : undefined,
-      maxWidth: isMobileOrTablet ? '100vw' : undefined,
-      maxHeight: isMobileOrTablet ? '100vh' : undefined,
+      width: isMobileOrTablet ? 'calc(100vw / var(--ui-zoom, 1))' : 'calc(80vw / var(--ui-zoom, 1))',
+      height: isMobileOrTablet ? 'calc(100dvh / var(--ui-zoom, 1))' : undefined,
+      maxWidth: isMobileOrTablet ? 'calc(100vw / var(--ui-zoom, 1))' : undefined,
+      maxHeight: isMobileOrTablet ? 'calc(100dvh / var(--ui-zoom, 1))' : undefined,
       panelClass: isMobileOrTablet ? 'mobile-fullscreen-dialog' : undefined,
       data: { initialSection: section, expandMoreInfo }
     });

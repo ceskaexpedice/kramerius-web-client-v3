@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { RecordItemComponent } from '../../../../shared/components/record-item/record-item.component';
@@ -55,6 +56,7 @@ export class FeaturedDocumentsSectionComponent implements OnInit {
   private solrService = inject(SolrService);
   private translationService = inject(AppTranslationService);
   private configService = inject(ConfigService);
+  private router = inject(Router);
 
   items$: Observable<RecordItem[]> = of([]);
 
@@ -125,7 +127,13 @@ export class FeaturedDocumentsSectionComponent implements OnInit {
 
   onShowMore() {
     if (this.config.sectionUrl) {
-      window.location.href = this.config.sectionUrl;
+      // In-app URLs through the router: a full reload stopped the playing audio.
+      const url = this.config.sectionUrl;
+      if (url.startsWith('/') && !url.startsWith('//')) {
+        this.router.navigateByUrl(url);
+      } else {
+        window.location.href = url;
+      }
     }
   }
 }

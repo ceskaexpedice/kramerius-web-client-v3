@@ -26,7 +26,7 @@ import { LibraryContextService } from '../../services/library-context.service';
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      height: calc(100vh / var(--ui-zoom, 1));
       width: 100%;
     }
     .loading-message {

@@ -44,19 +44,45 @@
   }
 }
 
-@mixin floating-sidebar($width: var(--metadata-sidebar-width)) {
+// Enlarges the tappable area of a small control on touch devices without
+// changing how it looks: an invisible ::after box centred on the control,
+// at least $width x $height. Hosts must not use ::after for anything else.
+@mixin touch-target($width: 44px, $height: 44px) {
+  @media (pointer: coarse) {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: max(100%, #{$width});
+      height: max(100%, #{$height});
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
+// The user's dragged width (up to 560px, persisted) is capped by the viewport,
+// so on a tablet the overlaying panel never swallows the whole screen.
+@mixin floating-sidebar($width: min(var(--metadata-sidebar-width), calc(calc(100vw / var(--ui-zoom, 1)) - 6 * var(--spacing-x3)))) {
   flex: 0 0 $width;
   width: $width;
   min-width: $width;
   max-width: $width;
-  height: calc(100% - var(--spacing-x3) - var(--spacing-x3));
-  margin: var(--spacing-x3) var(--spacing-x3) var(--spacing-x3) 0;
-  border-radius: var(--spacing-x2);
-  background: var(--color-background-primary, #fff);
+  // Docked flush to the right edge like the left sidebar: no gaps, no rounding,
+  // a 1px rule on the inner edge.
+  height: 100%;
+  margin: 0;
+  border-left: 1px solid var(--color-border-light);
+  background: var(--color-bg-base);
   overflow: hidden;
   transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, min-width 0.3s ease, margin 0.3s ease;
   transform: translateX(0);
   opacity: 1;
+  // Hosts the absolutely positioned resize handle on the inner edge.
+  position: relative;
+
 
   &.collapsed {
     width: 0;
@@ -67,5 +93,9 @@
     transform: translateX(100%);
     opacity: 0;
     pointer-events: none;
+    // Collapsed content must also leave the a11y tree / tab order; hosts add
+    // [inert] too, visibility covers browsers without inert support.
+    visibility: hidden;
+    transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, min-width 0.3s ease, margin 0.3s ease, visibility 0s linear 0.3s;
   }
 }

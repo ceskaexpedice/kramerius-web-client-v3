@@ -68,9 +68,50 @@
     padding: var(--spacing-x2) var(--spacing-x4);
     border-radius: var(--spacing-x1);
   }
+
+  // Phones: opens the results panel. Floats at the bottom centre of the map,
+  // clear of the round filter button in the bottom-right corner.
+  &__results-toggle {
+    position: absolute;
+    left: 50%;
+    bottom: var(--spacing-x3);
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-x2);
+    white-space: nowrap;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+
+    // Behind the open panel anyway; hidden so it is out of the tab order.
+    &--hidden {
+      visibility: hidden;
+    }
+  }
+
+  &__results-count {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // The sidebar scrolls its own list and keeps the paginator at the bottom,
+  // so give it the panel's full height.
+  &__panel-results {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+
+    // The shared list pads vertically only, so the cards would sit flush
+    // against the screen edges.
+    ::ng-deep .results-list {
+      padding-left: var(--spacing-x3);
+      padding-right: var(--spacing-x3);
+    }
+  }
 }
 
-// Mobile: sidebar below map
+// Tablets: sidebar below map (phones open the results in a fixed panel instead)
 @include m.respond(md) {
   .map-browse {
     padding: var(--spacing-x2);

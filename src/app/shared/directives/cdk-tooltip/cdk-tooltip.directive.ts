@@ -133,7 +133,9 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Set initial ARIA label if content is available
-    if (this.content) {
+    // …but never overwrite an explicit, more specific aria-label on the host
+    // (e.g. "Kopírovat ISBN" vs. the generic tooltip "Kopírovat").
+    if (this.content && !this.elementRef.nativeElement.hasAttribute('aria-label')) {
       this.elementRef.nativeElement.setAttribute('aria-label', this.content);
     }
 

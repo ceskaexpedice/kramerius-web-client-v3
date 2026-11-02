@@ -73,11 +73,34 @@ export class BreakpointService {
    * True when viewer chrome must collapse into the toolbar "more" menu instead
    * of rendering as a tall floating column: either a narrow (mobile) viewport
    * or any short one, such as a landscape phone. Deliberately separate from
-   * isMobile(), which drives full mobile layout (nav bar, slide-up panels) and
+   * isMobile(), which drives full mobile layout (nav bar, fixed panels) and
    * must not switch on in landscape — that chrome costs vertical space, which
    * is precisely what is scarce there.
    */
   isCompactViewer = computed(() => this.isMobile() || this.isShortViewport());
+
+  /**
+   * True when the primary input is a finger (phones, tablets). Width alone can't
+   * tell: a portrait tablet is as wide as a small laptop, but focusing a field
+   * there opens the on-screen keyboard over half the page. Use this to skip
+   * autofocus on touch devices.
+   */
+  isCoarsePointer = toSignal(
+    this.breakpointObserver.observe('(pointer: coarse)').pipe(map(result => result.matches)),
+    { initialValue: false }
+  );
+
+  /**
+   * True when the floating right metadata sidebar can no longer sit beside the
+   * content and floats over it instead. Mirrors the `(max-width: 1279px)` rule in
+   * the periodical, monograph-volumes and collections page styles and the overlay
+   * mode of detail-layout - keep them in sync. In this band an open sidebar hides grid columns or part of the page
+   * image, so it must start collapsed.
+   */
+  rightSidebarOverlaysContent = toSignal(
+    this.breakpointObserver.observe('(max-width: 1279px)').pipe(map(result => result.matches)),
+    { initialValue: false }
+  );
 
   isTablet = computed(() => {
     const bp = this.currentBreakpoint();

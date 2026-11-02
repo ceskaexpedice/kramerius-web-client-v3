@@ -72,6 +72,7 @@ function removeDiacritics(str: string): string {
           [theme]="'light'"
           [signalInput]="searchQuery"
           [placeholder]="'libraries.filter-placeholder' | translate"
+          [ariaLabel]="'libraries.filter-placeholder' | translate"
           [withIcons]="false"
         ></app-input>
       </div>
@@ -88,10 +89,12 @@ function removeDiacritics(str: string): string {
 
         <div class="libraries-grid">
           @for (lib of filteredLibraries(); track lib.id) {
-            <div
+            <button
+              type="button"
               class="library-card"
               [class.active]="lib.code === activeCode()"
               [class.inactive]="lib.alive === false"
+              [attr.aria-pressed]="lib.code === activeCode()"
               (click)="selectLibrary(lib)"
             >
               <app-thumbnail-image
@@ -109,12 +112,14 @@ function removeDiacritics(str: string): string {
                 <span class="library-name">{{ lib.name }}</span>
                 <span class="library-version">v{{ lib.version }}</span>
               </div>
-            </div>
+            </button>
+          } @empty {
+            <p class="no-match">{{ 'libraries.no-match' | translate }}</p>
           }
         </div>
       }
 
-      <div class="status-message" *ngIf="message()" [class.error]="isError()">
+      <div class="status-message" role="status" *ngIf="message()" [class.error]="isError()">
         {{ message() }}
       </div>
     </div>
@@ -159,6 +164,20 @@ function removeDiacritics(str: string): string {
       cursor: pointer;
       transition: box-shadow 0.15s, transform 0.15s;
       border: 2px solid transparent;
+      width: 100%;
+      font: inherit;
+      color: inherit;
+      text-align: center;
+    }
+
+    .library-card:focus-visible {
+      outline: 2px solid var(--color-border-primary-default);
+      outline-offset: 2px;
+    }
+
+    .no-match {
+      grid-column: 1 / -1;
+      color: var(--color-text-secondary);
     }
 
     .library-card:hover {

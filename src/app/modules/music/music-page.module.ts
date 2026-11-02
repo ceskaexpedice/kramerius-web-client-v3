@@ -1,3 +1,6 @@
+import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
+import { PanelToggleButtonComponent } from '../../shared/components/panel-toggle-button/panel-toggle-button.component';
+import { PanelResizeHandleComponent } from '../../shared/components/panel-resize-handle/panel-resize-handle.component';
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {MusicPageComponent} from "./music-page.component";
@@ -29,7 +32,8 @@ import {MobileNavBarComponent} from '../../shared/components/mobile-nav-bar/mobi
 import {ViewerTapToggleDirective} from '../../shared/directives/viewer-tap-toggle.directive';
 import {AiContentPanelComponent} from '../../shared/components/ai-content-panel/ai-content-panel.component';
 import {AiActionsComponent} from '../../shared/components/metadata-sidebar/ai-actions/ai-actions.component';
-import {SlideUpPanelComponent} from '../../shared/components/slide-up-panel/slide-up-panel.component';
+import {FixedPanelComponent} from '../../shared/components/fixed-panel/fixed-panel.component';
+import {FixedPanelEdgeDirective} from '../../shared/components/fixed-panel/fixed-panel-edge.directive';
 import {MetadataSection} from '../../shared/components/metadata-section/metadata-section';
 import {
   ExportDocumentSectionComponent
@@ -50,6 +54,9 @@ const routes: Routes = [
   ],
     imports: [
         RouterModule.forChild(routes),
+    ScrollHideHeaderDirective,
+    PanelToggleButtonComponent,
+    PanelResizeHandleComponent,
         DetailLayoutComponent,
         InputComponent,
         SheetCloseButtonComponent,
@@ -77,7 +84,8 @@ const routes: Routes = [
         ViewerTapToggleDirective,
         AiContentPanelComponent,
         AiActionsComponent,
-        SlideUpPanelComponent,
+        FixedPanelComponent,
+        FixedPanelEdgeDirective,
         MetadataSection,
         ExportDocumentSectionComponent,
         SearchResultsSidebarComponent,

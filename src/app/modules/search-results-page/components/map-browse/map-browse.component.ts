@@ -6,6 +6,7 @@ import {
   inject,
   NgZone,
   OnDestroy,
+  signal,
   ViewChild
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -16,7 +17,7 @@ import { MapService } from '../../../../shared/services/map.service';
 import { SearchService } from '../../../../shared/services/search.service';
 import { SearchDocument } from '../../../models/search-document';
 import { GoogleMap, GoogleMapsModule } from '@angular/google-maps';
-import { AsyncPipe, NgIf } from '@angular/common';
+import { AsyncPipe, NgIf, NgTemplateOutlet } from '@angular/common';
 import { SearchResultsSidebarComponent } from '../../../../shared/components/metadata-sidebar/search-results-sidebar/search-results-sidebar.component';
 import { SelectedTagsComponent } from '../../../../shared/components/selected-tags/selected-tags.component';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -24,6 +25,9 @@ import type { AllmapsViewer } from '@allmaps/viewer-lite';
 import { ConfigService } from '../../../../core/config/config.service';
 import { AdvancedSearchService } from '../../../../shared/services/advanced-search.service';
 import { AdvancedSearchIndicatorComponent } from '../advanced-search-indicator/advanced-search-indicator.component';
+import { BreakpointService } from '../../../../shared/services/breakpoint.service';
+import { FixedPanelComponent } from '../../../../shared/components/fixed-panel/fixed-panel.component';
+import { FormatNumberPipe } from '../../../../shared/pipes/format-number.pipe';
 
 const EARTH_RADIUS = 6378137;
 
@@ -41,10 +45,13 @@ function lonLatToMercator(lon: number, lat: number): [number, number] {
     GoogleMapsModule,
     AsyncPipe,
     NgIf,
+    NgTemplateOutlet,
     SearchResultsSidebarComponent,
     SelectedTagsComponent,
     TranslatePipe,
-    AdvancedSearchIndicatorComponent
+    AdvancedSearchIndicatorComponent,
+    FixedPanelComponent,
+    FormatNumberPipe
   ],
   templateUrl: './map-browse.component.html',
   styleUrl: './map-browse.component.scss'
@@ -56,6 +63,7 @@ export class MapBrowseComponent implements AfterViewInit, OnDestroy {
   mapSearchService = inject(MapSearchService);
   searchService = inject(SearchService);
   advancedSearchService = inject(AdvancedSearchService);
+  breakpointService = inject(BreakpointService);
   private mapService = inject(MapService);
   private ngZone = inject(NgZone);
   private cdr = inject(ChangeDetectorRef);
@@ -66,6 +74,8 @@ export class MapBrowseComponent implements AfterViewInit, OnDestroy {
   readonly useAllmaps = this.configService.features.mapProvider === 'allmaps';
 
   mapReady = false;
+  /** Phones: results list open over the map in a fixed panel. */
+  readonly resultsOpen = signal(false);
   focusedBounds: google.maps.LatLngBoundsLiteral | null = null;
 
   mapOptions: google.maps.MapOptions = {

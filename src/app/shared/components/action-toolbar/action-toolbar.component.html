@@ -4,12 +4,23 @@
     <ng-content select="[left]"></ng-content>
   </div>
 
-  <div class="toolbar-center" *ngIf="hasCenterContent">
-    <ng-content select="[center]"></ng-content>
-  </div>
+  @if (hasCenterContent) {
+    <div class="toolbar-center">
+      <ng-content select="[center]"></ng-content>
+    </div>
+  }
 
   <div class="toolbar-right">
     <ng-content select="[right]"></ng-content>
+    <!-- Phones: while a fixed panel is open its close button is the toolbar's
+         last control (the panel itself has no header row). -->
+    @if (showPanelClose()) {
+      <button type="button" class="icon-button transparent action-toolbar__panel-close"
+              [attr.aria-label]="'close-dialog--arialabel' | translate"
+              (click)="fixedPanel.closeTop()">
+        <i class="icon-close" aria-hidden="true"></i>
+      </button>
+    }
   </div>
 
 </div>

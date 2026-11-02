@@ -56,7 +56,7 @@ h2 {
   font-family: var(--font-family-body);
   font-size: var(--font-size-xlarge);
   font-weight: var(--font-weight-semi-bold);
-  line-height: var(--line-height-4);
+  line-height: 1.3;
   margin: 0 0 var(--spacing-x3) 0;
 }
 
@@ -127,6 +127,12 @@ h2 {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-x3);
+
+  // Phones: one 8px rhythm from the toolbar down to the first card (cards
+  // are 8px apart too).
+  @include m.respond(mobile-sm) {
+    gap: var(--spacing-x2);
+  }
 }
 
 app-advanced-search-indicator {
@@ -139,4 +145,45 @@ app-record-export-panel {
 
 :host ::ng-deep .list-view--header .paginator.compact {
   padding-right: 0;
+}
+
+.search-error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-x3);
+  max-width: 560px;
+  margin: var(--spacing-x6) auto;
+  padding: var(--spacing-x5);
+  border-radius: var(--spacing-x3);
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border-light);
+
+  &__title {
+    margin: 0;
+    font-size: var(--font-size-xlarge);
+    font-weight: 600;
+  }
+
+  &__message {
+    margin: 0;
+    color: var(--color-text-secondary);
+  }
+}
+
+// Phones: an open export panel would squeeze the list to a sliver; cover the
+// content area as a full-width layer instead.
+@include m.respond(mobile-sm) {
+  .export-sidebar:not(.collapsed) {
+    position: fixed;
+    inset: var(--header-height) 0 var(--playback-bar-height, 0px) 0;
+    width: auto;
+    min-width: 0;
+    height: auto;
+    flex-basis: auto;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    z-index: 900;
+  }
 }

@@ -7,6 +7,7 @@
 @use '../public/styles/accessibility/high-contrast';
 
 @use '../public/styles/highlight';
+@use '_z-index.scss' as z;
 
 // Base accessibility variables. These back the focus-visibility / high-contrast
 // rules; previously they lived in an _accessibility.scss partial that is not in
@@ -24,6 +25,62 @@ html,
 body {
   height: 100%;
   scroll-behavior: auto !important;
+}
+
+// Desktop UI density: the interface is laid out 10% smaller on desktop-sized,
+// mouse-driven screens, exactly like setting the browser zoom to 90%. Phones and
+// tablets (touch) keep 100%. Viewport units are written as
+// `calc(100dvh / var(--ui-zoom, 1))` across the app so full-height layouts still
+// reach the screen edge, and JS that mixes getBoundingClientRect() with style
+// lengths converts via shared/utils/ui-zoom.ts.
+:root {
+  --ui-zoom: 1;
+
+  @media (min-width: 1052px) and (hover: hover) and (pointer: fine) {
+    --ui-zoom: 0.9;
+  }
+}
+
+// Engines without standardized CSS zoom (see verifyUiZoom in ui-zoom.ts) and
+// browsers without zoom support at all render at 100%.
+:root.ui-zoom-off {
+  --ui-zoom: 1;
+}
+
+@supports not (zoom: 1) {
+  :root {
+    --ui-zoom: 1 !important;
+  }
+}
+
+html {
+  zoom: var(--ui-zoom);
+}
+
+// Canvas / map / document engines measure their element with offsetWidth (CSS
+// px) but read pointer positions in visual px, so under the UI zoom their
+// pan/zoom/selection drift by 10%. Their hosts undo the zoom: inside them CSS
+// px equal screen px again, exactly as at 100%.
+.openseadragon-container,
+.georeference-viewer__canvas,
+.app-map-canvas,
+.epub-container,
+ngx-extended-pdf-viewer,
+google-map {
+  zoom: calc(1 / var(--ui-zoom, 1));
+}
+
+// Angular CDK places connected overlays (tooltips, menus) from visual-px rects
+// but writes CSS-px styles, so under the UI zoom they drift towards the top-left
+// and clamp against a viewport 10% too narrow. The positioned box runs at zoom 1
+// so CDK's numbers are exact; the overlay content gets the UI zoom back so it
+// looks like the rest of the page. Centred dialogs need nothing: flex centring.
+.cdk-overlay-connected-position-bounding-box {
+  zoom: calc(1 / var(--ui-zoom, 1));
+
+  .cdk-overlay-pane > * {
+    zoom: var(--ui-zoom, 1);
+  }
 }
 
 *,
@@ -57,6 +114,10 @@ body {
 
 body {
   margin: 0;
+  // Landscape on notched phones: keep in-flow content out from under the notch
+  // (0 in portrait and on desktop). Fixed bars pad themselves.
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
   font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   transition: background-color 0.3s, color 0.3s;
 }
@@ -73,6 +134,37 @@ body {
   }
 }
 
+// Bottom safe area (home indicator / Safari toolbar) the phone nav bar pads
+// itself by: it is always the lowest bar, the mini-player rides on top of it.
+main {
+  --mobile-nav-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+// Phones: the mini-player sits on top of the bottom nav bar (which clears the
+// home indicator for both) and drops to the screen bottom when the bar slides
+// away, so the tabs keep their place whether something plays or not. The bar
+// publishes its height as --mobile-nav-bar-offset (MobileNavBarComponent).
+body:has(app-mobile-nav-bar:not(.mobile-nav-bar--hidden)) {
+  --playback-bar-height-value: var(--playback-bar-content-height);
+
+  app-playback-bar {
+    transform: translateY(calc(-1 * var(--mobile-nav-bar-offset, 0px)));
+  }
+
+  app-playback-bar .playback-bar {
+    padding-bottom: var(--spacing-x2);
+  }
+}
+
+// The reader and /music slide their bar faster: keep the player on it.
+body:has(app-detail-view-page app-mobile-nav-bar, app-music-page app-mobile-nav-bar) {
+  app-playback-bar,
+  app-playback-bar .playback-bar {
+    transition-duration: 0.25s;
+    transition-timing-function: ease;
+  }
+}
+
 app-header {
   display: block;
   // Header slides up AND collapses from flow simultaneously over 300ms
@@ -82,21 +174,66 @@ app-header {
   z-index: 1000;
 }
 
-body.header-hidden {
+body.reader-immersive {
   app-header {
     transform: translateY(-100%);
     margin-bottom: calc(-1 * var(--header-height));
   }
+
+  .detail-layout {
+    height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--playback-bar-height, 0px) - var(--mobile-nav-bar-height, 0px));
+  }
+}
+
+// A mobile fixed panel is open: the page behind it must not scroll.
+body.fixed-panel-open {
+  overflow: hidden;
+
+  // Lift the toolbars the panel hangs below (or rather the stacking contexts
+  // holding them) over the panel container, so menus and calendars they open
+  // without the CDK overlay are not painted under the panel.
+  .detail-layout--action-toolbar,
+  .page-content__filters,
+  .app-map-series > app-action-toolbar {
+    z-index: z.$fixed-panel-toolbar;
+  }
+
+  .mobile-subtoolbar {
+    z-index: z.$fixed-panel-subtoolbar;
+  }
+}
+
+// Header and toolbars above a list that scrolls them away (ScrollHideHeaderDirective
+// marks them). The list already runs under them, so hiding is a pure transform:
+// no layout change, the content keeps moving with the finger. They all slide up
+// by the same distance, so bars marked to stay end at the screen top.
+.scroll-hide-chrome {
+  transition: transform 0.3s ease-in-out;
+  will-change: transform;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+// Above the list content scrolling under them; zero specificity, so a bar's own
+// z-index (header, fixed-panel-open below) still wins.
+:where(.scroll-hide-chrome) {
+  z-index: z.$scroll-hide-chrome;
+}
+
+// Their page wrappers would clip them at the top of <main> while they slide.
+.scroll-hide-unclip {
+  overflow-x: clip !important;
+  overflow-y: visible !important;
+}
+
+body.header-hidden .scroll-hide-chrome {
+  transform: translateY(calc(-1 * var(--scroll-hide-distance, 100%)));
 }
 
 .page-content__filters {
-  transition: transform 0.3s ease-in-out, margin-bottom 0.3s ease-in-out;
   will-change: transform;
-}
-
-body.header-hidden .page-content__filters {
-  transform: translateY(-100%);
-  margin-bottom: -57px !important;
 }
 
 // Popups positioned by PopupPositioningService are placed by JS one tick after
@@ -160,3 +297,13 @@ body.header-hidden .page-content__filters {
   display: inline-block;
   transform: rotate(90deg);
 }
+
+// The icon font hard-codes this glyph white (it was drawn for the blue
+// toolbar buttons), so it vanished in the white "more" menu on phones.
+.icon-quote-down:before {
+  color: inherit;
+}
+// While the metadata panel is being resized, follow the pointer without the
+// 0.3s width transition (component styles can't target body, so it lives here).
+body.is-resizing-panel { cursor: col-resize; user-select: none; }
+body.is-resizing-panel :is(.detail-layout--sidebar-right, .page-content__sidebar-right) { transition: none; }

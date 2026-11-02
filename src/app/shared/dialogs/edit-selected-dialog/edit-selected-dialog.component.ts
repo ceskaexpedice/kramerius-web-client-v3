@@ -264,7 +264,7 @@ export class EditSelectedDialogComponent {
     }
 
     const confirmationDialogRef = this.dialog.open(CloseConfirmationDialogComponent, {
-      width: '50vw',
+      width: 'calc(50vw / var(--ui-zoom, 1))',
       autoFocus: true,
       restoreFocus: false,
       hasBackdrop: true,
@@ -310,7 +310,7 @@ export class EditSelectedDialogComponent {
   openActionConfirmationDialog(data: ActionConfirmationDialogData, onConfirm: () => void) {
     const confirmationDialogRef = this.dialog.open(ActionConfirmationDialogComponent, {
       width: '400px',
-      maxWidth: '100vw',
+      maxWidth: 'calc(100vw / var(--ui-zoom, 1))',
       data,
       autoFocus: true,
       restoreFocus: false,

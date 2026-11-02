@@ -91,3 +91,43 @@
     pointer-events: auto;
   }
 }
+
+// Phones ("now playing" sheet): the two actions take far less of the row, so
+// the title keeps most of the width.
+.track--compact {
+  padding: var(--spacing-x2) 0;
+
+  .thumb-wrapper {
+    width: 40px;
+    height: 40px;
+
+    .thumb {
+      border-radius: var(--spacing-x1);
+    }
+  }
+
+  .info {
+    min-width: 0;
+
+    .title {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+
+  .actions {
+    gap: 0;
+
+    .icon-button {
+      width: 40px;
+      height: 40px;
+      color: var(--color-icon-tertiary-default);
+    }
+
+    .favorited {
+      color: var(--color-primary);
+    }
+  }
+}

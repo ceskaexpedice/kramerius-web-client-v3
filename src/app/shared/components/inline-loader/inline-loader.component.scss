@@ -1,3 +1,5 @@
+@use "_z-index.scss" as z;
+
 .inline-loader {
   display: flex;
   flex-direction: column;
@@ -48,6 +50,12 @@
     background-color: var(--overlay-bg, rgba(255, 255, 255, 0.7));
     min-height: 0 !important;
     padding: 0;
+
+    // The page behind a mobile fixed panel may reload (e.g. a record tapped in
+    // Results); its veil covers the page content only, not the panel above it.
+    :host-context(body.fixed-panel-open) & {
+      z-index: z.$inline-loader-overlay-under-panel;
+    }
   }
 }
 

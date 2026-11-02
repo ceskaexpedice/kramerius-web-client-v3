@@ -10,14 +10,48 @@ import {
 } from '../../../../shared/components/toggle-button-group/toggle-button-group.component';
 import { customDefinedFacetsEnum } from '../../const/facets';
 
-type WhereToSearchValue = 'all' | 'titles' | 'pageGrouped' | 'article' | 'supplement' | 'page' | null;
+export type WhereToSearchValue = 'all' | 'titles' | 'pageGrouped' | 'article' | 'supplement' | 'page' | null;
 
-interface FacetItem {
+export interface FacetItem {
   name: string;
   count: number;
 }
 
 const FACET_KEY = customDefinedFacetsEnum.whereToSearchModel;
+
+/**
+ * Choices of the "where to search" toggle for the given facet counts; empty when
+ * there's no meaningful choice (the toggle then hides). Shared with the results
+ * view, which drops its mobile section tabs while the toggle is shown.
+ */
+export function buildWhereToSearchOptions(items: FacetItem[]): ToggleOption<WhereToSearchValue>[] {
+  const byName = new Map(items.map(i => [i.name, i.count]));
+  const has = (name: string) => (byName.get(name) ?? 0) > 0;
+
+  const result: ToggleOption<WhereToSearchValue>[] = [
+    { value: 'all', label: 'tab-all' },
+  ];
+
+  if (has('titles')) {
+    result.push({ value: 'titles', label: 'titles-section-header' });
+  }
+  if (has('page')) {
+    result.push({ value: 'pageGrouped', label: 'group-results--titles' });
+    result.push({ value: 'page', label: 'group-results--pages' });
+  }
+  if (has('article')) {
+    result.push({ value: 'article', label: 'articles-section-header' });
+  }
+  if (has('supplement')) {
+    result.push({ value: 'supplement', label: 'attachments-section-header' });
+  }
+
+  // Hide the toggle when there's no meaningful choice:
+  // - only "all" (no real categories), or
+  // - "all" + a single category (e.g. only titles match), since clicking
+  //   either yields the same result set.
+  return result.length > 2 ? result : [];
+}
 
 @Component({
   selector: 'app-where-to-search-toggle',
@@ -81,36 +115,8 @@ export class WhereToSearchToggleComponent {
     return selected as WhereToSearchValue;
   });
 
-  options = computed<ToggleOption<WhereToSearchValue>[]>(() => {
-    const items = this.whereToSearchItems();
-    const byName = new Map(items.map(i => [i.name, i.count]));
-    const has = (name: string) => (byName.get(name) ?? 0) > 0;
-
-    const result: ToggleOption<WhereToSearchValue>[] = [
-      { value: 'all', label: 'tab-all' },
-    ];
-
-    if (has('titles')) {
-      result.push({ value: 'titles', label: 'titles-section-header' });
-    }
-    if (has('page')) {
-      result.push({ value: 'pageGrouped', label: 'group-results--titles' });
-      result.push({ value: 'page', label: 'group-results--pages' });
-    }
-    if (has('article')) {
-      result.push({ value: 'article', label: 'articles-section-header' });
-    }
-    if (has('supplement')) {
-      result.push({ value: 'supplement', label: 'attachments-section-header' });
-    }
-
-
-    // Hide the toggle when there's no meaningful choice:
-    // - only "all" (no real categories), or
-    // - "all" + a single category (e.g. only titles match), since clicking
-    //   either yields the same result set.
-    return result.length > 2 ? result : [];
-  });
+  options = computed<ToggleOption<WhereToSearchValue>[]>(() =>
+    buildWhereToSearchOptions(this.whereToSearchItems()));
 
   onChange(next: WhereToSearchValue): void {
     if (next === null) return;

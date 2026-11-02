@@ -1,3 +1,5 @@
+import { PanelToggleButtonComponent } from '../../shared/components/panel-toggle-button/panel-toggle-button.component';
+import { PanelResizeHandleComponent } from '../../shared/components/panel-resize-handle/panel-resize-handle.component';
 import { NgModule } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { RouterModule, Routes } from '@angular/router';
@@ -29,6 +31,7 @@ import { ButtonToggleComponent } from '../../shared/components/button-toggle/but
 import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
 import { FormatNumberPipe } from '../../shared/pipes/format-number.pipe';
 import { MobileNavBarComponent } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
+import { FixedPanelComponent } from '../../shared/components/fixed-panel/fixed-panel.component';
 
 const routes: Routes = [
   {
@@ -40,8 +43,11 @@ const routes: Routes = [
   declarations: [CollectionsPage],
   imports: [
     RouterModule.forChild(routes),
+    PanelToggleButtonComponent,
+    PanelResizeHandleComponent,
     TranslatePipe,
     MobileNavBarComponent,
+    FixedPanelComponent,
     FilterSidebarComponent,
     ActionToolbarComponent,
     NgForOf,

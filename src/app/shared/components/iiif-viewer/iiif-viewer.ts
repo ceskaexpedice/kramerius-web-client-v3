@@ -157,6 +157,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   }
 
   private resizeObserver: ResizeObserver | null = null;
+  /** Debounce for re-fitting the page after the container stops resizing. */
+  private resizeSettle: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
     this.iiifViewerService.uuid = this.metadata?.uuid || null;
@@ -288,6 +290,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   }
 
   ngOnDestroy(): void {
+    if (this.resizeSettle) {
+      clearTimeout(this.resizeSettle);
+      this.resizeSettle = null;
+    }
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.iiifViewerService.clearTtsHighlight();
 
@@ -560,6 +566,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
     const authHeaders = this.iiifViewerService.getAuthHeaders();
 
+    // A re-fit scheduled for the previous viewer must not touch the new one.
+
+    if (this.resizeSettle) { clearTimeout(this.resizeSettle); this.resizeSettle = null; }
+
     this.viewer = OpenSeadragon({
       element: this.viewerContainer.nativeElement,
       prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@4.1/build/openseadragon/images/',
@@ -670,8 +680,39 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // The container changes size without the image reopening — most visibly when
     // the AI panel splits the viewer in half — and minZoomLevel is derived from
     // that size, so recompute it on resize (issue #161).
+    // Remember whether the reader left the page at its fitted ("home") view, so a
+    // layout change (info panel shown/hidden or resized, phone sheet closed)
+    // re-fits the page instead of leaving it cropped — but never undoes a zoom
+    // the reader chose.
+    // While the container is still animating (panel slide = 300ms) the zoom
+    // OpenSeadragon reports is transient, so it is ignored, and the re-fit
+    // happens once the size has settled.
+    let atHome = true;
+    const isAtFittedZoom = (): boolean => {
+      const viewport = this.viewer?.viewport;
+      if (!viewport) return false;
+      const fitted = Math.max(viewport.getHomeZoom(), (this.viewer as any).minZoomLevel || 0);
+      return Math.abs(viewport.getZoom(true) - fitted) <= fitted * 0.02;
+    };
+    this.viewer.addHandler('open', () => { atHome = true; });
+    this.viewer.addHandler('animation-finish', () => {
+      if (this.resizeSettle) return;
+      atHome = isAtFittedZoom();
+    });
     this.viewer.addHandler('resize', () => {
       this.updateMinZoomLevel();
+      if (this.resizeSettle) clearTimeout(this.resizeSettle);
+      this.resizeSettle = setTimeout(() => {
+        this.resizeSettle = null;
+        if (atHome && this.viewer) {
+          this.updateMinZoomLevel();
+          this.viewer.viewport.goHome(true);
+          const min = (this.viewer as any).minZoomLevel || 0;
+          if (this.viewer.viewport.getZoom(true) < min) {
+            this.viewer.viewport.zoomTo(min, undefined, true);
+          }
+        }
+      }, 350);
     });
 
     // Setup native touch event listeners for swipe navigation
@@ -1308,7 +1349,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   }
 
   /**
-   * Set minZoomLevel so the maximum zoom-out level fits the image to the container height.
+   * Set minZoomLevel so the maximum zoom-out level fits the whole image in the container.
    * Called after each 'open' event when image dimensions are known.
    */
   private updateMinZoomLevel(): void {
@@ -1323,6 +1364,9 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // Viewport zoom where the image height exactly fills the container height.
     // OSD normalizes by image width, so: fitHeightZoom = (containerH/containerW) * (imageW/imageH)
     const fitHeightZoom = (containerSize.y / containerSize.x) * (imageSize.x / imageSize.y);
-    (this.viewer as any).minZoomLevel = fitHeightZoom;
+    // In a container narrower than the page (portrait phone) fitting the height
+    // crops the page sides, so cap at zoom 1 (width fits): the whole page always
+    // fits at the minimum zoom.
+    (this.viewer as any).minZoomLevel = Math.min(fitHeightZoom, 1);
   }
 }

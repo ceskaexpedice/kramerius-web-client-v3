@@ -1,71 +1,197 @@
-<div class="playback-bar" *ngIf="show()">
-  <div class="left">
-    <app-thumbnail-image
-      class="cover"
-      [src]="musicService.getCoverImageForTrack(soundService.getCurrentTrack()?.parentPid)"
-      [alt]="'cover-image--alt' | translate"
-      fallbackIcon="music"
-      size="auto">
-    </app-thumbnail-image>
-    <div class="info">
-      <div class="title cursor-pointer" (click)="openTrackDetails()"
-        role="button" tabindex="0" [attr.aria-label]="'track-details' | translate"
-        (keydown.enter)="openTrackDetails()" (keydown.space)="$event.preventDefault(); openTrackDetails()">{{ soundService.getCurrentTrack()?.['title.search'] }}</div>
-      <div class="meta cursor-pointer" (click)="openTrackDetails()">
-        @if (soundService.getCurrentTrack()?.authors && soundService.getCurrentTrack()!.authors!.length > 0) {
-          {{ soundService.getCurrentTrack()!.authors![0] }}
-        } @else if (musicService.authorForTrack) {
-          {{ musicService.authorForTrack }}
+@if (show()) {
+  @if (breakpointService.isMobile()) {
+  <!-- Phones: a mini player. Cover and title open the "now playing" sheet;
+       only play and next stay in the bar. A 2px line shows the progress. -->
+  <div class="playback-bar playback-bar--mini" appFixedPanelEdge="bottom">
+    <div class="mini-progress" aria-hidden="true">
+      <span class="mini-progress__value" [style.width.%]="soundService.getProgress() * 100"></span>
+    </div>
+
+    <button #miniPlayerOpen type="button" class="mini-open" aria-haspopup="dialog"
+            [attr.aria-expanded]="isPlayerOpen()"
+            [attr.aria-label]="('now-playing--open' | translate) + ': ' + (soundService.getCurrentTrack()?.['title.search'] || '')"
+            (click)="openPlayer()">
+      <app-thumbnail-image
+        class="cover"
+        [src]="musicService.getCoverImageForTrack(soundService.getCurrentTrack()?.parentPid)"
+        [alt]="''"
+        fallbackIcon="music"
+        size="auto">
+      </app-thumbnail-image>
+      <span class="mini-open__text">
+        <span class="mini-open__title">{{ soundService.getCurrentTrack()?.['title.search'] }}</span>
+        @if (trackMeta()) {
+          <span class="mini-open__meta">{{ trackMeta() }}</span>
         }
-        @if (soundService.getCurrentTrack()?.year || musicService.metadata?.dateStr) {
-          · {{ soundService.getCurrentTrack()?.year || musicService.metadata?.dateStr }}
-        }
-        <!-- @if (soundService.getCurrentTrack()?.part) {
-          · {{ 'page' | translate }} {{ soundService.getCurrentTrack()!.part }}
-        } -->
+      </span>
+    </button>
+
+    <button type="button" class="mini-button mini-button--play" (click)="togglePlay()"
+            [attr.aria-label]="(soundService.isPlayingSignal() ? 'playback-pause' : 'playback-play') | translate">
+      <i [class.icon-play]="!soundService.isPlayingSignal()" [class.icon-pause]="soundService.isPlayingSignal()" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="mini-button" (click)="next()" [attr.aria-label]="'playback-next' | translate">
+      <i class="icon-next" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="mini-button" (click)="openPlayer()" aria-haspopup="dialog"
+            [attr.aria-label]="'playback-queue' | translate">
+      <i class="icon-music-filter" aria-hidden="true"></i>
+    </button>
+  </div>
+  } @else {
+  <div class="playback-bar" appFixedPanelEdge="bottom">
+    <div class="left">
+      <app-thumbnail-image
+        class="cover"
+        [src]="musicService.getCoverImageForTrack(soundService.getCurrentTrack()?.parentPid)"
+        [alt]="'cover-image--alt' | translate"
+        fallbackIcon="music"
+        size="auto">
+      </app-thumbnail-image>
+      <div class="info">
+        <div class="title cursor-pointer" (click)="openTrackDetails()"
+          role="button" tabindex="0" [attr.aria-label]="'track-details' | translate"
+          (keydown.enter)="openTrackDetails()" (keydown.space)="$event.preventDefault(); openTrackDetails()">{{ soundService.getCurrentTrack()?.['title.search'] }}</div>
+        <div class="meta cursor-pointer" (click)="openTrackDetails()">
+          @if (soundService.getCurrentTrack()?.authors && soundService.getCurrentTrack()!.authors!.length > 0) {
+            {{ soundService.getCurrentTrack()!.authors![0] }}
+          } @else if (musicService.authorForTrack) {
+            {{ musicService.authorForTrack }}
+          }
+          @if (soundService.getCurrentTrack()?.year || musicService.metadata?.dateStr) {
+            · {{ soundService.getCurrentTrack()?.year || musicService.metadata?.dateStr }}
+          }
+          <!-- @if (soundService.getCurrentTrack()?.part) {
+            · {{ 'page' | translate }} {{ soundService.getCurrentTrack()!.part }}
+          } -->
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="center">
-    <div class="controls">
-      <button (click)="prev()" class="outlined tertiary" [attr.aria-label]="'playback-previous' | translate"><i class="icon-previous" aria-hidden="true"></i></button>
-      <button (click)="togglePlay()" class="primary" [attr.aria-label]="(soundService.isPlayingSignal() ? 'playback-pause' : 'playback-play') | translate">
-        <i [class.icon-play]="!soundService.isPlayingSignal()" [class.icon-pause]="soundService.isPlayingSignal()" aria-hidden="true"></i>
-      </button>
-      <button (click)="next()" class="outlined tertiary" [attr.aria-label]="'playback-next' | translate"><i class="icon-next" aria-hidden="true"></i></button>
+    <div class="center">
+      <div class="controls">
+        <button (click)="prev()" class="outlined tertiary" [attr.aria-label]="'playback-previous' | translate"><i class="icon-previous" aria-hidden="true"></i></button>
+        <button (click)="togglePlay()" class="primary" [attr.aria-label]="(soundService.isPlayingSignal() ? 'playback-pause' : 'playback-play') | translate">
+          <i [class.icon-play]="!soundService.isPlayingSignal()" [class.icon-pause]="soundService.isPlayingSignal()" aria-hidden="true"></i>
+        </button>
+        <button (click)="next()" class="outlined tertiary" [attr.aria-label]="'playback-next' | translate"><i class="icon-next" aria-hidden="true"></i></button>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <span>{{ soundService.getCurrentTime() | timeFormat }}</span>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        class="hide-thumb"
+        [attr.aria-label]="'layout--timeline' | translate"
+        [style.--progress]="(soundService.getProgress() * 100) + '%'"
+        [value]="soundService.getProgress() * 100"
+        (input)="seekTo($event)"
+      />
+      <span>{{ soundService.getDuration() | timeFormat }}</span>
+    </div>
+
+
+    <div class="right">
+
+      <button (click)="toggleQueue()" class="outlined tertiary" [attr.aria-label]="'playback-queue' | translate"><i class="icon-music-filter" aria-hidden="true"></i></button>
+
+      <app-volume-control
+        [volume]="volume"
+        (volumeChange)="onVolumeChange($event)"
+      ></app-volume-control>
+
+      <button (click)="close()" class="icon-button rounded light" [attr.aria-label]="'playback-close' | translate"><i class="icon-close" aria-hidden="true"></i></button>
     </div>
   </div>
+  }
+}
 
-  <div class="timeline">
-    <span>{{ soundService.getCurrentTime() | timeFormat }}</span>
-    <input
-      type="range"
-      min="0"
-      max="100"
-      class="hide-thumb"
-      [attr.aria-label]="'layout--timeline' | translate"
-      [style.--progress]="(soundService.getProgress() * 100) + '%'"
-      [value]="soundService.getProgress() * 100"
-      (input)="seekTo($event)"
-    />
-    <span>{{ soundService.getDuration() | timeFormat }}</span>
-  </div>
+<!-- Phones: "now playing" sheet. A modal dialog of its own, not the non-modal
+     app-fixed-panel; it stays below the CDK overlay layer so the stop dialog
+     and the favourites popup opened from here land on top of it. -->
+@if (isPlayerOpen()) {
+  <div class="player-sheet-backdrop" (click)="closePlayer()"></div>
+  <section class="player-sheet" role="dialog" aria-modal="true" aria-labelledby="player-sheet-title"
+           cdkTrapFocus [cdkTrapFocusAutoCapture]="true" (keydown.escape)="closePlayer()">
+    <header class="player-sheet__header">
+      <h2 id="player-sheet-title" class="player-sheet__heading">{{ 'now-playing--header' | translate }}</h2>
+      <button type="button" class="icon-button rounded light" (click)="closePlayer()"
+              [attr.aria-label]="'close-dialog--arialabel' | translate">
+        <i class="icon-close" aria-hidden="true"></i>
+      </button>
+    </header>
 
+    <div class="player-sheet__body">
+      <div class="player-sheet__track">
+        <app-thumbnail-image
+          class="player-sheet__cover"
+          [src]="musicService.getCoverImageForTrack(soundService.getCurrentTrack()?.parentPid)"
+          [alt]="'cover-image--alt' | translate"
+          fallbackIcon="music"
+          size="auto">
+        </app-thumbnail-image>
+        <div class="player-sheet__info">
+          <button type="button" class="player-sheet__title" (click)="openTrackDetails()"
+                  [attr.aria-label]="('track-details' | translate) + ': ' + (soundService.getCurrentTrack()?.['title.search'] || '')">
+            {{ soundService.getCurrentTrack()?.['title.search'] }}
+          </button>
+          @if (trackMeta()) {
+            <p class="player-sheet__meta">{{ trackMeta() }}</p>
+          }
+        </div>
+      </div>
 
-  <div class="right">
+      <div class="player-sheet__timeline">
+        <input
+          type="range"
+          min="0"
+          max="100"
+          [attr.aria-label]="'layout--timeline' | translate"
+          [style.--progress]="(soundService.getProgress() * 100) + '%'"
+          [value]="soundService.getProgress() * 100"
+          (input)="seekTo($event)"
+        />
+        <div class="player-sheet__times">
+          <span>{{ soundService.getCurrentTime() | timeFormat }}</span>
+          <span>{{ soundService.getDuration() | timeFormat }}</span>
+        </div>
+      </div>
 
-    <button (click)="toggleQueue()" class="outlined tertiary" [attr.aria-label]="'playback-queue' | translate"><i class="icon-music-filter" aria-hidden="true"></i></button>
+      <div class="player-sheet__controls">
+        <button type="button" class="player-sheet__control" (click)="prev()" [attr.aria-label]="'playback-previous' | translate">
+          <i class="icon-previous" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="player-sheet__control player-sheet__control--play" (click)="togglePlay()"
+                [attr.aria-label]="(soundService.isPlayingSignal() ? 'playback-pause' : 'playback-play') | translate">
+          <i [class.icon-play]="!soundService.isPlayingSignal()" [class.icon-pause]="soundService.isPlayingSignal()" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="player-sheet__control" (click)="next()" [attr.aria-label]="'playback-next' | translate">
+          <i class="icon-next" aria-hidden="true"></i>
+        </button>
+      </div>
 
-    <app-volume-control
-      [volume]="volume"
-      (volumeChange)="onVolumeChange($event)"
-    ></app-volume-control>
+      @if (upNext().length > 0) {
+        <section class="player-sheet__queue" aria-labelledby="player-sheet-queue-title">
+          <h3 id="player-sheet-queue-title" class="player-sheet__subheading">{{ 'up-next' | translate }}</h3>
+          @for (track of upNext(); track track.pid) {
+            <app-playback-queue-item [track]="track" [isCurrentTrack]="false" [compact]="true"
+                                     (onPlay)="playFromQueue($event)" (onRemove)="removeFromQueue($event)">
+            </app-playback-queue-item>
+          }
+        </section>
+      }
 
-    <button (click)="close()" class="icon-button rounded light" [attr.aria-label]="'playback-close' | translate"><i class="icon-close" aria-hidden="true"></i></button>
-  </div>
-</div>
+      <button type="button" class="button outlined tertiary player-sheet__stop" (click)="close()">
+        <i class="icon-close-circle" aria-hidden="true"></i>
+        {{ 'playback-close' | translate }}
+      </button>
+    </div>
+  </section>
+}
 
-@if (isQueueOpen()) {
+@if (isQueueOpen() && !breakpointService.isMobile()) {
   <app-playback-queue></app-playback-queue>
 }

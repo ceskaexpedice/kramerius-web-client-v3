@@ -231,7 +231,7 @@ export class RecordExportPanelComponent implements OnInit {
         messageKey: 'login-prompt-message-export',
       },
       width: '560px',
-      maxWidth: '90vw',
+      maxWidth: 'calc(90vw / var(--ui-zoom, 1))',
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -245,7 +245,7 @@ export class RecordExportPanelComponent implements OnInit {
     const dialogRef = this.dialog.open(EmailExportDialogComponent, {
       data: { pid: this.record.pid, exportType },
       width: '560px',
-      maxWidth: '90vw',
+      maxWidth: 'calc(90vw / var(--ui-zoom, 1))',
       ariaLabelledBy: 'email-export-dialog-title',
     });
 
@@ -253,7 +253,7 @@ export class RecordExportPanelComponent implements OnInit {
       if (result === 'submitted') {
         this.dialog.open(EmailExportSuccessDialogComponent, {
           width: '560px',
-          maxWidth: '90vw',
+          maxWidth: 'calc(90vw / var(--ui-zoom, 1))',
           ariaLabelledBy: 'email-export-success-dialog-title',
         });
       } else if (result === 'error') {
@@ -272,9 +272,9 @@ export class RecordExportPanelComponent implements OnInit {
         title: titleKey,
         maxSelectionCount: this.maxRange(),
       },
-      width: '90vw',
+      width: 'calc(90vw / var(--ui-zoom, 1))',
       maxWidth: '1200px',
-      maxHeight: '90vh',
+      maxHeight: 'calc(90vh / var(--ui-zoom, 1))',
     });
 
     dialogRef.afterClosed().subscribe((result: PageSelectionDialogResult) => {

@@ -1,3 +1,43 @@
+// Type scale. Desktop density is applied as `html { zoom: var(--ui-zoom) }`
+// (src/styles.scss), which would also shrink text: 14px would render as 12.6px.
+// The font-size and line-height tokens divide the zoom back out, so text keeps
+// its designed size while spacing and component sizes stay compact. Custom
+// properties resolve where they are declared, so hosts that undo the zoom
+// (viewer canvases, see the selector list below) redeclare the tokens without
+// the compensation, otherwise text inside them would come out 11% too large.
+@mixin type-tokens($compensate) {
+  $k: 1;
+  @if $compensate {
+    $k: calc(1 / var(--ui-zoom, 1));
+  }
+
+  --font-size-xs: calc(11px * var(--accessibility-text-scale) * #{$k});
+  --font-size-xxsmall: calc(12px * var(--accessibility-text-scale) * #{$k});
+  --font-size-xsmall: calc(13px * var(--accessibility-text-scale) * #{$k});
+  --font-size-small: calc(14px * var(--accessibility-text-scale) * #{$k});
+  --font-size-base: calc(16px * var(--accessibility-text-scale) * #{$k});
+  --font-size-large: calc(18px * var(--accessibility-text-scale) * #{$k});
+  --font-size-xlarge: calc(20px * var(--accessibility-text-scale) * #{$k});
+  --font-size-xxlarge: calc(24px * var(--accessibility-text-scale) * #{$k});
+  --font-size-3xlarge: calc(28px * var(--accessibility-text-scale) * #{$k});
+  --font-size-4xlarge: calc(32px * var(--accessibility-text-scale) * #{$k});
+  --font-size-5xlarge: calc(40px * var(--accessibility-text-scale) * #{$k});
+  --font-size-6xlarge: calc(48px * var(--accessibility-text-scale) * #{$k});
+
+  --line-height-xs: calc(16px * var(--accessibility-text-scale) * #{$k});
+  --line-height-xs-15: calc(18px * var(--accessibility-text-scale) * #{$k});
+  --line-height-xs2: calc(22px * var(--accessibility-text-scale) * #{$k});
+  --line-height-1: calc(20px * var(--accessibility-text-scale) * #{$k});
+  --line-height-2: calc(24px * var(--accessibility-text-scale) * #{$k});
+  --line-height-3: calc(28px * var(--accessibility-text-scale) * #{$k});
+  --line-height-4: calc(32px * var(--accessibility-text-scale) * #{$k});
+  --line-height-5: calc(36px * var(--accessibility-text-scale) * #{$k});
+  --line-height-6: calc(40px * var(--accessibility-text-scale) * #{$k});
+  --line-height-7: calc(44px * var(--accessibility-text-scale) * #{$k});
+  --line-height-8: calc(56px * var(--accessibility-text-scale) * #{$k});
+  --line-height-9: calc(48px * var(--accessibility-text-scale) * #{$k});
+}
+
 :root {
   --base-padding: 20px;
   --base-margin: 20px;
@@ -8,26 +48,19 @@
 
   --item-card-shadow: 0 6px 15.9px 0 rgba(0, 0, 0, 0.12);
 
-  --font-size-xs: calc(11px * var(--accessibility-text-scale));
-  --font-size-xxsmall: calc(12px * var(--accessibility-text-scale));
-  --font-size-xsmall: calc(13px * var(--accessibility-text-scale));
-  --font-size-small: calc(14px * var(--accessibility-text-scale));
-  --font-size-base: calc(16px * var(--accessibility-text-scale));
-  --font-size-large: calc(18px * var(--accessibility-text-scale));
-  --font-size-xlarge: calc(20px * var(--accessibility-text-scale));
-  --font-size-xxlarge: calc(24px * var(--accessibility-text-scale));
-  --font-size-3xlarge: calc(28px * var(--accessibility-text-scale));
-  --font-size-4xlarge: calc(32px * var(--accessibility-text-scale));
-  --font-size-5xlarge: calc(40px * var(--accessibility-text-scale));
-  --font-size-6xlarge: calc(48px * var(--accessibility-text-scale));
+  @include type-tokens(true);
 
-  --header-height: 56px;
+  // Includes the top safe area (status bar / notch) the header pads itself by,
+  // so every `100dvh - var(--header-height)` layout stays exact.
+  --header-height: calc(56px + env(safe-area-inset-top, 0px));
   --toolbar-height: 48px;
   --small-gap: 1px;
   --license-bar-height: 38px;
-  --playback-bar-height-value: 68px; // AUD-1: Soundbar-pinned dle navrhu
+  --playback-bar-content-height: 68px;
+  --playback-bar-height-value: calc(var(--playback-bar-content-height) + env(safe-area-inset-bottom, 0px)); // AUD-1: Soundbar-pinned dle navrhu; + home indicator
   --info-banner-height: 55px;
-  --metadata-sidebar-width: 285px;
+  // Grows with the viewport (300–400px); a user-dragged width overrides it (UiStateService).
+  --metadata-sidebar-width: clamp(300px, calc(22vw / var(--ui-zoom, 1)), 400px);
 
   --spacing-x05: 2px;
   --spacing-x1: 4px;
@@ -47,18 +80,6 @@
 
   --viewer-controls-width: 48px;
 
-  --line-height-xs: calc(16px * var(--accessibility-text-scale));
-  --line-height-xs-15: calc(18px * var(--accessibility-text-scale));
-  --line-height-xs2: calc(22px * var(--accessibility-text-scale));
-  --line-height-1: calc(20px * var(--accessibility-text-scale));
-  --line-height-2: calc(24px * var(--accessibility-text-scale));
-  --line-height-3: calc(28px * var(--accessibility-text-scale));
-  --line-height-4: calc(32px * var(--accessibility-text-scale));
-  --line-height-5: calc(36px * var(--accessibility-text-scale));
-  --line-height-6: calc(40px * var(--accessibility-text-scale));
-  --line-height-7: calc(44px * var(--accessibility-text-scale));
-  --line-height-8: calc(56px * var(--accessibility-text-scale));
-  --line-height-9: calc(48px * var(--accessibility-text-scale));
 
   // ===================
   // Card & Grid Sizes
@@ -111,4 +132,14 @@
   // Periodical Volume Card - 144x231
   --periodical-volume-card-width: 144px;
   --periodical-volume-card-height: 231px;
+}
+
+// Keep in sync with the counter-zoom selector list in src/styles.scss.
+.openseadragon-container,
+.georeference-viewer__canvas,
+.app-map-canvas,
+.epub-container,
+ngx-extended-pdf-viewer,
+google-map {
+  @include type-tokens(false);
 }

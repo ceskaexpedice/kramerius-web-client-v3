@@ -22,6 +22,7 @@ import { Page } from '../../models/page.model';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CdkTooltipDirective } from '../../directives';
 import { trimSnippetToHighlight } from '../../utils/highlight-snippet';
+import { uiZoom } from '../../utils/ui-zoom';
 
 export interface SearchResult {
   pid: string;
@@ -172,7 +173,8 @@ export class SearchResultsListComponent implements AfterViewInit, OnDestroy {
 
   private measureRowHeight(): void {
     const row = this.rowMeasure?.nativeElement.querySelector('.search-result-item') as HTMLElement | null;
-    const height = row?.getBoundingClientRect().height;
+    // Virtual-scroll item sizes are CSS px; the rect is visual px under UI zoom.
+    const height = row ? row.getBoundingClientRect().height / uiZoom() : 0;
     if (!height) return;
 
     const gap = parseFloat(

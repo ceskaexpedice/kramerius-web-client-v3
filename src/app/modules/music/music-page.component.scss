@@ -209,14 +209,6 @@ app-iiif-viewer {
   }
 }
 
-.floating-sidebar-toggle {
-  position: fixed;
-  right: var(--spacing-x3);
-  bottom: var(--spacing-x3);
-  transition: all 0.2s ease;
-  z-index: 1000;
-}
-
 .favorites-popup-wrapper {
   position: fixed;
   z-index: 1000;
@@ -235,21 +227,23 @@ app-iiif-viewer {
 }
 
 // Mobile nav bar replaces the floating sidebar toggles on phones. It is fixed
-// to the viewport bottom, offset by the global mini-player so the two stack
-// instead of overlapping (GitHub issue #172). Unlike detail-view's immersive
+// to the viewport bottom; the global mini-player rides on top of it
+// (styles.scss, GitHub issue #172). Unlike detail-view's immersive
 // bar this one stays visible - /music has no tap-to-toggle viewer surface in
 // the records view, so a self-hiding bar would be unreachable there.
 app-mobile-nav-bar {
   position: fixed;
-  bottom: var(--playback-bar-height, 0px);
+  bottom: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  // Above the fixed panels (700): the nav is a panel edge and stays usable while
+  // a section panel is open (the panel ends at its top edge).
+  z-index: 850;
 }
 
-// Immersive nav bar (images mode): slide down out of view when hidden, so a
-// clean tap on the viewer brings it back. Respects motion prefs.
-app-mobile-nav-bar.mobile-nav-bar--immersive {
+// Slides down out of view when hidden: in images mode a clean tap on the
+// viewer brings it back, in the track list scrolling up does. Respects motion prefs.
+app-mobile-nav-bar {
   transition: transform 0.25s ease, opacity 0.25s ease;
   transform: translateY(0);
   opacity: 1;
@@ -262,7 +256,7 @@ app-mobile-nav-bar.mobile-nav-bar--immersive {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  app-mobile-nav-bar.mobile-nav-bar--immersive {
+  app-mobile-nav-bar {
     transition: none;
   }
 }

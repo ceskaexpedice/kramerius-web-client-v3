@@ -1,31 +1,40 @@
-<!-- Sidebar toggle button for mobile/tablet -->
-<button *ngIf="!hideToggleButton && !breakpointService.sidebarVisible() && !breakpointService.isVisible()"
-  class="sidebar-toggle-btn" [class.left]="toggleButtonPosition === 'left'"
-  (click)="breakpointService.toggleSidebar()" [attr.aria-label]="'open-filters' | translate">
-  <i [class]="toggleButtonIcon"></i>
+<!-- Sidebar toggle button for mobile/tablet. On phones it stays in the DOM while
+     a fixed panel is open (only hidden), so closing the filter panel can return
+     focus to it. -->
+@if (!hideToggleButton && (breakpointService.isMobile() || (!breakpointService.sidebarVisible() && !breakpointService.isVisible()))) {
+<button class="sidebar-toggle-btn" [class.left]="toggleButtonPosition === 'left'"
+  [class.sidebar-toggle-btn--hidden]="breakpointService.isMobile() && fixedPanel.anyOpen()"
+  (click)="breakpointService.toggleSidebar()" [attr.aria-label]="openLabelKey | translate">
+  <i [class]="toggleButtonIcon" aria-hidden="true"></i>
 </button>
+}
 
 <!-- Capture projected content into a template -->
 <ng-template #filterContent>
   <ng-content></ng-content>
 </ng-template>
 
-<!-- Mobile slide-up panel mode -->
+<!-- Mobile fixed panel mode -->
 @if (breakpointService.isMobile()) {
-<app-slide-up-panel [title]="mobileTitleKey | translate" [hideTitle]="hideMobileTitle"
+<app-fixed-panel [title]="mobileTitleKey | translate" [flush]="hideMobileTitle"
   [(isOpen)]="breakpointService.manualToggle"
   (closed)="breakpointService.manualToggle.set(false)">
   <ng-container *ngTemplateOutlet="filterContent"></ng-container>
-</app-slide-up-panel>
+</app-fixed-panel>
 }
 
 <!-- Tablet/Desktop overlay and inline modes -->
 @if (!breakpointService.isMobile()) {
 <!-- Backdrop for tablet overlay -->
-<div *ngIf="breakpointService.isVisible() && isOverlay()" class="sidebar-backdrop"
-  (click)="onBackdropClick()"></div>
+@if (breakpointService.isVisible() && isOverlay()) {
+<div class="sidebar-backdrop" (click)="onBackdropClick()"></div>
+}
 
+<!-- Overlay mode: a closed (off-screen) panel is [inert] so Tab never lands in
+     it, and Escape closes the open one. -->
 <div class="filter-sidebar" role="complementary" [attr.aria-label]="'search-filters' | translate"
+  [attr.inert]="isOverlay() && !breakpointService.isVisible() ? '' : null"
+  (keydown.escape)="onOverlayEscape($event)"
   [class.overlay]="isOverlay()" [class.visible]="breakpointService.isVisible()"
   [class.overlay--paired-close]="hideMobileTitle"
   [class.disabled]="isDisabled" [class.dimmed]="dimmed">
@@ -35,11 +44,12 @@
        app-sheet-close-button): this one floats absolutely at the top, which on a
        landscape phone left an empty row exactly where the caption used to be
        (GitHub issue #177). -->
-  <button *ngIf="isOverlay() && breakpointService.isVisible() && !hideMobileTitle"
-    class="sidebar-close-btn"
-    (click)="breakpointService.toggleSidebar()" [attr.aria-label]="'close-filters' | translate">
-    <i class="icon-close"></i>
+  @if (isOverlay() && breakpointService.isVisible() && !hideMobileTitle) {
+  <button class="sidebar-close-btn"
+    (click)="breakpointService.toggleSidebar()" [attr.aria-label]="closeLabelKey | translate">
+    <i class="icon-close" aria-hidden="true"></i>
   </button>
+  }
 
   <!-- Scrollable content area -->
   <div class="filter-content" [class.scrollable]="scrollable" [ngClass]="['padding-' + padding]">

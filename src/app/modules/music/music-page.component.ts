@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, OnDestroy, signal, computed, effect, ElementRef } from '@angular/core';
+import { PANEL_TABS } from '../../shared/components/metadata-sidebar/panel-tabs';
 import { Subscription } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, distinctUntilChanged } from 'rxjs/operators';
@@ -20,6 +21,8 @@ import { ConfigService } from '../../core/config';
 import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
 import { ViewerControls } from '../../shared/components/viewer-controls/viewer-controls';
 import { AiPanelService } from '../../shared/services/ai-panel.service';
+import { AdminActionsService } from '../../shared/services/admin-actions.service';
+import { UiStateService } from '../../shared/services/ui-state.service';
 
 @Component({
   selector: 'app-music-page',
@@ -44,21 +47,25 @@ export class MusicPageComponent implements OnInit, OnDestroy {
   public configService = inject(ConfigService);
   public translate = inject(TranslateService);
   public aiPanelService = inject(AiPanelService);
+  public adminActionsService = inject(AdminActionsService);
+  private uiStateService = inject(UiStateService);
   private hostRef = inject(ElementRef<HTMLElement>);
 
   // Mobile chrome: the bottom nav bar replaces the two floating sidebar toggles
   // on phones. Its items mirror the right metadata sidebar's tabs, plus one for
   // the left records/images panel (mirrors detail-view's "pages"). Issue #172.
+  // Labelled "images": that panel is the page-image grid, the track list is the
+  // main content.
   mobileNavItemsBase: MobileNavItem[] = [
-    { id: 'description', label: 'description', icon: 'icon-note' },
-    { id: 'records', label: 'sound-records--toggle', icon: 'icon-simcard-2' },
+    { id: 'description', label: PANEL_TABS.description.label, icon: PANEL_TABS.description.icon },
+    { id: 'records', label: 'images--toggle', icon: PANEL_TABS.pages.icon },
   ];
-  mobileExportNavItem: MobileNavItem = { id: 'export', label: 'export', icon: 'icon-download' };
-  mobileAiNavItem: MobileNavItem = { id: 'ai', label: 'ai.tab', icon: 'icon-magicpen' };
-  mobileSearchNavItem: MobileNavItem = { id: 'results', label: 'results', icon: 'icon-receipt-search' };
+  mobileExportNavItem: MobileNavItem = { id: 'export', label: PANEL_TABS.export.label, icon: PANEL_TABS.export.icon };
+  mobileAiNavItem: MobileNavItem = { id: 'ai', label: PANEL_TABS.ai.label, icon: PANEL_TABS.ai.icon };
+  mobileSearchNavItem: MobileNavItem = { id: 'results', label: PANEL_TABS.search.label, icon: PANEL_TABS.search.icon };
   hasSearchResults = signal(false);
   mobileActivePanel = signal<string>('');
-  mobileSlideUpOpen = signal(false);
+  mobileSectionOpen = signal(false);
 
   // Immersive mobile chrome, as on detail-view: the nav bar hides so the image
   // fills the screen and a clean tap on the viewer brings it back. Only in
@@ -66,10 +73,17 @@ export class MusicPageComponent implements OnInit, OnDestroy {
   // auto-hidden bar would be unreachable there (GitHub issue #172).
   mobileNavVisible = signal(false);
   isImmersiveMode = computed(() => this.detailViewService.soundRecordingViewMode() === 'images');
-  /** The bar is always shown outside immersive mode; inside it, tap decides. */
-  mobileNavShown = computed(() => !this.isImmersiveMode() || this.mobileNavVisible());
+  /**
+   * Outside immersive mode the bar follows the header (it leaves with it while
+   * the track list scrolls down); inside it, tap decides.
+   */
+  mobileNavShown = computed(() => this.mobileSectionOpen() || this.breakpointService.manualToggle()
+    || (this.isImmersiveMode()
+      ? this.mobileNavVisible()
+      : this.uiStateService.headerVisible()));
   // Reserved height (px) the visible nav bar takes from the viewer.
   private static readonly MOBILE_NAV_BAR_HEIGHT = 60;
+
   private static readonly NAV_HEIGHT_ANIM_MS = 250;
   private navHeightRaf: number | null = null;
   private navHeightCurrent = 0;
@@ -96,9 +110,8 @@ export class MusicPageComponent implements OnInit, OnDestroy {
       this.animateMobileNavBarHeight(target);
     });
 
-    // The left panel can also be dismissed by its own drag handle or backdrop,
-    // which bypasses onMobileNavChange - clear the highlight so the nav bar
-    // doesn't keep showing "records" as active.
+    // The left panel can also be dismissed by its own close button or Escape,
+    // which bypasses onMobileNavChange - clear the highlight.
     effect(() => {
       if (!this.breakpointService.manualToggle() && this.mobileActivePanel() === 'records') {
         this.mobileActivePanel.set('');
@@ -204,29 +217,31 @@ export class MusicPageComponent implements OnInit, OnDestroy {
   }
 
   onMobileNavChange(id: string) {
-    if (this.mobileActivePanel() === id && (this.mobileSlideUpOpen() || this.breakpointService.manualToggle())) {
+    if (this.mobileActivePanel() === id && (this.mobileSectionOpen() || this.breakpointService.manualToggle())) {
       // Tapping the active tab closes whichever panel it opened.
-      this.mobileSlideUpOpen.set(false);
+      this.mobileSectionOpen.set(false);
       this.breakpointService.manualToggle.set(false);
       this.mobileActivePanel.set('');
       return;
     }
     if (id === 'records') {
-      // Records/images live in the left filter-sidebar, which brings its own slide-up.
-      this.mobileSlideUpOpen.set(false);
+      // Records/images live in the left filter-sidebar, which brings its own fixed panel.
+      this.mobileSectionOpen.set(false);
       this.mobileActivePanel.set(id);
       this.breakpointService.manualToggle.set(true);
     } else {
       this.breakpointService.manualToggle.set(false);
       this.mobileActivePanel.set(id);
-      this.mobileSlideUpOpen.set(true);
+      this.mobileSectionOpen.set(true);
     }
-    // Opening a panel takes over the screen: hide the immersive nav bar.
-    this.mobileNavVisible.set(false);
+    // Keep the nav up while a section is open: it is the section switcher and
+    // the panels end at its top edge (same as the detail view).
+    this.mobileNavVisible.set(true);
   }
 
-  onMobileSlideUpClosed() {
-    this.mobileSlideUpOpen.set(false);
+  /** Section panel dismissed (its close button or Escape): no section active. */
+  onMobileSectionClosed() {
+    this.mobileSectionOpen.set(false);
     this.mobileActivePanel.set('');
   }
 
@@ -247,7 +262,9 @@ export class MusicPageComponent implements OnInit, OnDestroy {
 
     const setVar = (px: number) => {
       this.navHeightCurrent = px;
-      layout.style.setProperty('--mobile-nav-bar-height', `${px}px`);
+      // The bar also pads itself by the bottom safe area; reserve that share too.
+      const safe = px / MusicPageComponent.MOBILE_NAV_BAR_HEIGHT;
+      layout.style.setProperty('--mobile-nav-bar-height', `calc(${px}px + ${safe} * var(--mobile-nav-safe-bottom, 0px))`);
     };
 
     if (this.navHeightRaf !== null) {

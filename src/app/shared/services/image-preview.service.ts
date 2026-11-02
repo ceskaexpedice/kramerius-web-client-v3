@@ -144,10 +144,10 @@ export class ImagePreviewService {
       hasBackdrop: false, // The component itself has a backdrop div
       scrollStrategy: this.overlay.scrollStrategies.block(),
       positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically(),
-      width: '100vw',
-      height: '100vh',
-      maxWidth: '100vw',
-      maxHeight: '100vh',
+      width: 'calc(100vw / var(--ui-zoom, 1))',
+      height: 'calc(100dvh / var(--ui-zoom, 1))',
+      maxWidth: 'calc(100vw / var(--ui-zoom, 1))',
+      maxHeight: 'calc(100dvh / var(--ui-zoom, 1))',
       panelClass: 'image-preview-overlay-container'
     });
 

@@ -24,6 +24,18 @@
     flex-shrink: 0;
   }
 
+  // Tablets: 32px is a mouse target; fingers need 44px (WCAG 2.5.5 / Apple HIG).
+  @media (pointer: coarse) {
+    button {
+      width: 44px;
+      height: 44px;
+    }
+
+    .viewer-controls__background-removal {
+      width: 44px;
+    }
+  }
+
   // Faded out after the reader has been still (issue #185), so the column
   // stops cutting across the lines of text it floats over. pointer-events is
   // dropped with it: an invisible column must not swallow a click meant for

@@ -1,4 +1,8 @@
-import { Component, OnInit, inject, computed } from '@angular/core';
+import { PanelToggleButtonComponent } from '../../shared/components/panel-toggle-button/panel-toggle-button.component';
+import { PanelResizeHandleComponent } from '../../shared/components/panel-resize-handle/panel-resize-handle.component';
+import { METADATA_PANEL_ID } from '../../shared/components/detail-layout/metadata-panel-id';
+import { Component, OnInit, inject, computed, signal } from '@angular/core';
+import { FixedPanelComponent } from '../../shared/components/fixed-panel/fixed-panel.component';
 import { CommonModule } from '@angular/common';
 import {Router} from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -25,6 +29,8 @@ import {FavoritesPopupHelper} from '../../shared/helpers/favorites-popup.helper'
 import {FavoritesService} from '../../shared/services/favorites.service';
 import {PopupPositioningService} from '../../shared/services/popup-positioning.service';
 import {UiStateService} from '../../shared/services/ui-state.service';
+import { BreakpointService } from '../../shared/services/breakpoint.service';
+import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
 import {PaginatorComponent} from '../../shared/components/paginator/paginator.component';
 import {NoResultsComponent} from '../../shared/components/no-results/no-results.component';
 import {ResultsSortComponent} from '../search-results-page/components/results-sort/results-sort.component';
@@ -37,6 +43,8 @@ import {SearchDocument} from '../models/search-document';
   standalone: true,
   imports: [
     CommonModule,
+    PanelToggleButtonComponent,
+    PanelResizeHandleComponent,
     RecordItemComponent,
     TranslatePipe,
     MetadataSidebarComponent,
@@ -51,6 +59,8 @@ import {SearchDocument} from '../models/search-document';
     ResultsSortComponent,
     SkeletonListPipe,
     NoResultsComponent,
+    ScrollHideHeaderDirective,
+    FixedPanelComponent,
   ],
   providers: [
     MonographVolumesService,
@@ -66,6 +76,8 @@ export class MonographVolumesPageComponent implements OnInit {
   adminModeService = inject(AdminModeService);
   recordHandler = inject(RecordHandlerService);
   private uiStateService = inject(UiStateService);
+  public breakpointService = inject(BreakpointService);
+  readonly metadataPanelId = METADATA_PANEL_ID;
   public monographVolumesService = inject(MonographVolumesService);
 
   // Signals from store
@@ -95,7 +107,14 @@ export class MonographVolumesPageComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  /** Phones: the description opens as a slide-up sheet (no floating panel there). */
+  mobileInfoOpen = signal(false);
+
   openRecordInfo() {
+    if (this.breakpointService.isMobile()) {
+      this.mobileInfoOpen.set(true);
+      return;
+    }
     this.toggleMetadataSidebar();
   }
 

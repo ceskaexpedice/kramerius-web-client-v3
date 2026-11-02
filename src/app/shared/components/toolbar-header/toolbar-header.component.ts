@@ -16,6 +16,8 @@ export class ToolbarHeaderComponent {
   @Input() title: string = '';
   @Input() showBackButton: boolean = true;
   @Input() titleClickable: boolean = false;
+  /** Leaves out the title (e.g. on phones, where it does not fit beside the actions). */
+  @Input() hideTitle: boolean = false;
 
   /** Tooltip shown on the clickable title. Provide an already-translated string. */
   @Input() titleTooltip?: string;

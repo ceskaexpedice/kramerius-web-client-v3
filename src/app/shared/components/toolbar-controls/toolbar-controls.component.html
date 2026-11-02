@@ -10,8 +10,14 @@
         role="radio"
         [attr.aria-checked]="activeViewValue === option.value"
         [class.active]="activeViewValue === option.value"
+        [class.view-toggle--icon-only]="viewToggleIconOnly"
+        [attr.aria-label]="viewToggleIconOnly ? (option.label | translate) : null"
+        [appCdkTooltip]="viewToggleIconOnly ? (option.label | translate) : ''"
         (click)="onToggle(option)">
-        <i class="{{ option.icon }}" aria-hidden="true"></i> {{ option.label | translate }}
+        <i class="{{ option.icon }}" aria-hidden="true"></i>
+        @if (!viewToggleIconOnly) {
+          {{ option.label | translate }}
+        }
       </button>
     </div>
   </ng-container>
@@ -19,7 +25,7 @@
   @if (mobileMenuMode && mergedActions.length > 0) {
     <!-- Mobile: single "more" button with dropdown menu -->
     <app-menu [items]="menuItems" placement="bottom-end" [customTrigger]="true" (select)="onMenuItemSelected($event)">
-      <button menuTrigger class="icon-button primary mobile-menu-trigger"
+      <button menuTrigger class="icon-button transparent mobile-menu-trigger"
         [attr.aria-label]="'more-actions--arialabel' | translate">
         <i class="icon-more-vertical" aria-hidden="true"></i>
       </button>
@@ -36,8 +42,9 @@
       [attr.aria-label]="(action.tooltip | translate) || action.label"
       (click)="onActionClick(action, $event)"
     >
-      <i [class]="action.icon"></i>
+      <i [class]="action.icon" aria-hidden="true"></i>
     </button>
   }
+
 
 </div>

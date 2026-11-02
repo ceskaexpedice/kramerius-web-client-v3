@@ -1,9 +1,21 @@
+@if (isCompact) {
+  <app-menu [items]="menuItems" placement="bottom-end" [customTrigger]="true" (select)="onMenuSelect($event)">
+    <button menuTrigger type="button" class="icon-button transparent results-sort__trigger"
+      [attr.aria-label]="('sort-by' | translate) + ': ' + (selectedSortOption.label | translate)"
+      [appCdkTooltip]="('sort-by' | translate) + ': ' + (selectedSortOption.label | translate)">
+      <!-- ⇅: the lined sort glyph read as the header's ≡ menu on phones. -->
+      <i class="icon-arrow-swap-horizontal icon-rotate-90" aria-hidden="true"></i>
+    </button>
+  </app-menu>
+} @else {
 <app-select
   [class]="'result-sort-select'"
   [size]="'sm'"
+  [ariaLabel]="'sort-by' | translate"
   [options]="sortOptions"
   [value]="selectedSortOption"
   [displayFn]="sortOptionDisplayFn"
   [zIndex]="101"
   (valueChange)="onSortChange($event)">
 </app-select>
+}

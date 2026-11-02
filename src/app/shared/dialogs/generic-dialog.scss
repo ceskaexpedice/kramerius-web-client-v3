@@ -1,5 +1,7 @@
+@use "mixins" as m;
+
 .generic-dialog-container {
-  max-height: 80vh;
+  max-height: calc(80vh / var(--ui-zoom, 1));
   overflow: hidden;
   background-color: var(--color-bg-base);
   border-radius: 16px;
@@ -36,5 +38,19 @@
     align-items: center;
     justify-content: center;
     padding: 0 24px 24px 24px;
+
+    // Phones: side by side the buttons got unequal widths and a long label
+    // ("Zastaviť prehrávanie") broke onto two lines. Stack them full-width,
+    // the primary action (last in the markup) on top.
+    @include m.respond(mobile-sm) {
+      flex-direction: column-reverse;
+      align-items: stretch;
+      gap: var(--spacing-x2);
+
+      > button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
   }
 }
