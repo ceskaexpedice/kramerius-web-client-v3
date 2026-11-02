@@ -21,7 +21,12 @@ export class SuggestedSearchTagsSectionComponent {
 
   public searchService = inject(SearchService);
 
-  onTagSelected(filter: string) {
+  onTagSelected(event: MouseEvent, filter: string) {
+    // Leave new-tab clicks to the browser; otherwise skip the href's full reload.
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+      return;
+    }
+    event.preventDefault();
     this.searchService.redirectDirectlyToUrl(filter);
   }
 

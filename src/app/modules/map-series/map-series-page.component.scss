@@ -164,8 +164,19 @@ app-action-toolbar {
 }
 
 // Sits below the map rather than over it, so the sheets stay fully visible.
+// It is the lowest bar on the screen, the mini-player rides on top of it
+// (styles.scss): the page runs to the screen bottom and keeps the player's
+// room above the bar instead.
 app-mobile-nav-bar {
   flex: 0 0 auto;
+}
+
+.app-map-series:has(> app-mobile-nav-bar) {
+  height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--header-height));
+
+  > .app-map-wrapper {
+    margin-bottom: var(--playback-bar-height, 0px);
+  }
 }
 
 .app-map-wrapper {

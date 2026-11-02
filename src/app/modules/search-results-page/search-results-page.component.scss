@@ -56,11 +56,11 @@
   }
 }
 
-// Stack above the global mini-player instead of hiding underneath it; 0px when
-// nothing is playing. Matches the .page-container calc() below (issue #172).
+// Pinned to the screen bottom; the global mini-player rides on top of it
+// (styles.scss). Matches the .page-container calc() below (issue #172).
 app-mobile-nav-bar {
   position: fixed;
-  bottom: var(--playback-bar-height, 0px);
+  bottom: 0;
   left: 0;
   right: 0;
   z-index: 100;
@@ -69,7 +69,7 @@ app-mobile-nav-bar {
 
   // Hidden together with the header while the list scrolls down.
   &.mobile-nav-bar--hidden {
-    transform: translateY(calc(100% + var(--playback-bar-height, 0px)));
+    transform: translateY(100%);
     pointer-events: none;
   }
 }

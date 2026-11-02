@@ -18,6 +18,12 @@
   padding-left: max(var(--spacing-x4), env(safe-area-inset-left, 0px));
   padding-right: max(var(--spacing-x4), env(safe-area-inset-right, 0px));
   z-index: z.$playback-bar;
+  // Grows by the home indicator when the phone nav bar under it slides away.
+  transition: height 0.3s ease-in-out, padding-bottom 0.3s ease-in-out;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 
   .left {
     display: flex;

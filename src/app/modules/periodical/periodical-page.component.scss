@@ -119,14 +119,15 @@ app-mobile-nav-bar {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: var(--playback-bar-height, 0px);
+  // The global mini-player rides on top of it (styles.scss).
+  bottom: 0;
   z-index: 850;
   // Same timing as the app header slide in styles.scss.
   transition: transform 0.3s ease-in-out;
 
   // Hidden together with the header while the list scrolls down.
   &.mobile-nav-bar--hidden {
-    transform: translateY(calc(100% + var(--playback-bar-height, 0px)));
+    transform: translateY(100%);
     pointer-events: none;
   }
 

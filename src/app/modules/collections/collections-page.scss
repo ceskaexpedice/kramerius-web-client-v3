@@ -181,7 +181,8 @@
 // static element would sit below the fold and never be seen.
 app-mobile-nav-bar {
   position: fixed;
-  bottom: var(--playback-bar-height, 0px);
+  // The global mini-player rides on top of it (styles.scss).
+  bottom: 0;
   left: 0;
   right: 0;
   z-index: 100;
@@ -189,7 +190,7 @@ app-mobile-nav-bar {
 
   // Hidden together with the header while the list scrolls down.
   &.mobile-nav-bar--hidden {
-    transform: translateY(calc(100% + var(--playback-bar-height, 0px)));
+    transform: translateY(100%);
     pointer-events: none;
   }
 

@@ -84,8 +84,14 @@ export class ScrollHideHeaderDirective implements OnInit, OnDestroy {
     private basePadBottom = 0;
     /** Gap between the chrome bottom and the host's natural top (page padding). */
     private topGap = 0;
-    /** Height reserved for a fixed bottom bar (nav bar) under the host's natural bottom. */
+    /** Height reserved for fixed bottom bars (nav bar, mini-player) under the host's natural bottom. */
     private bottomInset = 0;
+    /**
+     * Distance from the host's natural bottom up from its layout parent's
+     * bottom, to follow that bottom when the page around it resizes (e.g. the
+     * mini-player appears); null when the parent collapsed without the host.
+     */
+    private parentBottomGap: number | null = null;
     /** Natural top of the host = height of everything above it. */
     private chromeHeight = 0;
     /** How far the chrome slides up when hidden. */
@@ -217,7 +223,10 @@ export class ScrollHideHeaderDirective implements OnInit, OnDestroy {
         const set = (prop: string, value: string) => host.style.setProperty(prop, value, 'important');
         set('position', 'fixed');
         set('top', '0px');
-        set('bottom', 'var(--playback-bar-height, 0px)');
+        // To the screen bottom, under the nav bar and the mini-player: the
+        // room they take is measured into bottomInset below. (Not above the
+        // player: its height changes as the nav bar slides away.)
+        set('bottom', '0px');
         set('left', `${natural.left}px`);
         set('width', `${natural.width}px`);
         set('height', 'auto');
@@ -227,9 +236,13 @@ export class ScrollHideHeaderDirective implements OnInit, OnDestroy {
         set('flex', 'none');
         set('box-sizing', 'border-box');
 
-        // A fixed bar under the natural bottom (nav bar) now overlaps the host:
-        // reserve its height at the end of the list instead.
+        // Fixed bars under the natural bottom (nav bar, mini-player) now overlap
+        // the host: reserve their height at the end of the list instead.
         this.bottomInset = Math.max(0, host.getBoundingClientRect().bottom - natural.bottom);
+        const parent = this.layoutParent();
+        this.parentBottomGap = parent && parent.offsetHeight > 0
+            ? this.layoutBox(parent).bottom - (natural.bottom + window.scrollY)
+            : null;
 
         this.active = true;
         ScrollHideHeaderDirective.owner = this;
@@ -307,7 +320,18 @@ export class ScrollHideHeaderDirective implements OnInit, OnDestroy {
         });
         this.chrome = fresh;
         this.updateUnclipped();
+        this.updateBottomInset();
         this.applyGeometry();
+    }
+
+    /** The page's bottom bars changed (mini-player shown or hidden): follow them. */
+    private updateBottomInset(): void {
+        const parent = this.layoutParent();
+        if (this.parentBottomGap === null || !parent || parent.offsetHeight <= 0) {
+            return;
+        }
+        const naturalBottom = this.layoutBox(parent).bottom - this.parentBottomGap;
+        this.bottomInset = Math.max(0, this.layoutBox(this.host).bottom - naturalBottom);
     }
 
     /**

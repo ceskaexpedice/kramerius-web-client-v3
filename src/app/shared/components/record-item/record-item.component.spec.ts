@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { provideMockStore } from '@ngrx/store/testing';
 import { RecordItemComponent } from './record-item.component';
 import { RecordItem } from './record-item.model';
@@ -187,6 +187,46 @@ describe('RecordItemComponent (OnPush + shared favourite state)', () => {
       expect(el('.record-item-card')!.classList).not.toContain('date-below-title');
       expect(el('.record-item-card__year')).toBeNull();
       expect(el('.authors')?.textContent).toContain('1936');
+    });
+  });
+
+  // Config tiles (e.g. homepage authors) carry an externalUrl pointing inside
+  // the app. Following that href natively reloaded the page and stopped the
+  // playing audio, so in-app URLs go through the router.
+  describe('externalUrl', () => {
+    /** Whether the card's own handler prevented the click (the runner never follows the href). */
+    const click = (init: MouseEventInit = {}) => {
+      let prevented = false;
+      const guard = (e: Event) => { prevented = e.defaultPrevented; e.preventDefault(); };
+      document.addEventListener('click', guard);
+      fixture.nativeElement.querySelector('.record-item-card')
+        .dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, ...init }));
+      document.removeEventListener('click', guard);
+      return prevented;
+    };
+    const withUrl = (externalUrl: string) => {
+      host.item = { ...host.item!, externalUrl } as RecordItem;
+      fixture.detectChanges();
+    };
+
+    it('navigates in-app URLs with the router instead of reloading the page', () => {
+      const navigate = spyOn(TestBed.inject(Router), 'navigateByUrl').and.resolveTo(true);
+      withUrl('/search?query=&fq=authors.facet:Neruda,%20Jan');
+
+      expect(click()).toBeTrue();
+      expect(navigate).toHaveBeenCalledOnceWith('/search?query=&fq=authors.facet:Neruda,%20Jan');
+    });
+
+    it('leaves modified clicks and absolute URLs to the browser', () => {
+      const navigate = spyOn(TestBed.inject(Router), 'navigateByUrl').and.resolveTo(true);
+      withUrl('/search?query=x');
+      const modified = click({ metaKey: true });
+      withUrl('https://example.org/page');
+      const plain = click();
+
+      expect(modified).toBeFalse();
+      expect(plain).toBeFalse();
+      expect(navigate).not.toHaveBeenCalled();
     });
   });
 });

@@ -134,12 +134,35 @@ body {
   }
 }
 
-// Bottom safe area (home indicator / Safari toolbar) a fixed bottom bar must pad
-// itself by. The mini-player already covers it when one plays, so a bar
-// stacked above the player needs none. Declared on <main>, where
-// --playback-bar-height is set, so the var() resolves there.
+// Bottom safe area (home indicator / Safari toolbar) the phone nav bar pads
+// itself by: it is always the lowest bar, the mini-player rides on top of it.
 main {
-  --mobile-nav-safe-bottom: max(0px, env(safe-area-inset-bottom, 0px) - var(--playback-bar-height, 0px));
+  --mobile-nav-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+// Phones: the mini-player sits on top of the bottom nav bar (which clears the
+// home indicator for both) and drops to the screen bottom when the bar slides
+// away, so the tabs keep their place whether something plays or not. The bar
+// publishes its height as --mobile-nav-bar-offset (MobileNavBarComponent).
+body:has(app-mobile-nav-bar:not(.mobile-nav-bar--hidden)) {
+  --playback-bar-height-value: var(--playback-bar-content-height);
+
+  app-playback-bar {
+    transform: translateY(calc(-1 * var(--mobile-nav-bar-offset, 0px)));
+  }
+
+  app-playback-bar .playback-bar {
+    padding-bottom: var(--spacing-x2);
+  }
+}
+
+// The reader and /music slide their bar faster: keep the player on it.
+body:has(app-detail-view-page app-mobile-nav-bar, app-music-page app-mobile-nav-bar) {
+  app-playback-bar,
+  app-playback-bar .playback-bar {
+    transition-duration: 0.25s;
+    transition-timing-function: ease;
+  }
 }
 
 app-header {

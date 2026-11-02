@@ -269,8 +269,8 @@ export class SearchService extends BaseFilterService {
     // redirect to the search results page with the query parameters
     this.initialize();
 
-    const prefix = this.libraryContext.getLibraryPrefix();
-    window.open(`${prefix}/${APP_ROUTES_ENUM.SEARCH_RESULTS}${url}`, '_self');
+    // Router, not window.open(_self): a full reload stopped the playing audio.
+    this.router.navigateByUrl(this.getRedirectUrl(url));
   }
 
   getRedirectUrl(url: string) {

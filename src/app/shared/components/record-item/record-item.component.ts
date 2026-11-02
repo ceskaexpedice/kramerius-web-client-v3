@@ -147,7 +147,14 @@ export class RecordItemComponent implements OnChanges, OnDestroy {
       e.preventDefault();
       this.adminModeService.toggleItem(this.item.id);
     } else if (this.item.externalUrl) {
-
+      // Config tiles often link inside the app (e.g. homepage authors → /search?...).
+      // Following the href natively reloads the page and kills the playing audio.
+      const isModifiedClick = e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0;
+      const isInternal = this.item.externalUrl.startsWith('/') && !this.item.externalUrl.startsWith('//');
+      if (isInternal && !isModifiedClick) {
+        e.preventDefault();
+        this.router.navigateByUrl(this.item.externalUrl);
+      }
     } else {
       this.recordHandler.onNavigate(e, this.getDocumentUrl());
     }

@@ -5,4 +5,11 @@ app-playback-bar {
   right: 0;
   z-index: 1000;
   height: var(--playback-bar-height-value);
+  // Follows the phone nav bar it rides on as the bar slides away and back
+  // (styles.scss); same timing as the bar.
+  transition: transform 0.3s ease-in-out, height 0.3s ease-in-out;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 }
