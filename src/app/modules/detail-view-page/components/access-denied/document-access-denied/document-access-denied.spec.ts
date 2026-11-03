@@ -52,6 +52,11 @@ describe('DocumentAccessDenied.licenseLabel', () => {
     expect(component.licenseLabel('onsite')).toBe('Studovna');
   });
 
+  it('uses the config label for a local license that has no i18n entry', () => {
+    const component = makeComponent('Pracoviště AV ČR');
+    expect(component.licenseLabel('knav_pracovisteAV')).toBe('Pracoviště AV ČR');
+  });
+
   it('returns the translation key itself when neither source has a label', () => {
     const component = makeComponent('');
     expect(component.licenseLabel('onsite')).toBe('access-denied.license-onsite');
@@ -224,6 +229,19 @@ describe('DocumentAccessDenied license filtering and instructions', () => {
     component.detectAllLicenseTypes();
 
     expect(component.uniqueLicenseTypes).toEqual(['dnnto', 'onsite']);
+  });
+
+  it('keeps a mixed-case license id as configured instead of falling back to "other"', () => {
+    // Local licenses such as `knav_pracovisteAV` keep their case in Kramerius and the
+    // config; lowercasing the id made it unknown and hid its texts behind "other".
+    const { component } = makeComponent({
+      documentLicenses: ['knav_pracovisteAV'],
+      configuredLicenses: ['dnnto', 'knav_pracovisteAV'],
+    });
+
+    component.detectAllLicenseTypes();
+
+    expect(component.uniqueLicenseTypes).toEqual(['knav_pracovisteAV']);
   });
 
   it('falls back to "other" when every license of the document is undefined in config', () => {

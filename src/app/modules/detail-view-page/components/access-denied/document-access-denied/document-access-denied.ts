@@ -218,9 +218,10 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
     // a previously viewed document would leak into the licenses shown here.
     this.licenseTypes.clear();
 
-    const licenses = this.configuredLicenses(
-      (this.metadata?.licences ?? []).map(license => this.getLicenseTypeFromString(license))
-    );
+    // License ids are case-sensitive (Kramerius and `config-licenses.json` both keep
+    // e.g. `knav_pracovisteAV` as written), so they are matched exactly. Lowercasing
+    // them here used to drop every mixed-case local license to the generic "other".
+    const licenses = this.configuredLicenses(this.metadata?.licences ?? []);
 
     // Either the document carries no licenses at all, or every one it carries is
     // unknown to the config; both leave nothing specific to say, so fall back to the
@@ -233,12 +234,6 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
 
     licenses.forEach(license => this.licenseTypes.add(license));
     this.uniqueLicenseTypes = licenses;
-  }
-
-  getLicenseTypeFromString(license: string): string {
-    const lowerLicense = license.toLowerCase();
-
-    return lowerLicense;
   }
 
   getAllFaqItems(): AccordionItemData[] {
@@ -336,7 +331,14 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
     // `other` is the fallback for licenses the config does not know; it has no
     // label of its own and reads as the generic "restricted access".
     const key = type === 'other' ? 'default' : type;
-    return this.translate.instant(`access-denied.license-${key}`);
+    const i18nKey = `access-denied.license-${key}`;
+    const translated = this.translate.instant(i18nKey);
+    // Local licenses (e.g. `knav_pracovisteAV`) have no i18n entry; `instant` then
+    // returns the key itself, so their config label is the only readable name.
+    if (translated === i18nKey && configured !== type) {
+      return configured;
+    }
+    return translated;
   }
 
   getFaqTitle(): string {

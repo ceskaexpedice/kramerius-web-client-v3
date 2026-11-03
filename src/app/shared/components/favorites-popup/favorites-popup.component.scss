@@ -52,13 +52,19 @@
   overflow-y: auto;
   overflow-x: hidden;
   border: 1px solid var(--color-border-base);
+  // Classic scrollbars: reserve the gutter so the layout doesn't jump once the list scrolls
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
 }
 
 .list-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-x2) 0;
+  gap: var(--spacing-x2);
+  // Overlay scrollbars (Firefox Win11/GTK, macOS) take no layout space and are drawn
+  // over the content - keep the checkbox clear of them (issue #206)
+  padding: var(--spacing-x2) var(--spacing-x4) var(--spacing-x2) 0;
   transition: background-color 0.2s ease;
 
   &:hover {
@@ -71,6 +77,7 @@
   align-items: center;
   gap: var(--spacing-x2);
   flex: 1;
+  min-width: 0; // long list names wrap instead of pushing the checkbox out
 }
 
 .list-name {
