@@ -1,6 +1,6 @@
 import {Component, EventEmitter, inject, Input, OnInit, Output, signal, OnDestroy} from '@angular/core';
 import {Store} from '@ngrx/store';
-import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
+import {AsyncPipe} from '@angular/common';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {InputComponent} from '../input/input.component';
 import {Folder, selectUserOwnedFolders} from '../../../modules/saved-lists-page/state';
@@ -26,8 +26,6 @@ import {CdkTrapFocus} from '@angular/cdk/a11y';
   standalone: true,
   imports: [
     AsyncPipe,
-    NgForOf,
-    NgIf,
     TranslatePipe,
     InputComponent,
     MatCheckbox,
