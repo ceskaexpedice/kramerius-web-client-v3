@@ -1,3 +1,4 @@
+import { normalizeLicenseBar } from './license-bar';
 import { Injectable } from '@angular/core';
 import { LANG_FALLBACK_CHAIN, DEFAULT_LANG_FALLBACK } from '../../shared/translation/translation-fallback-chain';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -343,7 +344,13 @@ export class ConfigService {
       ? licenses
       : Object.entries(licenses ?? {}).map(([id, v]) => ({ id, ...(v as any) }));
 
-    return licenseArray.map(lic => lic.base
+    return licenseArray
+      .filter(lic => lic && typeof lic.id === 'string')
+      .map(lic => lic.bar === undefined ? lic : {
+        ...lic,
+        bar: normalizeLicenseBar(lic.bar, lic.base ?? lic.id, lic.label),
+      })
+      .map(lic => lic.base
       // Variants carry partial overrides only. They must not be pre-filled here:
       //  - `isOnline`/`accessType`: `resolveLicenseForSource` merges as
       //    `{ ...base, ...variant }`, so a variant with no real `accessType` would

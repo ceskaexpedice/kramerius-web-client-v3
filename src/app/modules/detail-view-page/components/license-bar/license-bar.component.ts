@@ -54,7 +54,8 @@ export class LicenseBarComponent implements OnDestroy {
 
   getLocalizedText(bar: LicenseBarConfig): string {
     const lang = this.translateService.getCurrentLang();
-    return bar.text[lang] ?? bar.text['en'] ?? bar.text[Object.keys(bar.text)[0]] ?? '';
+    const text = bar.text ?? {};
+    return text[lang] ?? text['en'] ?? text[Object.keys(text)[0]] ?? '';
   }
 
   ngOnDestroy() {
