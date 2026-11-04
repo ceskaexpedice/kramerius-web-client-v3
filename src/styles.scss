@@ -70,6 +70,16 @@ google-map {
   zoom: calc(1 / var(--ui-zoom, 1));
 }
 
+// The IIIF viewer host (iiif-viewer.html) carries the `openseadragon-container`
+// class and OpenSeadragon creates its own `.openseadragon-container` inside it.
+// CSS zoom multiplies through ancestors, so counter-zooming both left OSD at an
+// effective 1/0.9: its viewport ran in units 11% larger than the pointer's, and
+// area selection, wheel-zoom anchor, double-click zoom and drag-pan all drifted
+// away from the cursor. Only the outermost container undoes the UI zoom.
+.openseadragon-container .openseadragon-container {
+  zoom: 1;
+}
+
 // Angular CDK places connected overlays (tooltips, menus) from visual-px rects
 // but writes CSS-px styles, so under the UI zoom they drift towards the top-left
 // and clamp against a viewport 10% too narrow. The positioned box runs at zoom 1
