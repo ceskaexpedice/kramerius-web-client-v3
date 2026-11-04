@@ -1,4 +1,5 @@
-import { pickCdkCollection, pickCdkSourceRecord } from './cdk-collection';
+import { of } from 'rxjs';
+import { loadPagesWithSourceFallback, pickCdkCollection, pickCdkSourceRecord } from './cdk-collection';
 
 describe('pickCdkCollection', () => {
   describe('URL source override', () => {
@@ -131,5 +132,27 @@ describe('pickCdkSourceRecord', () => {
   it('returns the store record when there is no metadata input', () => {
     const store = withCollections([]);
     expect(pickCdkSourceRecord(store, null, false)).toBe(store);
+  });
+});
+
+describe('loadPagesWithSourceFallback', () => {
+  const collect = (obs: any) => { let out: any; obs.subscribe((v: any) => out = v); return out; };
+
+  it('keeps the scoped pages when the selected source has some', () => {
+    const load = jasmine.createSpy('load').and.callFake((code: string | null) => of(code ? ['mzk-page'] : ['any-page']));
+    expect(collect(loadPagesWithSourceFallback(load, 'mzk'))).toEqual(['mzk-page']);
+    expect(load.calls.allArgs()).toEqual([['mzk']]);
+  });
+
+  it('falls back to unscoped pages when the selected source has none (index lists the title under mzk but its pages only under nkp)', () => {
+    const load = jasmine.createSpy('load').and.callFake((code: string | null) => of(code ? [] : ['nkp-page']));
+    expect(collect(loadPagesWithSourceFallback(load, 'mzk'))).toEqual(['nkp-page']);
+    expect(load.calls.allArgs()).toEqual([['mzk'], [null]]);
+  });
+
+  it('loads unscoped once when no source is selected', () => {
+    const load = jasmine.createSpy('load').and.returnValue(of([]));
+    expect(collect(loadPagesWithSourceFallback(load, null))).toEqual([]);
+    expect(load.calls.allArgs()).toEqual([[null]]);
   });
 });

@@ -13,7 +13,7 @@ import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { APP_ROUTES_ENUM } from "../../../app.routes";
 import { ROUTER_NAVIGATED } from '@ngrx/router-store';
 import { selectRouterUrl, selectRouterQueryParams } from '../router/router.selectors';
-import { pickCdkCollection } from '../../utils/cdk-collection';
+import { loadPagesWithSourceFallback, pickCdkCollection } from '../../utils/cdk-collection';
 import { LibraryContextService } from '../../services/library-context.service';
 import { UserService } from '../../services/user.service';
 import { CdkSourceService } from '../../services/cdk-source.service';
@@ -106,9 +106,12 @@ export class DocumentDetailEffects {
           && hasDistinctRoot;
         return forkJoin({
           detailItem: of(detailItem),
-          children: isInConvolute
-            ? this.solr.getConvolutePages(rootPid, cdkCollection)
-            : this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null, false, [], [], {}, undefined, cdkCollection),
+          children: loadPagesWithSourceFallback(
+            code => isInConvolute
+              ? this.solr.getConvolutePages(rootPid, code)
+              : this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null, false, [], [], {}, undefined, code),
+            cdkCollection,
+          ),
           currentMods: this.fetchMods(uuid, cdkCollection),
           rootMods: hasDistinctRoot
             ? this.fetchMods(rootPid, cdkCollection)
@@ -242,7 +245,10 @@ export class DocumentDetailEffects {
     return this.actions$.pipe(
       ofType(DocumentDetailActions.reloadPagesForCdkCollection),
       switchMap(({ uuid, cdkCollection }) =>
-        this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null, false, [], [], {}, undefined, cdkCollection).pipe(
+        loadPagesWithSourceFallback(
+          code => this.solr.getChildrenByModel(uuid, 'rels_ext_index.sort asc', null, false, [], [], {}, undefined, code),
+          cdkCollection,
+        ).pipe(
           map(pages => DocumentDetailActions.reloadPagesForCdkCollectionSuccess({ pages })),
           catchError(error => {
             console.log('Error reloading pages for CDK collection:', error);
