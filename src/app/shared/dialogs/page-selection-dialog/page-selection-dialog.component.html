@@ -55,7 +55,7 @@
         [maxBufferPx]="rowHeight() * 4">
 
         <div class="page-selection-grid" #gridMeasure>
-          <div class="page-selection-grid__row"
+          <div class="page-selection-grid__row" [style.height.px]="rowHeight()"
                *cdkVirtualFor="let row of pageRows(); trackBy: trackByRow; templateCacheSize: 0">
             @for (page of row; track page.pid) {
               <app-detail-page-item [page]="page" [type]="'page'" [pageNumber]="pageNumber(page)"

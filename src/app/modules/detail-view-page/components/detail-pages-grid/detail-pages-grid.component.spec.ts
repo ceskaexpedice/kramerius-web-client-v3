@@ -13,6 +13,7 @@ import { DetailViewService } from '../../services/detail-view.service';
 @Component({
   selector: 'app-detail-page-item',
   standalone: true,
+  host: { style: 'display: block' },
   template: `<div class="stub-item" style="aspect-ratio: 82.67/124;"></div>`,
 })
 class StubPageItemComponent {
@@ -163,6 +164,23 @@ describe('DetailPagesGridComponent virtualization', () => {
     expect(rows.length).toBe(3);
     expect(rows[2].length).toBe(1);
     expect(rows[2][0].pid).toBe('uuid:page-6');
+  });
+
+  // The viewport places rows at index * itemSize. A row whose real height
+  // differed (it used to be 8px shorter) drifted from that offset, and the
+  // grid jumped each time the rendered range moved while scrolling.
+  it('lays rows out exactly itemSize apart', async () => {
+    await settleViewport();
+    await new Promise(resolve => requestAnimationFrame(() => resolve(null)));
+    await settleViewport();
+
+    const grid = gridInstance();
+    const cell = fixture.nativeElement.querySelector('app-detail-page-item') as HTMLElement;
+    const rows = Array.from(fixture.nativeElement.querySelectorAll('.page--grid__row')) as HTMLElement[];
+
+    expect(grid.rowHeight()).toBe(Math.ceil(cell.getBoundingClientRect().height) + 8);
+    expect(rows[1].getBoundingClientRect().top - rows[0].getBoundingClientRect().top)
+      .toBeCloseTo(grid.rowHeight(), 1);
   });
 
   it('renders every page of a short document (no virtualization loss)', async () => {

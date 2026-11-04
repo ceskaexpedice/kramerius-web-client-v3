@@ -2,7 +2,7 @@ import { Component, inject, Input, Output, EventEmitter, OnInit, OnChanges, Simp
 import { NgForOf, NgIf, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Author, Metadata, Publisher, PhysicalDescription, NoteInfo, Location, InCollections } from '../../models/metadata.model';
-import { ActivatedRoute, RouterLink, Router } from '@angular/router';
+import { ActivatedRoute, NavigationCancel, NavigationEnd, NavigationError, RouterLink, Router } from '@angular/router';
 import { APP_ROUTES_ENUM } from '../../../app.routes';
 import { ModsParserService } from '../../services/mods-parser.service';
 import { SearchService } from '../../services/search.service';
@@ -13,7 +13,7 @@ import { Store } from '@ngrx/store';
 import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
 import { reloadPagesForCdkCollection } from '../../state/document-detail/document-detail.actions';
 import { selectAvailableYears } from '../../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
-import { distinctUntilChanged, firstValueFrom, map, take } from 'rxjs';
+import { distinctUntilChanged, filter, firstValueFrom, map, take } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { ModelBadgeComponent } from '../model-badge/model-badge.component';
@@ -429,12 +429,7 @@ export class MetadataSection implements OnInit, OnChanges {
       // and pages that scope their grid by ?source= (periodical, multivolume
       // monograph) pick it up.
       if (!urlParam && remembered && this.selectedCdkCollection() === remembered) {
-        this.router.navigate([], {
-          relativeTo: this.route,
-          queryParams: { source: remembered },
-          queryParamsHandling: 'merge',
-          replaceUrl: true,
-        });
+        this.addSourceParamWhenIdle(remembered);
       }
     } else {
       this.cdkCollections.set([]);
@@ -549,6 +544,27 @@ export class MetadataSection implements OnInit, OnChanges {
     baseMods.monographUnitCount = unitCount;
 
     return baseMods;
+  }
+
+  /**
+   * Adds ?source= once no other navigation is in flight. The reader sets
+   * ?page= at about the same moment when it opens a document; a second
+   * navigation would cancel that one and, merging from the not yet updated
+   * URL, drop its page param.
+   */
+  private async addSourceParamWhenIdle(source: string): Promise<void> {
+    if (this.router.currentNavigation()) {
+      await firstValueFrom(this.router.events.pipe(
+        filter(e => e instanceof NavigationEnd || e instanceof NavigationCancel || e instanceof NavigationError),
+      ));
+    }
+    if (this.route.snapshot.queryParamMap.get('source')) return;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { source },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   private stripSourceParamIfPresent(): void {

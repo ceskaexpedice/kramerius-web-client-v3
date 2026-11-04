@@ -16,10 +16,15 @@
   // Each row is its own grid so cdkVirtualFor can position rows absolutely.
   // Column counts must stay in sync with DetailPagesGridComponent.COLUMNS and
   // the gap with DetailPagesGridComponent.GAP.
+  // Every row is exactly the viewport's itemSize tall (bound in the template;
+  // the cell plus the gap below it). Rows that stacked at their natural,
+  // fractional height drifted away from the offsets the viewport computes from
+  // itemSize, so the grid jumped whenever the rendered range moved.
   &__row {
     display: grid;
     gap: 8px;
-    padding-bottom: 8px;
+    align-items: start;
+    box-sizing: border-box;
   }
 
   &.type-page &__row {
