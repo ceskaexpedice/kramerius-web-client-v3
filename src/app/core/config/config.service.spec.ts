@@ -210,6 +210,25 @@ describe('ConfigService variant defaults seeding', () => {
     // The variant carries no actions at all, so the base's survive resolution.
     expect(variant.actions).toBeUndefined();
   });
+
+  it('repairs a license bar with no licenses list instead of passing it on', () => {
+    const processed = (service as any).processLicensesWithDefaults({
+      licenses: [
+        { id: 'knav_ustav_BU', accessType: 'login', label: { cs: 'BC AV ČR' }, bar: { text: { cs: 'BC' } } },
+      ],
+    });
+
+    expect(processed[0].bar.licenses).toEqual(['knav_ustav_BU']);
+    expect(service.getLicenseBars.call({ licenses: processed })).toEqual([processed[0].bar]);
+  });
+
+  it('leaves a license without a bar untouched', () => {
+    const processed = (service as any).processLicensesWithDefaults({
+      licenses: [{ id: 'knav_pracovisteAV', accessType: 'login', label: { cs: 'AV' } }],
+    });
+
+    expect('bar' in processed[0]).toBeFalse();
+  });
 });
 
 /**
