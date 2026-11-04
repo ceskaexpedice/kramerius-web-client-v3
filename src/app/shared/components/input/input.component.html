@@ -17,6 +17,8 @@
         [style.padding-right]="iconsWidth"
         [style.padding-left]="prefixIcon || prefix ? '40px' : ''"
         [type]="type"
+        [attr.inputmode]="resolvedInputMode"
+        [attr.enterkeyhint]="enterKeyHint"
         #inputElement
         #inputModel="ngModel"
         [placeholder]="placeholder | translate"
@@ -47,7 +49,8 @@
           [style.padding-right]="iconsWidth"
           [style.padding-left]="prefixIcon || prefix ? '40px' : ''"
           [type]="type"
-          inputmode="numeric"
+          [attr.inputmode]="resolvedInputMode"
+          [attr.enterkeyhint]="enterKeyHint"
           #inputElement
           #inputModel="ngModel"
           [placeholder]="placeholder | translate"

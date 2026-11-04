@@ -63,6 +63,18 @@ describe('SolrService collection scope', () => {
     const fq = (service as any).buildCollectionScopeFq('uuid:abc');
     expect(fq).toEqual('(in_collections.direct:"uuid:abc")');
   });
+
+  it('buildCollectionScopeFq matches pages/articles/issues transitively when searching fulltext', () => {
+    const fq = (service as any).buildCollectionScopeFq('uuid:abc', true, true);
+    expect(fq).toEqual(
+      '((in_collections.direct:"uuid:abc") OR ((model:page OR model:article OR model:periodicalitem) AND in_collections:"uuid:abc"))'
+    );
+  });
+
+  it('buildCollectionScopeFq keeps direct-only scope for the plain listing (no pages)', () => {
+    const fq = (service as any).buildCollectionScopeFq('uuid:abc', true, false);
+    expect(fq).toEqual('(in_collections.direct:"uuid:abc")');
+  });
 });
 
 describe('SolrService standalone-collection fq', () => {

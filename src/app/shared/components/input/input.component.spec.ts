@@ -66,3 +66,48 @@ describe('InputComponent prefix icon click', () => {
     expect(fixture.componentInstance.clicks).toBe(1);
   });
 });
+
+/**
+ * Regression (testing 2.11.): the non-autocomplete <input> had a hardcoded
+ * `inputmode="numeric"`, so every text field — e.g. search in a saved list —
+ * opened the digits-only keypad on iOS, with no Return key to submit.
+ */
+@Component({
+  standalone: true,
+  imports: [InputComponent],
+  template: `<app-input [type]="type" [inputMode]="inputMode" [enterKeyHint]="enterKeyHint"></app-input>`,
+})
+class KeyboardHostComponent {
+  type = 'text';
+  inputMode: string | null = null;
+  enterKeyHint: string | null = null;
+}
+
+describe('InputComponent virtual keyboard hints', () => {
+  async function render(props: Partial<KeyboardHostComponent>) {
+    await TestBed.configureTestingModule({
+      imports: [KeyboardHostComponent, TranslateModule.forRoot()],
+      providers: [AppMissingTranslationService],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(KeyboardHostComponent);
+    Object.assign(fixture.componentInstance, props);
+    fixture.detectChanges();
+    return fixture.nativeElement.querySelector('input') as HTMLInputElement;
+  }
+
+  it('does not force the numeric keypad on text inputs', async () => {
+    const input = await render({ type: 'text' });
+    expect(input.getAttribute('inputmode')).toBeNull();
+  });
+
+  it('uses the numeric keypad for number inputs', async () => {
+    const input = await render({ type: 'number' });
+    expect(input.getAttribute('inputmode')).toBe('numeric');
+  });
+
+  it('honours an explicit inputMode and enterKeyHint', async () => {
+    const input = await render({ type: 'text', inputMode: 'numeric', enterKeyHint: 'search' });
+    expect(input.getAttribute('inputmode')).toBe('numeric');
+    expect(input.getAttribute('enterkeyhint')).toBe('search');
+  });
+});
