@@ -358,6 +358,9 @@ export class MetadataSection implements OnInit, OnChanges {
 
   @Output() cdkCollectionChange = new EventEmitter<string>();
 
+  // Root pid the hand-picked source is remembered under (null in collections mode).
+  private sourceRootPid: string | null = null;
+
   @Input() showTitle: boolean = true;
 
   get articleViewLink(): any[] {
@@ -396,7 +399,13 @@ export class MetadataSection implements OnInit, OnChanges {
     if (this.isCdk()) {
       const cdkSource = pickCdkSourceRecord(solrData, this.metadata, this.collectionsMode);
       const collections = cdkSource?.cdkCollections ?? [];
-      const urlSource = this.route.snapshot.queryParamMap.get('source');
+      // A source picked earlier for another part of the same title (another
+      // issue, the volume, the periodical page) carries over: the links between
+      // them don't hold ?source=. The URL still wins when it names one.
+      this.sourceRootPid = this.collectionsMode ? null : (cdkSource?.rootPid || this.uuid || null);
+      const remembered = this.cdkSource.rememberedForRoot(this.sourceRootPid);
+      const urlParam = this.route.snapshot.queryParamMap.get('source');
+      const urlSource = urlParam || remembered;
       this.cdkCollections.set(collections);
       if (this.includeAllOption) {
         // "All sources" is the deliberate default here; only a concrete ?source=
@@ -415,6 +424,17 @@ export class MetadataSection implements OnInit, OnChanges {
             this.userService.licenses,
           ) ?? ''
         );
+      }
+      // Put the carried-over source back in the URL so the view stays linkable
+      // and pages that scope their grid by ?source= (periodical, multivolume
+      // monograph) pick it up.
+      if (!urlParam && remembered && this.selectedCdkCollection() === remembered) {
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { source: remembered },
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        });
       }
     } else {
       this.cdkCollections.set([]);
@@ -463,7 +483,12 @@ export class MetadataSection implements OnInit, OnChanges {
    * fields; MODS wins everywhere else.
    */
   private async buildMergedMetadata(libraryCode: string | undefined): Promise<any> {
-    const modsData = await this.modsParser.getMods(this.uuid, 'full', libraryCode);
+    // A missing MODS must not blank the whole panel: Solr fills the fields below.
+    const modsData = await this.modsParser.getModsOrAggregate(this.uuid, 'full', libraryCode)
+      .catch(e => {
+        console.warn('MetadataSection: no MODS for', this.uuid, e);
+        return new Metadata();
+      });
     const solrData = this._solrData();
 
     let baseMods: any = { ...modsData };
@@ -473,7 +498,7 @@ export class MetadataSection implements OnInit, OnChanges {
     const rootPid = solrData?.rootPid;
     if (rootPid && rootPid !== this.uuid) {
       try {
-        const rootMods = await this.modsParser.getMods(rootPid, 'full', libraryCode);
+        const rootMods = await this.modsParser.getModsOrAggregate(rootPid, 'full', libraryCode);
         if (rootMods) {
           const child = modsData as any;
           const hasChildData = child && (
@@ -570,6 +595,7 @@ export class MetadataSection implements OnInit, OnChanges {
   async onCdkCollectionChange(collection: string) {
     if (!collection || collection === this.selectedCdkCollection()) return;
     this.selectedCdkCollection.set(collection);
+    this.cdkSource.rememberForRoot(this.sourceRootPid, collection === ALL_SOURCES ? null : collection);
 
     // Collections mode, or any host that owns the source-driven behaviour (URL
     // persistence and re-scoping its own child document grid — the multivolume
@@ -618,7 +644,7 @@ export class MetadataSection implements OnInit, OnChanges {
     this._trackData.set(null);
     if (!pid) return;
     try {
-      const mods = await this.modsParser.getMods(pid, 'full', this.effectiveLibraryCode());
+      const mods = await this.modsParser.getModsOrAggregate(pid, 'full', this.effectiveLibraryCode());
       // Ignore a late response for a track that is no longer playing.
       if (this.activeTrack()?.pid === pid) {
         this._trackData.set(mods);

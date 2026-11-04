@@ -62,6 +62,22 @@ export class ModsParserService {
     return promise;
   }
 
+  /**
+   * getMods for a CDK member library, falling back to the aggregated record when
+   * that library can't serve it. Libraries listed in a document's cdk.collection
+   * don't always hold its MODS (e.g. nkp serves the pages of an issue but 404s on
+   * the issue's own MODS); the aggregated endpoint still has it.
+   */
+  async getModsOrAggregate(uuid: string, type: 'full' | 'plain' = 'full', libraryCode?: string): Promise<Metadata> {
+    try {
+      return await this.getMods(uuid, type, libraryCode);
+    } catch (error) {
+      if (!libraryCode) throw error;
+      console.warn(`MODS of ${uuid} not available from ${libraryCode}, using the aggregated record`);
+      return this.getMods(uuid, type);
+    }
+  }
+
   // .../items/{libraryCode}/{uuid}/metadata/mods on CDK, .../items/{uuid}/metadata/mods otherwise.
   private buildModsUrl(uuid: string, libraryCode?: string): string {
     return libraryCode

@@ -16,6 +16,7 @@ import { selectRouterUrl, selectRouterQueryParams } from '../router/router.selec
 import { pickCdkCollection } from '../../utils/cdk-collection';
 import { LibraryContextService } from '../../services/library-context.service';
 import { UserService } from '../../services/user.service';
+import { CdkSourceService } from '../../services/cdk-source.service';
 
 @Injectable()
 export class DocumentDetailEffects {
@@ -27,6 +28,7 @@ export class DocumentDetailEffects {
     private libraryContext: LibraryContextService,
     private modsParser: ModsParserService,
     private userService: UserService,
+    private cdkSource: CdkSourceService,
   ) {
   }
 
@@ -38,7 +40,7 @@ export class DocumentDetailEffects {
   /** Loads parsed MODS for a pid, failing soft to null so a MODS error never
    *  blocks the Solr-backed detail load. */
   private fetchMods(pid: string, libraryCode: string | null) {
-    return this.modsParser.getMods(pid, 'full', libraryCode ?? undefined).catch(err => {
+    return this.modsParser.getModsOrAggregate(pid, 'full', libraryCode ?? undefined).catch(err => {
       console.warn('Failed to load MODS data for', pid, '- continuing with Solr data only:', err);
       return null;
     });
@@ -81,7 +83,7 @@ export class DocumentDetailEffects {
       switchMap(([detailItem, queryParams]) => {
         const collections: string[] = detailItem?.['cdk.collection'] ?? [];
         const cdkCollection = pickCdkCollection(
-          queryParams?.['source'],
+          queryParams?.['source'] || this.cdkSource.rememberedForRoot(detailItem?.['root.pid']),
           detailItem?.['cdk.leader'],
           collections,
           detailItem?.['cdk.licenses'] ?? [],

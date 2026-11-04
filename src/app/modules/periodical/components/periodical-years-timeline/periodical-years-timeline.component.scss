@@ -52,8 +52,6 @@
   cursor: pointer;
   background-color: transparent !important;
 
-  transition: all 0.4s ease-in-out;
-
   // Line through the middle of each item — extends into the gap to connect adjacent items
   &::before {
     content: '';
@@ -77,13 +75,15 @@
     right: 0;
   }
 
-  &:hover {
+  // Only the tile grows; scaling the container also stretched the connecting line.
+  &:hover .year-item {
     transform: scale(1.1);
   }
 
   .year-item {
     position: relative;
     z-index: z.$timeline-items;
+    transition: transform 0.4s ease-in-out;
     font-size: calc(var(--font-size-large) * var(--timeline-text-scale));
     font-weight: var(--font-weight-semi-bold);
     padding: calc(var(--spacing-x2) * var(--timeline-scale));
@@ -161,7 +161,7 @@
     opacity: 1;
     cursor: not-allowed;
 
-    &:hover {
+    &:hover .year-item {
       transform: none;
     }
 
