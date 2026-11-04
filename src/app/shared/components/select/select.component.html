@@ -24,14 +24,15 @@
   <div class="options-list" [class.with-filter]="filterable">
 
     <ng-container *ngIf="virtualScroll; else standardList">
-      <cdk-virtual-scroll-viewport [itemSize]="itemSize" [style.height]="getViewportHeight()">
-        <div *cdkVirtualFor="let option of filteredOptions; let i = index; trackBy: trackByFn" class="option"
+      <cdk-virtual-scroll-viewport [itemSize]="virtualItemSize" [style.height]="getViewportHeight()">
+        <div *cdkVirtualFor="let option of filteredOptions; let i = index; trackBy: trackByFn" class="option option--virtual"
+          [style.height.px]="virtualItemSize"
           [attr.id]="'option-' + i" [class.selected]="option === value" [class.focused]="focusedIndex === i"
           (click)="select(option)" (mouseenter)="focusedIndex = i" role="option"
           [attr.aria-selected]="option === value">
           <ng-container *ngIf="optionPrefixTpl"
             [ngTemplateOutlet]="optionPrefixTpl" [ngTemplateOutletContext]="{ $implicit: option }"></ng-container>
-          {{ displayLabel(option) }}
+          <span class="option__label">{{ displayLabel(option) }}</span>
           <i *ngIf="option === value" class="icon-check" aria-hidden="true"></i>
         </div>
       </cdk-virtual-scroll-viewport>

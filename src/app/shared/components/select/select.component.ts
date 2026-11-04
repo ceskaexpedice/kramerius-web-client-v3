@@ -11,6 +11,7 @@ import {
   OnChanges,
   SimpleChanges,
   TemplateRef,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { NgIf, NgForOf, NgClass, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -78,11 +79,56 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
 
   constructor(
     private hostRef: ElementRef,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private cdr: ChangeDetectorRef,
   ) { }
 
+  /**
+   * Real option height for the virtual list, measured from the rendered option's
+   * line height and padding. The `itemSize` input (36px) only matched the default
+   * text size: with the accessibility text scale the options grew taller than the
+   * viewport assumed, and the list drifted and jumped while scrolling.
+   */
+  private measuredItemSize: number | null = null;
+
+  /** Item size the virtual viewport and every option use. */
+  get virtualItemSize(): number {
+    return this.measuredItemSize ?? this.itemSize;
+  }
+
   getViewportHeight(): string {
-    return `${this.visibleItemsCount * this.itemSize}px`;
+    // No taller than the options it holds, so a filtered list leaves no blank space.
+    const rows = Math.max(1, Math.min(this.visibleItemsCount, this.filteredOptions.length));
+    return `${rows * this.virtualItemSize}px`;
+  }
+
+  /**
+   * Called when the list opens (see toggle()). The viewport renders its items a
+   * frame or two after it appears, so wait for the first option.
+   */
+  private measureVirtualItemSize(attemptsLeft = 5): void {
+    if (!this.open()) return;
+    const viewportEl = this.virtualViewport?.elementRef.nativeElement as HTMLElement | undefined;
+    const option = viewportEl?.querySelector('.option') as HTMLElement | null;
+    if (!option) {
+      if (attemptsLeft > 0) {
+        requestAnimationFrame(() => this.measureVirtualItemSize(attemptsLeft - 1));
+      }
+      return;
+    }
+    // Computed line height and padding do not depend on the pinned option
+    // height, so measuring them cannot feed back into itself.
+    const style = getComputedStyle(option);
+    const natural = (parseFloat(style.lineHeight) || 0)
+      + (parseFloat(style.paddingTop) || 0)
+      + (parseFloat(style.paddingBottom) || 0);
+    if (!natural) return;
+    const next = Math.ceil(natural);
+    if (next !== this.virtualItemSize) {
+      this.measuredItemSize = next;
+      this.cdr.markForCheck();
+      this.virtualViewport?.checkViewportSize();
+    }
   }
 
   get focusedOptionLabel(): string {
@@ -141,6 +187,9 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
 
     requestAnimationFrame(() => {
       this.checkPosition();
+      if (this.open() && this.virtualScroll) {
+        this.measureVirtualItemSize();
+      }
       if (this.open() && this.filterable) {
         this.filterInputRef?.focus();
       }
@@ -269,6 +318,7 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
   private scrollFocusedIntoView() {
     requestAnimationFrame(() => {
       if (this.virtualScroll && this.virtualViewport) {
+        this.measureVirtualItemSize();
         // Virtual scroll: off-screen options aren't in the DOM, so scrollIntoView
         // can't find them. Drive the viewport directly, centering when possible.
         const offset = Math.max(0, Math.floor(this.visibleItemsCount / 2) - 1);
