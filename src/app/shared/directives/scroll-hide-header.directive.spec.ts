@@ -12,7 +12,7 @@ import { ScrollHideHeaderDirective } from './scroll-hide-header.directive';
       <div class="bar-top" style="flex: 0 0 50px"></div>
       <div class="bar-sub" style="flex: 0 0 40px" [attr.data-scroll-hide-keep]="keep() ? '' : null"></div>
       <div class="list" [appScrollHideHeader]="enabled()" style="flex: 1; overflow: auto; padding-top: 8px">
-        <div class="item" style="height: 3000px"></div>
+        <div class="item" [style.height.px]="itemHeight()"></div>
       </div>
     </div>
   `
@@ -20,6 +20,7 @@ import { ScrollHideHeaderDirective } from './scroll-hide-header.directive';
 class HostComponent {
   enabled = signal(true);
   keep = signal(false);
+  itemHeight = signal(3000);
 }
 
 describe('ScrollHideHeaderDirective', () => {
@@ -113,6 +114,33 @@ describe('ScrollHideHeaderDirective', () => {
     // Sticky children stick 50px higher, right under the kept bar.
     expect(q('.list').style.getPropertyValue('--scroll-hide-sticky-top')).toBe('-50px');
     expect(q('.list').style.scrollPaddingTop).toBe('40px');
+  });
+
+  it('keeps the bars on a list too short to fill the space they would free', () => {
+    const list = q('.list');
+    // Overflow by 120px: enough to pass the "near the top" zone and the
+    // direction threshold, but short of the 98px of bars plus that threshold -
+    // hiding them would leave an empty band above the content.
+    const padding = parseFloat(getComputedStyle(list).paddingTop) + parseFloat(getComputedStyle(list).paddingBottom);
+    fixture.componentInstance.itemHeight.set(list.clientHeight - padding + 120);
+    fixture.detectChanges();
+    expect(list.scrollHeight - list.clientHeight).toBe(120);
+
+    scrollBy(120);
+
+    expect(list.scrollTop).toBe(120);
+    expect(uiState.headerVisible()).toBeTrue();
+  });
+
+  it('still hides on a list long enough to fill the freed space', () => {
+    const list = q('.list');
+    const padding = parseFloat(getComputedStyle(list).paddingTop) + parseFloat(getComputedStyle(list).paddingBottom);
+    fixture.componentInstance.itemHeight.set(list.clientHeight - padding + 200);
+    fixture.detectChanges();
+
+    scrollBy(200);
+
+    expect(uiState.headerVisible()).toBeFalse();
   });
 
   it('always shows the bars near the top of the list', () => {

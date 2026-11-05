@@ -157,6 +157,14 @@ export class ScrollHideHeaderDirective implements OnInit, OnDestroy {
 
                     const goingUp = delta < 0;
 
+                    // Content that overflows by less than the bars free up can't
+                    // fill that space: hiding would leave an empty band at the top
+                    // (a 7-track list on a 375x667 phone scrolls just 64px). Such a
+                    // short page keeps its bars.
+                    if (!goingUp && this.scrollRoom(el) < this.minRoomToHide()) {
+                        return true;
+                    }
+
                     // Anchor where the new direction started (the previous sample),
                     // so the travel within this first sample counts too.
                     if (this.currentDirection !== goingUp) {
@@ -192,6 +200,21 @@ export class ScrollHideHeaderDirective implements OnInit, OnDestroy {
                 this.directionAnchor = el.scrollTop;
             });
         });
+    }
+
+    /** How far the content can scroll at all. */
+    private scrollRoom(el: HTMLElement): number {
+        if (el.scrollHeight > el.clientHeight) return el.scrollHeight - el.clientHeight;
+        const root = this.document.scrollingElement ?? this.document.documentElement;
+        return root.scrollHeight - root.clientHeight;
+    }
+
+    /**
+     * Hiding pays off only when the content can scroll past the space the bars
+     * free, with some left to read under them.
+     */
+    private minRoomToHide(): number {
+        return (this.hideDistance || this.chromeHeight) + this.DIRECTION_THRESHOLD;
     }
 
     ngOnDestroy() {

@@ -112,14 +112,9 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   // toggled by a clean tap on the viewer (see ViewerTapToggleDirective). While
   // a section panel is open it stays up, docked under the panel.
   mobileNavVisible = signal(false);
-  // Immersive mode gives no hint that a tap reveals the bar. Until the reader
-  // has used the bar once (MOBILE_NAV_LEARNED_KEY), it stays up after a
-  // document opens and only tucks away when they start panning/zooming the
-  // scan, so a 3 s timer can't hide it while the first image is still loading.
-  // Afterwards each newly opened document shows it briefly as before.
-  private static readonly MOBILE_NAV_PEEK_MS = 3000;
-  private static readonly MOBILE_NAV_LEARNED_KEY = 'reader-nav-learned';
-  private mobileNavPeekTimer: ReturnType<typeof setTimeout> | null = null;
+  // Each newly opened document shows the bar, and it stays until the reader
+  // taps the viewer: it never hides on its own (no timer, no hiding on
+  // pan/zoom), so the controls are always where the reader left them.
   // Reserved height (px) the visible nav bar takes from the viewer.
   private static readonly MOBILE_NAV_BAR_HEIGHT = 60;
   private static readonly NAV_HEIGHT_ANIM_MS = 250;
@@ -269,7 +264,7 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
       this.detailViewService.document$.pipe(
         filter(doc => !!doc?.uuid),
         distinctUntilChanged((prev, curr) => prev?.uuid === curr?.uuid)
-      ).subscribe(() => this.peekMobileNav())
+      ).subscribe(() => this.showMobileNav())
     );
 
     // Next documents on the reused page (the first one loads via loadDocument()).
@@ -323,7 +318,6 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   ngOnDestroy(): void {
-    this.cancelMobileNavPeek();
     this.uiState.setImmersive(false);
     if (this.navHeightRaf !== null) {
       cancelAnimationFrame(this.navHeightRaf);
@@ -411,8 +405,6 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
    * active one closes it.
    */
   onMobileNavChange(id: string) {
-    this.cancelMobileNavPeek();
-    this.markMobileNavLearned();
     const pagesOpen = this.breakpointService.manualToggle();
     if (this.mobileActivePanel() === id && (this.mobileSectionOpen() || (id === 'pages' && pagesOpen))) {
       if (id === 'pages') {
@@ -444,10 +436,8 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
     this.mobileNavVisible.set(true);
   }
 
-  /** Page pill ‹ ›: using it means the reader found the nav, so stop the auto-hide. */
+  /** Mobile page pill ‹ ›. */
   onPagePill(direction: 'prev' | 'next'): void {
-    this.cancelMobileNavPeek();
-    this.markMobileNavLearned();
     if (direction === 'prev') {
       this.detailViewService.goToPrevious();
     } else {
@@ -486,55 +476,14 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
 
   /** Toggle the immersive mobile nav bar on a clean tap on the viewer. */
   onViewerCleanTap(): void {
-    // The reader took over: their tap decides, the pending auto-hide doesn't.
-    this.cancelMobileNavPeek();
-    this.markMobileNavLearned();
     if (this.mobilePanelOpen()) return;
     this.mobileNavVisible.update(v => !v);
   }
 
-  /** The reader started panning/zooming: the first-visit bar makes way for the scan. */
-  onViewerGestureStart(): void {
-    if (!this.breakpointService.isMobile() || this.mobilePanelOpen() || !this.mobileNavVisible()) return;
-    // Only the automatic peek yields to a gesture; a bar the reader opened stays.
-    if (this.mobileNavPeekTimer === null && this.isMobileNavLearned()) return;
-    this.cancelMobileNavPeek();
-    this.mobileNavVisible.set(false);
-  }
-
-  private isMobileNavLearned(): boolean {
-    try {
-      return localStorage.getItem(DetailViewPageComponent.MOBILE_NAV_LEARNED_KEY) === '1';
-    } catch {
-      return true; // storage blocked: fall back to the short peek
-    }
-  }
-
-  private markMobileNavLearned(): void {
-    try {
-      localStorage.setItem(DetailViewPageComponent.MOBILE_NAV_LEARNED_KEY, '1');
-    } catch { /* storage blocked: nothing to remember */ }
-  }
-
-  /** Show the immersive bar for a moment so readers learn it exists. */
-  private peekMobileNav(): void {
+  /** A document opened: bring the immersive bar up. Only a tap hides it again. */
+  private showMobileNav(): void {
     if (!this.breakpointService.isMobile() || this.mobilePanelOpen()) return;
-    this.cancelMobileNavPeek();
     this.mobileNavVisible.set(true);
-    // First visits: no timer, the bar waits for the reader (see onViewerGestureStart).
-    if (!this.isMobileNavLearned()) return;
-    this.mobileNavPeekTimer = setTimeout(() => {
-      this.mobileNavPeekTimer = null;
-      if (this.mobilePanelOpen()) return;
-      this.mobileNavVisible.set(false);
-    }, DetailViewPageComponent.MOBILE_NAV_PEEK_MS);
-  }
-
-  private cancelMobileNavPeek(): void {
-    if (this.mobileNavPeekTimer !== null) {
-      clearTimeout(this.mobileNavPeekTimer);
-      this.mobileNavPeekTimer = null;
-    }
   }
 
   /**
