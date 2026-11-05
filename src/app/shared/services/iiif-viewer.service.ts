@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { EnvironmentService } from './environment.service';
 import { APP_ROUTES_ENUM } from '../../app.routes';
@@ -119,6 +119,13 @@ export class IIIFViewerService {
   private scrollLockHandler: ((event: any) => void) | null = null;
 
   private testFallbackMode = false;
+
+  /**
+   * Height in px of the fallback notice the viewer shows above the page (0 when
+   * hidden). The floating viewer controls are positioned by the detail page,
+   * outside the viewer, and push themselves below the notice by this much.
+   */
+  readonly fallbackNoticeHeight = signal(0);
 
   // CDK aggregator: selected member library. The state lives in CdkSourceService
   // (the single source of truth shared by every reader URL builder); these members

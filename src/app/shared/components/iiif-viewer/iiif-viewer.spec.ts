@@ -93,6 +93,8 @@ describe('IIIFViewer direct-image fallback', () => {
     (component as any).showFallback = signalStub(false);
     (component as any).fallbackImageUrl = signalStub<string | null>(null);
     (component as any).accessDenied = signalStub(false);
+    (component as any).fallbackNotice = signalStub<string | null>(null);
+    (component as any).fallbackNoticeDismissed = signalStub(false);
     (component as any).fallbackObjectUrl = null;
 
     (component as any).iiifViewerService = {
@@ -163,6 +165,67 @@ describe('IIIFViewer direct-image fallback', () => {
     // The fallback <img> has no auth either, so it must use the thumbnail,
     // which stays readable, instead of the full image that just 403'd.
     expect((component as any).fallbackImageUrl()).toBe(`https://api.test/items/${PID}/image/thumb`);
+  });
+
+  it('explains a 403 fallback as missing permission', () => {
+    const { component } = makeComponent({
+      respond: (o) => o.error({ status: 403 })
+    });
+
+    (component as any).loadDirectImageFallback(PID);
+
+    expect((component as any).fallbackNotice()).toBe('forbidden');
+  });
+
+  it('explains any other failure as the image being unavailable', () => {
+    const { component } = makeComponent({
+      respond: (o) => o.error({ status: 404 })
+    });
+
+    (component as any).loadDirectImageFallback(PID);
+
+    expect((component as any).fallbackNotice()).toBe('unavailable');
+  });
+
+  it('keeps the notice across a page change, so a library that is down does not flash it per page', () => {
+    const { component } = makeComponent({ respond: () => {} });
+    (component as any).fallbackNotice.set('unavailable');
+    (component as any).triggerViewerUpdate = () => {};
+
+    component.ngOnChanges({ imagePid: { firstChange: false } as any });
+
+    expect((component as any).fallbackNotice()).toBe('unavailable');
+    expect((component as any).showFallback()).toBe(false);
+  });
+
+  it('keeps a dismissed notice hidden across a page change', () => {
+    const { component } = makeComponent({ respond: (o) => o.error({ status: 404 }) });
+    (component as any).triggerViewerUpdate = () => {};
+    component.dismissFallbackNotice();
+
+    component.ngOnChanges({ imagePid: { firstChange: false } as any });
+    (component as any).loadDirectImageFallback(PID);
+
+    expect((component as any).fallbackNotice()).toBe('unavailable');
+    expect((component as any).fallbackNoticeDismissed()).toBe(true);
+  });
+
+  it('retry clears the fallback and loads the page again', () => {
+    const { component } = makeComponent({ respond: () => {} });
+    (component as any).fallbackNotice.set('unavailable');
+    (component as any).showFallback.set(true);
+    (component as any).failedPids.add(PID);
+    (component as any).directImageFailedPids.add(PID);
+    const update = jasmine.createSpy('triggerViewerUpdate');
+    (component as any).triggerViewerUpdate = update;
+
+    component.retryImage();
+
+    expect((component as any).fallbackNotice()).toBeNull();
+    expect((component as any).showFallback()).toBe(false);
+    expect((component as any).failedPids.has(PID)).toBe(false);
+    expect((component as any).directImageFailedPids.has(PID)).toBe(false);
+    expect(update).toHaveBeenCalled();
   });
 
   it('does not flag a network failure as access denied', () => {

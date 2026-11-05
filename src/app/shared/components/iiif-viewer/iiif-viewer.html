@@ -1,4 +1,11 @@
 <div class="iiif-viewer-container">
+  @if (fallbackNoticeContent(); as notice) {
+    <app-info-banner #fallbackNoticeEl class="iiif-viewer-notice" variant="light"
+      [icon]="notice.icon" [title]="notice.title" [message]="notice.message"
+      [actions]="notice.actions" [closable]="true"
+      (actionClick)="onFallbackNoticeAction($event)" (close)="dismissFallbackNotice()">
+    </app-info-banner>
+  }
   <div class="iiif-viewer-main">
     <div class="iiif-viewer-fallback" [class.visible]="showFallback()">
       <app-thumbnail-image

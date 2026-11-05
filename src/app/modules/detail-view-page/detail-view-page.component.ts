@@ -85,6 +85,10 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   @HostBinding('style.--license-bar-offset')
   get licenseBarOffset() { return this.uiState.licenseBarVisible() ? 'var(--license-bar-height)' : '0px'; }
 
+  /** The image viewer's "showing a preview only" notice; the viewer controls sit below it. */
+  @HostBinding('style.--viewer-notice-offset')
+  get viewerNoticeOffset() { return `${this.iiifViewerService.fallbackNoticeHeight()}px`; }
+
   // TODO: set to false to keep TTS playing when navigating away
   private readonly stopTtsOnLeave = true;
 

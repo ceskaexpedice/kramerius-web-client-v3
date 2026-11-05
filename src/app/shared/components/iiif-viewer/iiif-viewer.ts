@@ -12,7 +12,9 @@ import {
   NgZone,
   ChangeDetectorRef,
   signal,
+  computed,
   effect,
+  viewChild,
   HostListener
 } from '@angular/core';
 import { Metadata } from '../../models/metadata.model';
@@ -33,8 +35,15 @@ import { TtsService } from '../../services/tts.service';
 import { AiPanelService } from '../../services/ai-panel.service';
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
 import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-tokens';
+import { Store } from '@ngrx/store';
+import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
+import { CdkSourceService } from '../../services/cdk-source.service';
+import { UserService } from '../../services/user.service';
+import { ConfigService } from '../../../core/config/config.service';
+import { InfoBannerAction, InfoBannerComponent } from '../info-banner/info-banner.component';
+import { alternativeSources, FallbackReason, fallbackNoticeText } from './iiif-fallback-notice';
 
 /** Tile edge OpenSeadragon requests from the IIIF server; see enlargeTiles. */
 const IIIF_TILE_SIZE = 512;
@@ -46,6 +55,7 @@ const IIIF_TILE_SIZE = 512;
     CommonModule,
     ThumbnailImageComponent,
     ViewerWatermarkComponent,
+    InfoBannerComponent,
     TranslatePipe
   ],
   templateUrl: './iiif-viewer.html',
@@ -67,6 +77,11 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private ttsService = inject(TtsService);
+  private store = inject(Store);
+  private cdkSource = inject(CdkSourceService);
+  private userService = inject(UserService);
+  private configService = inject(ConfigService);
+  private translate = inject(TranslateService);
 
   private ngZone = inject(NgZone);
   private cdr = inject(ChangeDetectorRef);
@@ -113,6 +128,74 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
    * the licence). Distinguishes "not allowed" from "failed to load".
    */
   public accessDenied = signal<boolean>(false);
+
+  /**
+   * Why only the thumbnail is on screen, shown as a notice above the viewer.
+   *
+   * Unlike showFallback it survives a page change: when a member library is
+   * down every page fails, and resetting it per page would flash the notice on
+   * and off while paging. It clears once a page really opens, on retry, and
+   * when the reader switches source.
+   */
+  public fallbackNotice = signal<FallbackReason | null>(null);
+
+  /**
+   * The reader closed the notice. On a phone it takes a good part of the
+   * screen, so once dismissed it stays hidden while paging through the same
+   * failing library, until a page opens or the source changes.
+   */
+  public fallbackNoticeDismissed = signal(false);
+
+  private readonly fallbackNoticeEl = viewChild('fallbackNoticeEl', { read: ElementRef });
+
+  /** Publishes the notice's height so the floating viewer controls can clear it. */
+  private readonly trackFallbackNoticeHeight = effect(onCleanup => {
+    const el = this.fallbackNoticeEl()?.nativeElement as HTMLElement | undefined;
+    if (!el) {
+      this.iiifViewerService.fallbackNoticeHeight.set(0);
+      return;
+    }
+    const observer = new ResizeObserver(() => this.iiifViewerService.fallbackNoticeHeight.set(el.offsetHeight));
+    observer.observe(el);
+    onCleanup(() => observer.disconnect());
+  });
+
+  /** Member libraries of the open document - the options of the "Source" selector. */
+  private readonly documentCollections = toSignal(
+    this.store.select(selectDocumentDetail).pipe(map(doc => doc?.cdkCollections ?? [])),
+    { initialValue: [] as string[] }
+  );
+
+  /** Current language, read by the notice computeds so they re-translate on a switch. */
+  private readonly lang = toSignal(
+    this.translate.onLangChange.pipe(map(e => e.lang)),
+    { initialValue: this.translate.getCurrentLang() }
+  );
+
+  readonly fallbackNoticeContent = computed(() => {
+    const reason = this.fallbackNotice();
+    if (!reason || this.fallbackNoticeDismissed()) return null;
+    this.lang();
+    const current = this.cdkSource.codeSignal();
+    const text = fallbackNoticeText(
+      reason,
+      current,
+      alternativeSources(this.documentCollections(), current),
+      code => this.translate.instant(code),
+    );
+    const actions: InfoBannerAction[] = [];
+    if (reason === 'unavailable') {
+      actions.push({ id: 'retry', label: this.translate.instant('iiif-fallback--retry'), icon: 'icon-refresh', style: 'outlined light' });
+    } else if (!this.userService.isLoggedIn && this.configService.isLoginEnabled()) {
+      actions.push({ id: 'login', label: this.translate.instant('login'), icon: 'icon-login', style: 'outlined light' });
+    }
+    return {
+      icon: reason === 'forbidden' ? 'icon-lock-1' : 'icon-gallery-slash',
+      title: this.translate.instant(text.titleKey, text.titleParams),
+      message: this.translate.instant(text.messageKey, text.messageParams),
+      actions,
+    };
+  });
 
   readonly docLicenses = toSignal(
     this.detailViewService.document$.pipe(map(doc => doc?.licences ?? [])),
@@ -205,6 +288,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
         this.showFallback.set(false);
         this.fallbackImageUrl.set(null);
         this.accessDenied.set(false);
+        this.fallbackNotice.set(null);
+        this.fallbackNoticeDismissed.set(false);
         this.releaseFallbackObjectUrl();
         this.triggerViewerUpdate();
       })
@@ -290,6 +375,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   }
 
   ngOnDestroy(): void {
+    this.iiifViewerService.fallbackNoticeHeight.set(0);
     if (this.resizeSettle) {
       clearTimeout(this.resizeSettle);
       this.resizeSettle = null;
@@ -641,6 +727,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
         this.showFallback.set(false);
         this.fallbackImageUrl.set(null);
         this.accessDenied.set(false);
+        this.fallbackNotice.set(null);
+        this.fallbackNoticeDismissed.set(false);
         // Page loaded successfully — unlock it in the sidebar grid
         const pid = this.imagePid || this.metadata?.uuid;
         if (pid) {
@@ -741,11 +829,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // for licensed pages and would render as a broken image.
     if (this.directImageFailedPids.has(currentPid)) {
       console.log(`Both IIIF and direct image failed for PID: ${currentPid}. Showing thumbnail fallback.`);
-      this.ngZone.run(() => {
-        this.fallbackImageUrl.set(this.iiifViewerService.getThumbnailUrl(currentPid));
-        this.showFallback.set(true);
-        this.cdr.detectChanges();
-      });
+      this.showThumbnailFallback(currentPid, this.accessDenied() ? 'forbidden' : 'unavailable');
       return;
     }
 
@@ -753,11 +837,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     if (this.failedPids.has(currentPid)) {
       console.log(`Direct image fallback also failed for PID: ${currentPid}. Showing thumbnail fallback.`);
       this.directImageFailedPids.add(currentPid);
-      this.ngZone.run(() => {
-        this.fallbackImageUrl.set(this.iiifViewerService.getThumbnailUrl(currentPid));
-        this.showFallback.set(true);
-        this.cdr.detectChanges();
-      });
+      this.showThumbnailFallback(currentPid, 'unavailable');
 
       setTimeout(() => {
         this.directImageFailedPids.delete(currentPid);
@@ -833,18 +913,55 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
         }
 
         this.directImageFailedPids.add(pid);
-        this.ngZone.run(() => {
-          this.accessDenied.set(denied);
-          this.fallbackImageUrl.set(this.iiifViewerService.getThumbnailUrl(pid));
-          this.showFallback.set(true);
-          this.cdr.detectChanges();
-        });
+        this.ngZone.run(() => this.accessDenied.set(denied));
+        this.showThumbnailFallback(pid, denied ? 'forbidden' : 'unavailable');
 
         setTimeout(() => {
           this.directImageFailedPids.delete(pid);
         }, 5000);
       }
     });
+  }
+
+  /** Swap the viewer for the page thumbnail and say why in the notice above it. */
+  private showThumbnailFallback(pid: string, reason: FallbackReason): void {
+    this.ngZone.run(() => {
+      this.fallbackImageUrl.set(this.iiifViewerService.getThumbnailUrl(pid));
+      this.showFallback.set(true);
+      this.fallbackNotice.set(reason);
+      this.cdr.detectChanges();
+    });
+  }
+
+  onFallbackNoticeAction(id: string): void {
+    if (id === 'retry') {
+      this.retryImage();
+    } else if (id === 'login') {
+      // Same entry point as the header's login: the terms page, then back here.
+      this.router.navigate(['pages/terms'], { queryParams: { returnUrl: this.router.url } });
+    }
+  }
+
+  dismissFallbackNotice(): void {
+    this.fallbackNoticeDismissed.set(true);
+  }
+
+  /** Load the current page again from the start of the IIIF → direct image → thumbnail chain. */
+  retryImage(): void {
+    const pid = this.imagePid || this.metadata?.uuid;
+    if (!pid) return;
+    this.failedPids.delete(pid);
+    this.directImageFailedPids.delete(pid);
+    this.showFallback.set(false);
+    this.fallbackImageUrl.set(null);
+    this.accessDenied.set(false);
+    this.fallbackNotice.set(null);
+    if (this.viewer) {
+      this.triggerViewerUpdate();
+    } else {
+      // info.json failed before the viewer was ever created.
+      this.initializeViewer();
+    }
   }
 
   /** Revoke the currently held fallback object URL, if any. */
