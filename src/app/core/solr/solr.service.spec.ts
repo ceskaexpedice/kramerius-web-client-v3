@@ -44,6 +44,41 @@ describe('SolrService pidScope', () => {
   });
 });
 
+describe('SolrService grouped facets', () => {
+  let service: SolrService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ imports: [HttpClientTestingModule] });
+    service = TestBed.inject(SolrService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  function groupParams(groupTruncate?: boolean): { group: string | null; facet: string | null; truncate: string | null } {
+    service.getFacetsWithOperators(
+      'hlas', [], ['model'], {}, undefined, false, true, null, undefined, undefined,
+      true, ['uuid:a'], false, groupTruncate
+    ).subscribe();
+    const req = httpMock.expectOne(() => true);
+    const p = req.request.params;
+    const result = { group: p.get('group'), facet: p.get('group.facet'), truncate: p.get('group.truncate') };
+    req.flush({});
+    return result;
+  }
+
+  it('truncates grouped facets by default (grouped facet.query counts)', () => {
+    expect(groupParams()).toEqual({ group: 'true', facet: 'true', truncate: 'true' });
+  });
+
+  it('omits group.truncate when groupTruncate is false, so {!ex} exclusions apply', () => {
+    expect(groupParams(false)).toEqual({ group: 'true', facet: 'true', truncate: null });
+  });
+});
+
 describe('SolrService collection scope', () => {
   let service: SolrService;
 

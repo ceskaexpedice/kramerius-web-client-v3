@@ -284,7 +284,7 @@ export class FoldersEffects {
 
         return scope$.pipe(
           switchMap(scopePaths => {
-            const chunks = this.folderSearchScope.chunk(scopePaths, FolderSearchScope.PID_BATCH_SIZE);
+            const chunks = this.folderSearchScope.chunkScope(scopePaths, exactScope);
             if (chunks.length === 0) {
               // Empty folder: nothing to scope to — report empty results directly
               // (forkJoin over no sources would complete without emitting).
@@ -328,7 +328,31 @@ export class FoldersEffects {
               )
             ).pipe(map(resps => this.folderSearchScope.mergeResponses(resps)));
 
-            return forkJoin({ titlesRes: titles$, facetsRes: facets$ }).pipe(
+            // Grouped facets use group.truncate (for grouped accessibility counts),
+            // which defeats the model facet's {!ex=model} exclusion: with the page
+            // scope selected it reports only `page`, and the where-to-search toggle
+            // loses "Titles"/"Supplements". Fetch the model counts grouped but
+            // untruncated (exclusion honored, still counted per title) and swap
+            // them in.
+            const modelFacets$ = groupedFacets
+              ? forkJoin(
+                  chunks.map(chunk =>
+                    this.solrService.getFacetsWithOperators(
+                      query, ctx.fqFilters, [facetKeysEnum.model], ctx.facetOperators,
+                      ctx.advancedQuery, ctx.includePeriodicalItem, includePageInFacets, null, undefined,
+                      ctx.availabilityFilter, true, chunk, exactScope, false
+                    )
+                  )
+                ).pipe(map(resps => this.folderSearchScope.mergeResponses(resps)))
+              : of(null);
+
+            const allFacets$ = forkJoin([facets$, modelFacets$]).pipe(
+              map(([facetsRes, modelRes]) => modelRes
+                ? this.folderSearchScope.replaceFacetField(facetsRes, modelRes, facetKeysEnum.model)
+                : facetsRes)
+            );
+
+            return forkJoin({ titlesRes: titles$, facetsRes: allFacets$ }).pipe(
               map(({ titlesRes, facetsRes }) => {
                 const { results: allResults } = parseSolrSearchResponse(titlesRes, query);
                 // Multi-chunk merges can return up to chunks×pageSize docs — cap the
@@ -412,7 +436,7 @@ export class FoldersEffects {
 
         return this.folderSearchScope.resolveScopePaths(action.itemIds).pipe(
           switchMap(scopePaths => {
-            const chunks = this.folderSearchScope.chunk(scopePaths, FolderSearchScope.PID_BATCH_SIZE);
+            const chunks = this.folderSearchScope.chunkScope(scopePaths);
             if (chunks.length === 0) {
               return of(FoldersActions.loadFolderPageSearchResultsSuccess({ results: [], totalCount: 0 }));
             }
