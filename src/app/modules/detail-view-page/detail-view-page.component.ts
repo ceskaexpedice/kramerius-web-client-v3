@@ -445,6 +445,26 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
+  /** Whether the image viewer currently shows a spread (current + next page). */
+  private get pagePillShowsSpread(): boolean {
+    return this.iiifViewerService.isBookMode()
+      && !this.detailViewService.isPdf
+      && this.detailViewService.currentPageIndex + 1 < this.detailViewService.totalPages;
+  }
+
+  /** Page pill counter: "n / N", or "n–n+1 / N" while book mode shows a spread. */
+  get pagePillLabel(): string {
+    const current = this.detailViewService.currentPageIndex + 1;
+    const total = this.detailViewService.totalPages;
+    return this.pagePillShowsSpread ? `${current}–${current + 1} / ${total}` : `${current} / ${total}`;
+  }
+
+  /** ‹ › step in book mode is 2; disable › once no page lies beyond the shown spread. */
+  get pagePillNextDisabled(): boolean {
+    const step = this.pagePillShowsSpread ? 2 : 1;
+    return this.detailViewService.currentPageIndex + step > this.detailViewService.totalPages - 1;
+  }
+
   /** Mobile page pill (‹ n / N ›) above the bottom nav; hidden while a panel covers the viewer. */
   get showMobilePagePill(): boolean {
     return this.breakpointService.isMobile() && this.mobileNavVisible() && !this.mobilePanelOpen()

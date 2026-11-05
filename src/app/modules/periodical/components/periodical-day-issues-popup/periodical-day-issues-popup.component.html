@@ -11,7 +11,10 @@
 
   <div class="day-issues-popup__list">
     @for (item of items(); track item.id) {
-      <app-record-item [item]="item" [showAccessibilityBadge]="true"></app-record-item>
+      <!-- layout="vertical": below 408px the card otherwise switches to its
+           single-row list layout (91px-wide full-height thumbnail), which in
+           this narrow column became a tall grey strip with no room for text. -->
+      <app-record-item [item]="item" layout="vertical" [showAccessibilityBadge]="true"></app-record-item>
     }
   </div>
 </div>

@@ -959,7 +959,10 @@ export class DetailViewService {
   goToPrevious(pagesToGoBack?: number) {
     // If book mode is active and no explicit step is provided, move by 2
     const step = pagesToGoBack ?? (this.iiifViewerService.isBookMode() ? 2 : 1);
-    this.goToPage(this._currentPageIndex() - step);
+    const current = this._currentPageIndex();
+    // Book mode from an odd spread (e.g. index 1): land on the first page
+    // instead of doing nothing.
+    if (current > 0) this.goToPage(Math.max(0, current - step));
   }
 
   goToNextPeriodicalIssue() {

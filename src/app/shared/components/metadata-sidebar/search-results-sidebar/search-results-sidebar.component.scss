@@ -68,6 +68,13 @@
     border-top: 1px solid var(--color-border-light);
     border-bottom: 1px solid var(--color-border-light);
     padding-bottom: var(--spacing-x2);
+
+    // The paginator's tablet/phone rule adds a 24px top margin meant to space it
+    // from the main result grid; here it would only leave dead space between
+    // the list and the page buttons.
+    ::ng-deep .paginator {
+      margin-top: 0;
+    }
   }
 
   .no-results {

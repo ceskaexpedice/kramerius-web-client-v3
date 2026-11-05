@@ -367,11 +367,11 @@
       <i class="icon-arrow-left-3" aria-hidden="true"></i>
     </button>
     <span class="mobile-page-pill__count" role="status" aria-live="polite">
-      {{ detailViewService.currentPageIndex + 1 }} / {{ detailViewService.totalPages }}
+      {{ pagePillLabel }}
     </span>
     <button type="button" class="mobile-page-pill__btn"
             [attr.aria-label]="'go-to-next-page' | translate"
-            [disabled]="detailViewService.currentPageIndex >= detailViewService.totalPages - 1"
+            [disabled]="pagePillNextDisabled"
             (click)="onTabletPagePill('next')">
       <i class="icon-arrow-right-3" aria-hidden="true"></i>
     </button>
@@ -401,11 +401,11 @@
         <i class="icon-arrow-left-3" aria-hidden="true"></i>
       </button>
       <span class="mobile-page-pill__count" role="status" aria-live="polite">
-        {{ detailViewService.currentPageIndex + 1 }} / {{ detailViewService.totalPages }}
+        {{ pagePillLabel }}
       </span>
       <button type="button" class="mobile-page-pill__btn"
               [attr.aria-label]="'go-to-next-page' | translate"
-              [disabled]="detailViewService.currentPageIndex >= detailViewService.totalPages - 1"
+              [disabled]="pagePillNextDisabled"
               (click)="onPagePill('next')">
         <i class="icon-arrow-right-3" aria-hidden="true"></i>
       </button>

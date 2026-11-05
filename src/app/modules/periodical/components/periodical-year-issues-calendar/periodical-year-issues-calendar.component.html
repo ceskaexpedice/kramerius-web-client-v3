@@ -25,11 +25,17 @@
   }
 </div>
 
-@if (issuesPopupState.showPopup()) {
-  <div class="issues-popup-wrapper" [class.positioned]="issuesPopupState.popupPositioned()">
-    <app-periodical-day-issues-popup
-      [items]="popupRecordItems()"
-      (close)="closePopup()">
-    </app-periodical-day-issues-popup>
-  </div>
-}
+<!-- Portaled into the CDK overlay container (see attachIssuesPopupPortal): rendered
+     in place, the position:fixed wrapper was trapped in the page scroller's stacking
+     context (.page-content__main is itself position:fixed on mobile) and painted
+     under the sticky periodical toolbar and the header whatever its z-index. -->
+<ng-template cdkPortal>
+  @if (issuesPopupState.showPopup()) {
+    <div class="issues-popup-wrapper" [class.positioned]="issuesPopupState.popupPositioned()">
+      <app-periodical-day-issues-popup
+        [items]="popupRecordItems()"
+        (close)="closePopup()">
+      </app-periodical-day-issues-popup>
+    </div>
+  }
+</ng-template>

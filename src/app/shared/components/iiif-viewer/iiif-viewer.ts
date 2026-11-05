@@ -19,7 +19,7 @@ import {
 } from '@angular/core';
 import { Metadata } from '../../models/metadata.model';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
-import { Subject, Subscription, switchMap, EMPTY, catchError, skip, distinctUntilChanged } from 'rxjs';
+import { Subject, Subscription, switchMap, EMPTY, catchError, skip, distinctUntilChanged, Observable, of } from 'rxjs';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import OpenSeadragon from 'openseadragon';
 import { SelectionControls } from '../selection-controls/selection-controls';
@@ -433,29 +433,18 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // Enable test mode in service if TEST_FALLBACK is true
     this.iiifViewerService.setTestFallbackMode(this.TEST_FALLBACK);
 
-    // Set thumbnail as background placeholder (blur→sharp effect)
-    this.setThumbnailBackground(pid);
-
-    const infoUrl = this.iiifViewerService.getIIIFInfoUrl(pid);
-
-    // Get authorization headers if user is authenticated
-    const authHeaders = this.iiifViewerService.getAuthHeaders();
-
-    // Create HttpHeaders for the initial request
-    let headers = new HttpHeaders();
-    if (authHeaders['Authorization']) {
-      headers = headers.set('Authorization', authHeaders['Authorization']);
+    // Set thumbnail as background placeholder (blur→sharp effect, single page only)
+    if (this.iiifViewerService.isBookMode()) {
+      this.clearThumbnailBackground();
+    } else {
+      this.setThumbnailBackground(pid);
     }
 
-    // Fetch info.json with auth headers, then create viewer
-    this.http.get(infoUrl, {
-      headers,
-      context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
-    }).subscribe({
-      next: (infoJson: any) => {
-        this.processInfoJson(infoJson, infoUrl);
-        this.createViewer(infoJson);
-      },
+    // The component is re-created on every page change (the access check swaps
+    // it for a loader), so the initial load must honour book mode too —
+    // otherwise only the left page shows while book mode stays on.
+    this.loadTileSources(pid).subscribe({
+      next: (tileSources) => this.createViewer(tileSources),
       error: (error) => {
         console.error('Failed to fetch IIIF info.json', error);
         this.handleOpenFailed();
@@ -1003,58 +992,61 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // Clear existing overlays when changing pages
     this.iiifViewerService.clearAllOverlays();
 
-    const isBookMode = this.iiifViewerService.isBookMode();
-    const nextPagePid = isBookMode ? this.getNextPagePid() : null;
-
     // Set thumbnail as background placeholder for blur→sharp effect (single page only)
-    if (!isBookMode) {
+    if (!this.iiifViewerService.isBookMode()) {
       this.setThumbnailBackground(currentPid);
     } else {
       this.clearThumbnailBackground();
     }
 
+    return this.loadTileSources(currentPid).pipe(
+      switchMap((tileSources) => {
+        this.viewer?.open(tileSources);
+        return EMPTY;
+      })
+    );
+  }
+
+  /**
+   * Fetches info.json for the page (and, in book mode, the following page) and
+   * returns what OpenSeadragon should open: a single info.json, or two sources
+   * laid side by side. If the second page's info.json fails (e.g. a licensed
+   * page), the left page is still shown on its own.
+   */
+  private loadTileSources(currentPid: string): Observable<any> {
+    const nextPagePid = this.iiifViewerService.isBookMode() ? this.getNextPagePid() : null;
+    const left$ = this.fetchInfoJson(currentPid);
+    if (!nextPagePid) return left$;
+
+    return left$.pipe(
+      switchMap((infoJson) => this.fetchInfoJson(nextPagePid).pipe(
+        map((nextInfoJson) => [
+          { tileSource: infoJson, x: 0, y: 0, width: 0.5 },
+          { tileSource: nextInfoJson, x: 0.5, y: 0, width: 0.5 }
+        ] as any),
+        catchError((error) => {
+          console.warn('Book mode: next page info.json failed, showing single page', error);
+          return of(infoJson);
+        })
+      ))
+    );
+  }
+
+  /** GET + normalise one page's info.json through the API proxy. */
+  private fetchInfoJson(pid: string): Observable<any> {
     const authHeaders = this.iiifViewerService.getAuthHeaders();
     let headers = new HttpHeaders();
     if (authHeaders['Authorization']) {
       headers = headers.set('Authorization', authHeaders['Authorization']);
     }
-
-    const infoUrl = this.iiifViewerService.getIIIFInfoUrl(currentPid);
-
-    if (!isBookMode || !nextPagePid) {
-      return this.http.get(infoUrl, {
-        headers,
-        context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
-      }).pipe(
-        switchMap((infoJson: any) => {
-          this.processInfoJson(infoJson, infoUrl);
-          this.viewer?.open(infoJson);
-          return EMPTY;
-        })
-      );
-    }
-
-    // Book mode: fetch both pages
-    const nextInfoUrl = this.iiifViewerService.getIIIFInfoUrl(nextPagePid);
+    const infoUrl = this.iiifViewerService.getIIIFInfoUrl(pid);
     return this.http.get(infoUrl, {
       headers,
       context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
     }).pipe(
-      switchMap((infoJson: any) => {
+      map((infoJson: any) => {
         this.processInfoJson(infoJson, infoUrl);
-        return this.http.get(nextInfoUrl, {
-          headers,
-          context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
-        }).pipe(
-          switchMap((nextInfoJson: any) => {
-            this.processInfoJson(nextInfoJson, nextInfoUrl);
-            this.viewer?.open([
-              { tileSource: infoJson, x: 0, y: 0, width: 0.5 },
-              { tileSource: nextInfoJson, x: 0.5, y: 0, width: 0.5 }
-            ]);
-            return EMPTY;
-          })
-        );
+        return infoJson;
       })
     );
   }
