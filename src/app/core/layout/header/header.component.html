@@ -104,7 +104,7 @@
 
     </div>
 
-    <button class="icon-button mobile-only hamburger-menu--btn" [class.primary]="isMobileMenuOpen"
+    <button #mobileMenuToggle class="icon-button mobile-only hamburger-menu--btn" [class.primary]="isMobileMenuOpen"
       [class.outlined]="!isMobileMenuOpen" [class.light]="!isMobileMenuOpen"
       [class.hide-on-search-active]="isMobileSearchOpen" [appCdkTooltip]="'header.aria.menu' | translate"
       [tooltipPosition]="'bottom'" [attr.aria-expanded]="isMobileMenuOpen" aria-controls="header-mobile-menu"
@@ -114,7 +114,7 @@
 
   </nav>
 
-  <div id="header-mobile-menu" class="mobile-menu" appClickOutside (clickOutside)="closeMobileMenu()" [class.open]="isMobileMenuOpen">
+  <div id="header-mobile-menu" class="mobile-menu" appClickOutside (clickOutside)="onMobileMenuClickOutside($event, mobileMenuToggle)" [class.open]="isMobileMenuOpen">
     <div class="mobile-menu__content">
       <a [routerLink]="searchLink"
         [queryParams]="{ customSearch: customDefinedFacetsEnum.model + ':' + DocumentTypeEnum.collection }"

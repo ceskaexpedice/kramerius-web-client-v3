@@ -67,11 +67,11 @@ export class MusicPageComponent implements OnInit, OnDestroy {
   mobileActivePanel = signal<string>('');
   mobileSectionOpen = signal(false);
 
-  // Immersive mobile chrome, as on detail-view: the nav bar hides so the image
-  // fills the screen and a clean tap on the viewer brings it back. Only in
-  // "images" mode - the records track list has no viewer to tap, so an
-  // auto-hidden bar would be unreachable there (GitHub issue #172).
-  mobileNavVisible = signal(false);
+  // Immersive mobile chrome, as on detail-view: a clean tap on the viewer
+  // hides/shows the nav bar. It starts visible and never hides on its own.
+  // Only in "images" mode - the records track list has no viewer to tap, so a
+  // hidden bar would be unreachable there (GitHub issue #172).
+  mobileNavVisible = signal(true);
   isImmersiveMode = computed(() => this.detailViewService.soundRecordingViewMode() === 'images');
   /**
    * Outside immersive mode the bar follows the header (it leaves with it while

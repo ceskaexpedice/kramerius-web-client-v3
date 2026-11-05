@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { EnvironmentService } from './environment.service';
 import { APP_ROUTES_ENUM } from '../../app.routes';
@@ -119,6 +119,13 @@ export class IIIFViewerService {
   private scrollLockHandler: ((event: any) => void) | null = null;
 
   private testFallbackMode = false;
+
+  /**
+   * Height in px of the fallback notice the viewer shows above the page (0 when
+   * hidden). The floating viewer controls are positioned by the detail page,
+   * outside the viewer, and push themselves below the notice by this much.
+   */
+  readonly fallbackNoticeHeight = signal(0);
 
   // CDK aggregator: selected member library. The state lives in CdkSourceService
   // (the single source of truth shared by every reader URL builder); these members
@@ -437,7 +444,7 @@ export class IIIFViewerService {
     if (!this.viewer) return;
 
     this.viewer.addHandler('canvas-click', (event: any) => {
-      const viewportPoint = this.viewer!.viewport.pointFromPixel(event.position);
+      const viewportPoint = this.viewer!.viewport.pointFromPixel(this.toContainerPx(event.position));
 
       // Check if click is on any rectangle
       for (const [overlay, rect] of this.rectangles.entries()) {
@@ -738,7 +745,7 @@ export class IIIFViewerService {
         // controls so their own click handlers run and the selection survives.
         if (this.isEventOnSelectionControls(event)) return;
         console.log('MouseTracker: press');
-        this.drawStartPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(event.position);
+        this.drawStartPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(this.toContainerPx(event.position));
         this.isDraggingSubject.next(true);
         event.preventDefaultAction = true;
       },
@@ -765,7 +772,7 @@ export class IIIFViewerService {
         // console.log('MouseTracker: drag');
         if (!this.drawStartPoint) return;
 
-        const currentPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(event.position);
+        const currentPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(this.toContainerPx(event.position));
         this.clearSelectionOverlays();
 
         const rect = new OpenSeadragon.Rect(
@@ -802,7 +809,7 @@ export class IIIFViewerService {
           this.isDraggingSubject.next(false);
           if (!this.drawStartPoint) return;
 
-          const endPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(event.position);
+          const endPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(this.toContainerPx(event.position));
           const rect = new OpenSeadragon.Rect(
             Math.min(this.drawStartPoint.x, endPoint.x),
             Math.min(this.drawStartPoint.y, endPoint.y),
@@ -833,6 +840,29 @@ export class IIIFViewerService {
         }
       }
     });
+  }
+
+  /**
+   * Converts an OpenSeadragon `event.position` into the container's own CSS px.
+   *
+   * OSD derives `event.position` from clientX/Y and getBoundingClientRect(),
+   * i.e. in client (on-screen) units, while the viewport maths
+   * (`getContainerSize`, `pointFromPixel`, `viewerElementToViewportCoordinates`)
+   * works in the container's CSS px from offsetWidth. Under the desktop UI zoom
+   * (`--ui-zoom` on <html> plus the counter-zoom on `.openseadragon-container`,
+   * styles.scss) the two differ — 756 on-screen px vs offsetWidth 680 — so
+   * points landed 1/0.9 too far from the container's top-left corner and the
+   * area selection started beside the cursor. Scaling by offsetWidth / rect
+   * width is exact for any zoom setup and a no-op (factor 1) without one.
+   */
+  private toContainerPx(position: OpenSeadragon.Point): OpenSeadragon.Point {
+    const container = this.viewer?.container as HTMLElement | undefined;
+    if (!container) return position;
+    const rect = container.getBoundingClientRect();
+    if (!rect.width || !rect.height) return position;
+    const kx = container.offsetWidth / rect.width;
+    const ky = container.offsetHeight / rect.height;
+    return new OpenSeadragon.Point(position.x * kx, position.y * ky);
   }
 
   // The MouseTracker is bound to the whole viewer element, which also hosts the

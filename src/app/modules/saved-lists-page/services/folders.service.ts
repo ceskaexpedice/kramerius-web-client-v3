@@ -144,7 +144,7 @@ export class FoldersService {
 
     return this.folderSearchScope.resolveScopePaths(itemIds).pipe(
       switchMap(scopePaths => {
-        const chunks = this.folderSearchScope.chunk(scopePaths, FolderSearchScope.PID_BATCH_SIZE);
+        const chunks = this.folderSearchScope.chunkScope(scopePaths);
         if (chunks.length === 0) {
           return of({
             response: { facet_counts: { facet_fields: { [facetKey]: [] } } },

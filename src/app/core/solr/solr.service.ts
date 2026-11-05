@@ -173,10 +173,16 @@ export class SolrService {
     if (!pidScope || pidScope.length === 0) {
       return null;
     }
-    const clauses = exact
-      ? pidScope.map(id => `pid:"${id}"`)
-      : pidScope.map(id => `pid_paths:${id.replace(/:/g, '\\:')}*`);
+    const clauses = pidScope.map(id => SolrService.pidScopeTerm(id, exact));
     return `(${clauses.join(' OR ')})`;
+  }
+
+  /**
+   * One OR-term of the pid scope clause (see buildPidScopeClause). Public so the
+   * folder search can size its scope chunks against the exact string sent.
+   */
+  static pidScopeTerm(id: string, exact = false): string {
+    return exact ? `pid:"${id}"` : `pid_paths:${id.replace(/:/g, '\\:')}*`;
   }
 
   private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, rootUuid: string | null = null, collectionUuid: string | null = null, includeSupplement: boolean = true, includeArticle: boolean = true, pidScope: string[] = [], pidScopeExact = false): string {
@@ -293,11 +299,23 @@ export class SolrService {
   }
 
   /**
-   * Builds the collection-scope filter as an fq (matching the old client's
-   * `fq=(in_collections.direct:"uuid:...")`): direct members only.
+   * Builds the collection-scope filter as an fq.
+   *
+   * Titles are scoped by direct membership (`in_collections.direct`), matching
+   * the old client's collection listing. Pages, articles and periodical items are
+   * never direct members of a collection, so when they are part of the search
+   * (fulltext query inside a collection) they are matched transitively via
+   * `in_collections` — otherwise a query inside a collection finds nothing.
    */
-  private buildCollectionScopeFq(collectionUuid: string): string {
-    return `(in_collections.direct:"${collectionUuid}")`;
+  private buildCollectionScopeFq(collectionUuid: string, includePeriodicalItem = false, includePage = false): string {
+    const direct = `in_collections.direct:"${collectionUuid}"`;
+    const models: string[] = [];
+    if (includePage) {
+      models.push('model:page', 'model:article');
+      if (includePeriodicalItem) models.push('model:periodicalitem');
+    }
+    if (!models.length) return `(${direct})`;
+    return `((${direct}) OR ((${models.join(' OR ')}) AND in_collections:"${collectionUuid}"))`;
   }
 
   /**
@@ -635,7 +653,7 @@ export class SolrService {
 
     let params = this.createHttpParams(paramsObject)
       .set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, collectionUuid))
-      .append('fq', this.buildCollectionScopeFq(collectionUuid));
+      .append('fq', this.buildCollectionScopeFq(collectionUuid, includePeriodicalItem, includePage));
 
     this.buildFqParams(filters, facetOperators).forEach(fq => params = params.append('fq', fq));
 
@@ -667,7 +685,7 @@ export class SolrService {
 
     let params = this.createHttpParams(paramsObject)
       .set('q', this.buildQParam(query, advancedQuery, includePeriodicalItem, includePage, false, null, collectionUuid))
-      .append('fq', this.buildCollectionScopeFq(collectionUuid));
+      .append('fq', this.buildCollectionScopeFq(collectionUuid, includePeriodicalItem, includePage));
 
     this.buildFacetFieldParams(facetFields, filtersByField, facetOperators).forEach(field => {
       params = params.append('facet.field', field);
@@ -688,7 +706,7 @@ export class SolrService {
   }
 
   getFacetsWithOperators(query: string, filters: string[], facetFields: string[] = DEFAULT_FACET_FIELDS, facetOperators: { [field: string]: SolrOperators } = {}, advancedQuery?: string,
-    includePeriodicalItem = false, includePage = false, rootPid: string | null = null, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, grouped = false, pidScope: string[] = [], pidScopeExact = false): Observable<SearchResultResponse> {
+    includePeriodicalItem = false, includePage = false, rootPid: string | null = null, filterGroups?: string[][], availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, grouped = false, pidScope: string[] = [], pidScopeExact = false, groupTruncate = true): Observable<SearchResultResponse> {
 
     let baseFilters;
     if (rootPid) {
@@ -714,8 +732,15 @@ export class SolrService {
         .set('group', 'true')
         .set('group.field', 'root.pid')
         .set('group.facet', 'true')
-        .set('group.ngroups', 'true')
-        .set('group.truncate', 'true');
+        .set('group.ngroups', 'true');
+      // group.truncate counts facets over each group's head doc in the filtered
+      // result only, so {!ex=...} exclusions can't bring excluded values back
+      // (e.g. model:page selected → the model facet shows only `page`). It is
+      // needed for grouped facet.query counts (group.facet doesn't cover them);
+      // pass groupTruncate=false for facet.field counts that honor exclusions.
+      if (groupTruncate) {
+        params = params.set('group.truncate', 'true');
+      }
     }
 
     this.buildFacetFieldParams(facetFields, filtersByField, facetOperators).forEach(field => {
@@ -874,7 +899,7 @@ export class SolrService {
     // Collection scoping is applied via fq (see buildCollectionScopeFq), matching
     // the page's searchInCollection/getFacetsInCollection so counts line up.
     if (collectionUuid) {
-      params = params.append('fq', this.buildCollectionScopeFq(collectionUuid));
+      params = params.append('fq', this.buildCollectionScopeFq(collectionUuid, includePeriodicalItem, includePage));
     }
 
     const otherFilters = allFilters.filter(f => !f.startsWith(`${currentFacet}:`));

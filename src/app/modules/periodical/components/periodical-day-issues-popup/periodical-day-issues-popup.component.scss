@@ -9,7 +9,10 @@
   padding: var(--spacing-x2) var(--spacing-x4) var(--spacing-x4) var(--spacing-x4);
   background: var(--color-bg-base);
   border: 1px solid var(--color-primary);
-  max-height: 330px;
+  // Never wider than the viewport (minus the positioning service's 16px margin);
+  // more issues than fit scroll horizontally in the list.
+  max-width: calc(100vw - 2 * var(--spacing-x4));
+  box-sizing: border-box;
   border-radius: 8px;
 }
 
@@ -49,11 +52,18 @@
   flex-direction: row;
   gap: var(--spacing-x2);
 
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+
+  // Fixed column width; the height comes from the card itself (its own
+  // aspect ratio and thumbnail ratio), like a regular grid card. A forced
+  // height used to stretch the card into a tall column on phones.
   app-record-item {
+    flex: 0 0 150px;
+    width: 150px;
+    height: auto;
     border: 1px solid var(--color-border-bright);
     border-radius: 8px;
     overflow: hidden;
-    height: 270px;
-    aspect-ratio: 150/270;
   }
 }

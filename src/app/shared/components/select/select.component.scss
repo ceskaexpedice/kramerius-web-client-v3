@@ -113,6 +113,26 @@ $filter-height: 44px;
     max-height: calc($num-options * $option-height - $filter-height + 6px);
   }
 
+  // The virtual viewport sizes and scrolls itself; a capped outer list
+  // scrolled it as a second, nested scroller.
+  &:has(> cdk-virtual-scroll-viewport) {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+// Virtual options all share one height (the viewport's itemSize), so a long
+// label is cut with an ellipsis instead of wrapping onto a second line.
+.option--virtual {
+  box-sizing: border-box;
+  white-space: nowrap;
+
+  .option__label {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .option {

@@ -1,5 +1,9 @@
-import { effect } from '@angular/core';
+import { PlatformLocation } from '@angular/common';
+import { MockPlatformLocation } from '@angular/common/testing';
+import { effect, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Event as RouterEvent, NavigationEnd, Router } from '@angular/router';
+import { Subject } from 'rxjs';
 import { UiStateService } from '../../services/ui-state.service';
 import { FixedPanelRef, FixedPanelService } from './fixed-panel.service';
 
@@ -52,7 +56,9 @@ describe('FixedPanelService', () => {
     appended = [];
     unregisters = [];
     pushed = [];
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [{ provide: PlatformLocation, useClass: MockPlatformLocation }]
+    });
     service = TestBed.inject(FixedPanelService);
     uiState = TestBed.inject(UiStateService);
   });
@@ -207,5 +213,165 @@ describe('FixedPanelService', () => {
     push(ref);
 
     expect(overlay.inert).toBeFalse();
+  });
+});
+
+describe('FixedPanelService history', () => {
+  let service: FixedPanelService;
+  let location: MockPlatformLocation;
+  let routerEvents: Subject<RouterEvent>;
+  let open: FixedPanelRef[];
+  let closeCalls: number;
+
+  /** Lets the coalesced history sync (a microtask) and its popstate run. */
+  const settle = () => new Promise<void>(resolve => setTimeout(resolve));
+
+  const level = () => (location.getState() as any)?.fixedPanelLevel ?? 0;
+  // MockPlatformLocation keeps its history private.
+  const entryCount = (): number => (location as any).urlChanges.length;
+  const entryIndex = (): number => (location as any).urlChangeIndex;
+
+  const panel = (): FixedPanelRef => {
+    const element = document.createElement('div');
+    service.container.appendChild(element);
+    const ref: FixedPanelRef = {
+      element,
+      close: () => {
+        closeCalls++;
+        closeByButton(ref);
+      }
+    };
+    return ref;
+  };
+
+  const openPanel = (ref = panel()) => {
+    service.push(ref);
+    open.push(ref);
+    TestBed.tick();
+    return ref;
+  };
+
+  const closeByButton = (ref: FixedPanelRef) => {
+    service.remove(ref);
+    open = open.filter(p => p !== ref);
+    TestBed.tick();
+  };
+
+  beforeEach(() => {
+    open = [];
+    closeCalls = 0;
+    routerEvents = new Subject<RouterEvent>();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: PlatformLocation, useClass: MockPlatformLocation },
+        { provide: Router, useValue: { events: routerEvents, currentNavigation: signal(null) } }
+      ]
+    });
+    location = TestBed.inject(PlatformLocation) as MockPlatformLocation;
+    // The page's own entry, as the router leaves it.
+    location.pushState({ navigationId: 3 }, '', '/search?q=x');
+    service = TestBed.inject(FixedPanelService);
+  });
+
+  afterEach(() => {
+    open.forEach(p => service.remove(p));
+    TestBed.tick();
+    service.container.remove();
+  });
+
+  it('opening a panel pushes a same-URL entry that keeps the router state', async () => {
+    const entries = entryCount();
+    openPanel();
+    await settle();
+
+    expect(entryCount()).toBe(entries + 1);
+    expect(location.url).toBe('/search?q=x');
+    expect(location.getState()).toEqual({ navigationId: 3, fixedPanelLevel: 1 });
+  });
+
+  it('back closes the open panel and stays on the page', async () => {
+    openPanel();
+    await settle();
+
+    location.back();
+    await settle();
+
+    expect(closeCalls).toBe(1);
+    expect(service.anyOpen()).toBeFalse();
+    expect(location.url).toBe('/search?q=x');
+    expect(level()).toBe(0);
+  });
+
+  it('back closes only the top of nested panels', async () => {
+    const parent = openPanel();
+    openPanel();
+    await settle();
+    expect(level()).toBe(2);
+
+    location.back();
+    await settle();
+
+    expect(closeCalls).toBe(1);
+    expect(service.isTop(parent)).toBeTrue();
+    expect(level()).toBe(1);
+  });
+
+  it('closing by the button drops the panel entry again', async () => {
+    const ref = openPanel();
+    await settle();
+    const index = entryIndex();
+
+    closeByButton(ref);
+    await settle();
+
+    expect(entryIndex()).toBe(index - 1);
+    expect(level()).toBe(0);
+    expect(closeCalls).toBe(0);
+  });
+
+  it('a panel swapped for another in the same task reuses the entry', async () => {
+    const first = openPanel();
+    await settle();
+    const index = entryIndex();
+
+    closeByButton(first);
+    openPanel();
+    await settle();
+
+    expect(entryIndex()).toBe(index);
+    expect(level()).toBe(1);
+  });
+
+  it('a navigation inside an open panel gets a fresh panel entry on top', async () => {
+    openPanel();
+    await settle();
+
+    // A filter change pushes a new router entry over the panel's.
+    location.pushState({ navigationId: 4 }, '', '/search?q=y');
+    routerEvents.next(new NavigationEnd(4, '/search?q=y', '/search?q=y'));
+    await settle();
+
+    expect(location.url).toBe('/search?q=y');
+    expect(location.getState()).toEqual({ navigationId: 4, fixedPanelLevel: 1 });
+
+    // Back closes the panel and keeps the new filters.
+    location.back();
+    await settle();
+    expect(closeCalls).toBe(1);
+    expect(location.url).toBe('/search?q=y');
+  });
+
+  it('forward into the entry of a closed panel goes back to the page', async () => {
+    openPanel();
+    await settle();
+    location.back();
+    await settle();
+    const index = entryIndex();
+
+    location.forward();
+    await settle();
+
+    expect(entryIndex()).toBe(index);
+    expect(service.anyOpen()).toBeFalse();
   });
 });

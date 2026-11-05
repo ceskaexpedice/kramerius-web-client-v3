@@ -52,6 +52,24 @@ export class CdkSourceService {
   }
 
   /**
+   * Sources the reader picked by hand, keyed by the document's root pid. Links
+   * to another part of the same title (next issue, volume grid, neighbours,
+   * breadcrumbs...) don't carry `?source=`, so without this every hop fell back
+   * to the leader. Kept for the session only; the URL still wins.
+   */
+  private readonly chosenByRoot = new Map<string, string>();
+
+  rememberForRoot(rootPid: string | null | undefined, code: string | null | undefined): void {
+    if (!rootPid) return;
+    if (code) this.chosenByRoot.set(rootPid, code);
+    else this.chosenByRoot.delete(rootPid);
+  }
+
+  rememberedForRoot(rootPid: string | null | undefined): string | null {
+    return rootPid ? this.chosenByRoot.get(rootPid) ?? null : null;
+  }
+
+  /**
    * Builds the trailing portion of an `items/...` URL, prefixed with the selected
    * member library when one is active. Concatenate after `getApiUrl('items')`.
    *

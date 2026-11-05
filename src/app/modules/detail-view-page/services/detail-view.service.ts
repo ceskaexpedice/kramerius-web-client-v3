@@ -44,6 +44,8 @@ import { ConfigService } from '../../../core/config/config.service';
 import { LicenseActionsConfig } from '../../../core/config/config.interfaces';
 import { CdkSourceService } from '../../../shared/services/cdk-source.service';
 import { parseIssueStartDate } from '../../../shared/utils/periodical-date';
+import { Actions, ofType } from '@ngrx/effects';
+import { reloadPagesForCdkCollectionSuccess } from '../../../shared/state/document-detail/document-detail.actions';
 
 @Injectable({
   providedIn: 'root'
@@ -77,6 +79,7 @@ export class DetailViewService {
   private recordHandlerService = inject(RecordHandlerService);
   private configService = inject(ConfigService);
   private cdkSource = inject(CdkSourceService);
+  private actions$ = inject(Actions, { optional: true });
   private solrService = inject(SolrService);
 
   pages$ = this.store.select(selectDocumentDetailPages);
@@ -171,6 +174,15 @@ export class DetailViewService {
       }
     });
 
+    // Switching the CDK source swaps in the other library's copy, whose pages
+    // have their own pids. The ?page= pid of the old library matches none of
+    // them, so the reader kept the old pid in the URL and never re-read the page
+    // info (licences, actions). Stay at the same position in the new copy.
+    this.actions$?.pipe(
+      ofType(reloadPagesForCdkCollectionSuccess),
+      takeUntil(this.destroy$)
+    ).subscribe(() => this.followPagesAfterSourceSwitch());
+
     // Listen to articles changes and update the signal automatically
     this.articles$.pipe(takeUntil(this.destroy$)).subscribe(articles => {
       if (!this.isOnDetailViewPage()) {
@@ -189,6 +201,21 @@ export class DetailViewService {
       }
     });
 
+  }
+
+  private followPagesAfterSourceSwitch(): void {
+    if (!this.isOnDetailViewPage() || this.isPdf) return;
+    const pages = this._pages();
+    if (!pages.length) return;
+    const pageParam = this.router.parseUrl(this.router.url).queryParams['page'];
+    // ?page= already names a page of this copy: the regular pages$ handling has it.
+    if (pageParam && pages.some(p => p.pid === pageParam)) {
+      this.loadPageInfo();
+      return;
+    }
+    const index = Math.min(this._currentPageIndex(), pages.length - 1);
+    this._currentPageIndex.set(index);
+    this.changePageUrl(); // also reloads the page info
   }
 
   resetState(): void {
@@ -932,7 +959,10 @@ export class DetailViewService {
   goToPrevious(pagesToGoBack?: number) {
     // If book mode is active and no explicit step is provided, move by 2
     const step = pagesToGoBack ?? (this.iiifViewerService.isBookMode() ? 2 : 1);
-    this.goToPage(this._currentPageIndex() - step);
+    const current = this._currentPageIndex();
+    // Book mode from an odd spread (e.g. index 1): land on the first page
+    // instead of doing nothing.
+    if (current > 0) this.goToPage(Math.max(0, current - step));
   }
 
   goToNextPeriodicalIssue() {

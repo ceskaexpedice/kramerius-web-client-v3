@@ -16,6 +16,10 @@
   background: var(--color-bg-base);
   z-index: $fixed-panel;
   animation: fixed-panel-enter 150ms ease-out;
+  // Home indicator area left uncovered below the panel: the full inset when the
+  // panel reaches the screen bottom, nothing once a bottom edge (mini-player,
+  // which pads the inset itself) sits under it.
+  --fixed-panel-safe-bottom: max(0px, env(safe-area-inset-bottom, 0px) - var(--fixed-panel-bottom, 0px));
 
   // The container takes programmatic focus on open; a ring around the whole
   // panel would only be noise.
@@ -36,8 +40,9 @@
 // Content
 .fixed-panel__content {
   padding: var(--spacing-x3);
-  // With no bottom bar below the panel, clear the iPhone home indicator.
-  padding-bottom: max(var(--spacing-x3), env(safe-area-inset-bottom, 0px));
+  // Clear the iPhone home indicator, but only the part no bottom bar below the
+  // panel (mini-player) already covers: that bar pads the home indicator itself.
+  padding-bottom: max(var(--spacing-x3), var(--fixed-panel-safe-bottom));
   overflow: auto;
   min-height: 0;
   overscroll-behavior: contain;
@@ -45,7 +50,7 @@
   // Hosted sidebars bring their own padding and their own inner scroll area,
   // so drop the outer gap (but still clear the home indicator).
   &--flush {
-    padding: 0 0 env(safe-area-inset-bottom, 0px);
+    padding: 0 0 var(--fixed-panel-safe-bottom);
   }
 }
 

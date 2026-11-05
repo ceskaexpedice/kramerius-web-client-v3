@@ -14,14 +14,14 @@
     <app-input
       [initialValue]="dayMonthFrom"
       [ariaLabel]="'day-month-from' | translate"
-      [placeholder]="'DD.MM'" [size]="'sm'" [theme]="'dark'"
+      [placeholder]="'DD.MM'" [size]="'sm'" [theme]="'dark'" [inputMode]="'numeric'"
       (valueChange)="onDayMonthFromChange($event)">
     </app-input>
     <span class="separator" aria-hidden="true">-</span>
     <app-input
       [initialValue]="dayMonthTo"
       [ariaLabel]="'day-month-to' | translate"
-      [placeholder]="'DD.MM'" [size]="'sm'" [theme]="'dark'"
+      [placeholder]="'DD.MM'" [size]="'sm'" [theme]="'dark'" [inputMode]="'numeric'"
       (valueChange)="onDayMonthToChange($event)">
     </app-input>
   </div>

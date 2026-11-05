@@ -21,7 +21,8 @@
   [maxBufferPx]="rowHeight() * 4">
 
   <div class="page--grid" [ngClass]="'type-' + type" #gridMeasure>
-    <div class="page--grid__row" *cdkVirtualFor="let row of rows(); trackBy: trackByRow; templateCacheSize: 0">
+    <div class="page--grid__row" [style.height.px]="rowHeight()"
+      *cdkVirtualFor="let row of rows(); trackBy: trackByRow; templateCacheSize: 0">
       @for (page of row; track page.pid) {
         <app-detail-page-item
           [page]="page"

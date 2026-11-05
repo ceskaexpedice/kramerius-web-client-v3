@@ -359,9 +359,12 @@ export class PageSelectionDialogComponent implements AfterViewInit, OnDestroy {
         }
 
         const gap = parseFloat(getComputedStyle(grid).rowGap) || 0;
+        // Measure a card, not the row: the row's height is pinned to rowHeight().
+        const cell = row.firstElementChild as HTMLElement | null;
+        if (!cell) return;
         // Virtual-scroll item sizes are CSS px; the rect is visual px under UI zoom.
-        const height = row.getBoundingClientRect().height / uiZoom();
-        const next = Math.round(height + gap);
+        const height = cell.getBoundingClientRect().height / uiZoom();
+        const next = Math.ceil(height) + gap;
         if (next > 0 && next !== this.rowHeight()) {
             this.rowHeight.set(next);
         }

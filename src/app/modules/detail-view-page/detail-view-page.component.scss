@@ -252,7 +252,7 @@ app-viewer-controls {
   // Distance from the top of the (positioned) content body. Published as a
   // custom property so the control column can subtract it from its own
   // max-height and stay inside the viewer on short viewports (issue #162).
-  --viewer-controls-offset: calc(var(--spacing-x3) + var(--license-bar-offset, 0px));
+  --viewer-controls-offset: calc(var(--spacing-x3) + var(--license-bar-offset, 0px) + var(--viewer-notice-offset, 0px));
 
   position: absolute;
   top: var(--viewer-controls-offset);

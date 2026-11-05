@@ -117,12 +117,16 @@ export class DetailPagesGridComponent implements AfterViewInit, OnDestroy {
   }
 
   private measureRowHeight(): void {
-    const row = this.gridMeasure?.nativeElement.querySelector('.page--grid__row') as HTMLElement | null;
+    // Measure a cell, not the row: the row's height is pinned to rowHeight()
+    // itself. (Measuring the row, whose padding already held the gap, and
+    // adding GAP again made itemSize 8px taller than a row: the rows drifted
+    // from their virtual offsets and the grid jumped while scrolling.)
+    const cell = this.gridMeasure?.nativeElement.querySelector('.page--grid__row > *') as HTMLElement | null;
     // Virtual-scroll item sizes are CSS px; the rect is visual px under UI zoom.
-    const height = row ? row.getBoundingClientRect().height / uiZoom() : 0;
+    const height = cell ? cell.getBoundingClientRect().height / uiZoom() : 0;
     if (!height) return;
 
-    const next = Math.round(height + DetailPagesGridComponent.GAP);
+    const next = Math.ceil(height) + DetailPagesGridComponent.GAP;
     if (next > 0 && next !== this.rowHeight()) {
       this.rowHeight.set(next);
     }

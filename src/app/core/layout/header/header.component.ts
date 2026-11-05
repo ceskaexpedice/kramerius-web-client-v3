@@ -397,6 +397,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
+  /**
+   * The menu's outside-press handler. A press on the hamburger itself is ignored:
+   * the outside handler runs on `pointerdown` and closes after a timeout, so the
+   * button's `click` that follows would toggle the just-closed menu open again.
+   * The button's own toggle closes it instead.
+   */
+  onMobileMenuClickOutside(event: Event | void, toggle?: HTMLElement) {
+    if (event && toggle?.contains(event.target as Node)) {
+      return;
+    }
+    this.closeMobileMenu();
+  }
+
   closeMobileMenu() {
     if (this.isMobileMenuOpen) {
       setTimeout(() => this.isMobileMenuOpen = false, 25);

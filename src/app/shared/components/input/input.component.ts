@@ -32,6 +32,15 @@ import {Subscription} from 'rxjs';
 export class InputComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() type: string = 'text';
+  /**
+   * Virtual-keyboard hint. Defaults to the numeric keypad only for
+   * `type="number"`; text inputs get the regular keyboard (a hardcoded
+   * `inputmode="numeric"` used to restrict every text field — e.g. search in a
+   * saved list — to digits on iOS, with no Return key to submit).
+   */
+  @Input() inputMode: string | null = null;
+  /** Label of the virtual keyboard's Enter key (e.g. 'search'). */
+  @Input() enterKeyHint: string | null = null;
   @Input() min?: number;
   @Input() max?: number;
   @Input() readonly: boolean = false;
@@ -66,6 +75,10 @@ export class InputComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() showCaseSensitiveButton: boolean = false;
   @Input() isCaseSensitive: boolean = false;
   @Input() autofocus: boolean = false;
+
+  get resolvedInputMode(): string | null {
+    return this.inputMode ?? (this.type === 'number' ? 'numeric' : null);
+  }
 
   @Output() valueChange = new EventEmitter<string | number>();
   @Output() enter = new EventEmitter<string | number>();

@@ -1,3 +1,4 @@
+import { Observable, of, switchMap } from 'rxjs';
 import { sortLicenses } from '../../core/solr/solr-misc';
 
 /**
@@ -133,4 +134,24 @@ export function pickCdkSourceRecord<T extends { cdkCollections?: string[] } | nu
   if (collectionsMode) return metadataInput;
   if (storeRecord?.cdkCollections?.length) return storeRecord;
   return metadataInput ?? storeRecord;
+}
+
+/**
+ * Loads a document's pages scoped to the selected member library, falling back
+ * to the unscoped list when the scoped one comes back empty.
+ *
+ * The CDK index is not always consistent: a title can list `mzk` in its
+ * `cdk.collection` while all of its pages are indexed under `nkp` only. Scoping
+ * to `mzk` then returned no pages and the reader stayed blank, even though MZK
+ * serves the images fine. An empty scoped list is never useful, so take the
+ * pages from whichever source has them.
+ */
+export function loadPagesWithSourceFallback<T>(
+  load: (cdkCollection: string | null) => Observable<T[]>,
+  cdkCollection: string | null | undefined,
+): Observable<T[]> {
+  if (!cdkCollection) return load(null);
+  return load(cdkCollection).pipe(
+    switchMap(pages => (pages?.length ? of(pages) : load(null))),
+  );
 }

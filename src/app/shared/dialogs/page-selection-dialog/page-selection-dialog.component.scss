@@ -78,7 +78,11 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
     gap: 16px;
-    padding-bottom: 16px;
+    // Pinned to the viewport's itemSize (template binding): the gap below a row
+    // is part of that height. A padding here was counted on top of the row-gap
+    // the component adds, so rows drifted 16px each from their virtual offsets.
+    align-items: start;
+    box-sizing: border-box;
 
     // At 1440px width, cards will be approximately 124px
     @media (min-width: 1024px) {

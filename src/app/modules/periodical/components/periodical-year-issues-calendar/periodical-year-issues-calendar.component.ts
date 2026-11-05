@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   computed,
   inject,
@@ -8,8 +9,11 @@ import {
   QueryList,
   signal,
   SimpleChanges,
+  viewChild,
   ViewChildren,
 } from '@angular/core';
+import { CdkPortal, DomPortalOutlet } from '@angular/cdk/portal';
+import { OverlayContainer } from '@angular/cdk/overlay';
 import { MatCalendar } from '@angular/material/datepicker';
 import { NgIf } from '@angular/common';
 import { Store } from '@ngrx/store';
@@ -45,6 +49,7 @@ interface CalendarIssue {
     NgIf,
     TranslatePipe,
     PeriodicalDayIssuesPopupComponent,
+    CdkPortal,
   ],
   providers: [
     {
@@ -56,7 +61,7 @@ interface CalendarIssue {
   templateUrl: './periodical-year-issues-calendar.component.html',
   styleUrl: './periodical-year-issues-calendar.component.scss'
 })
-export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestroy {
+export class PeriodicalYearIssuesCalendarComponent implements OnChanges, AfterViewInit, OnDestroy {
   private store = inject(Store);
   private router = inject(Router);
   private adapter = inject(DateAdapter);
@@ -64,6 +69,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
   public periodicalService = inject(PeriodicalService);
   private recordHandler = inject(RecordHandlerService);
   private popupPositioningService = inject(PopupPositioningService);
+  private overlayContainer = inject(OverlayContainer);
 
   @Input() year!: string;
   @Input() pid!: string;
@@ -79,6 +85,8 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
   popupRecordItems = computed<RecordItem[]>(() => this.popupIssues().map(issue => this.toRecordItem(issue)));
   issuesPopupState: PopupState = this.popupPositioningService.createPopupState();
   private pendingClickEvent: Event | null = null;
+  private issuesPopupPortal = viewChild.required(CdkPortal);
+  private issuesPopupOutlet: DomPortalOutlet | null = null;
 
   // Lazy loading state
   monthlyIssueMap = signal(new Map<number, CalendarIssue[]>());
@@ -107,6 +115,23 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
       .subscribe(items => {
         this.updateIssueMap(items);
       });
+  }
+
+  ngAfterViewInit(): void {
+    this.attachIssuesPopupPortal();
+  }
+
+  /**
+   * Renders the multi-issue popup inside the CDK overlay container (body level),
+   * so it stacks above the sticky toolbars and the header like the app's other
+   * overlays instead of inside the page scroller's stacking context. The portal
+   * stays attached for the component's lifetime; the @if inside it still follows
+   * issuesPopupState, so PopupPositioningService finds and positions the wrapper
+   * exactly as before.
+   */
+  private attachIssuesPopupPortal(): void {
+    this.issuesPopupOutlet = new DomPortalOutlet(this.overlayContainer.getContainerElement());
+    this.issuesPopupOutlet.attach(this.issuesPopupPortal());
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -333,5 +358,7 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, OnDestr
 
   ngOnDestroy(): void {
     this.popupPositioningService.cleanup();
+    this.issuesPopupOutlet?.dispose();
+    this.issuesPopupOutlet = null;
   }
 }
