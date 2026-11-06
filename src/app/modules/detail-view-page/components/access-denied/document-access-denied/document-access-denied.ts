@@ -35,7 +35,8 @@ interface FaqGroup {
 
 @Component({
   selector: 'app-document-access-denied',
-  imports: [CommonModule, TranslatePipe, Accordion, SafeHtmlPipe],
+  // Accordion removed while the FAQ section is hidden – add it back with the FAQ.
+  imports: [CommonModule, TranslatePipe, SafeHtmlPipe],
   templateUrl: './document-access-denied.html',
   styleUrls: ['./document-access-denied.scss', '../access-denied.scss'],
   standalone: true
