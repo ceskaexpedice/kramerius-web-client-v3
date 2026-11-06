@@ -98,7 +98,7 @@ function handle401Error(req: HttpRequest<any>, next: HttpHandlerFn, authService:
         // redundant logout navigation from here.
         if (!isLoggingOut) {
           isLoggingOut = true;
-          authService.logout();
+          authService.logout(true);
         }
         return throwError(() => error);
       }),

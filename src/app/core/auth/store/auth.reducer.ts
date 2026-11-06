@@ -86,9 +86,12 @@ export const authReducer = createReducer(
     error
   })),
 
-  on(AuthActions.logout, () => ({
-    ...initialState
-  })),
+  // AuthActions.logout intentionally leaves the state alone (issue #115): the
+  // effect hands off to Keycloak, which asks for confirmation. Resetting here
+  // would show the UI as logged out before the redirect, and a user who backs
+  // out of Keycloak's screen would return to a logged-out-looking page while
+  // still being logged in. A confirmed logout reloads the app with a cleared
+  // session (AuthService.completeLogoutIfReturning).
 
   on(AuthActions.setUser, (state, { user }) => ({
     ...state,
