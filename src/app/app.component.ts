@@ -12,6 +12,7 @@ import { AppUpdateService } from './shared/services/app-update.service';
 import { LockService } from './shared/services/lock.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { LockIdleDialogComponent } from './shared/dialogs/lock-idle-dialog/lock-idle-dialog.component';
+import { DEV_LIBRARY_ID_KEY, getDevLibraryValue, setDevLibraryValue } from './shared/utils/dev-library-storage';
 
 @Component({
   selector: 'app-root',
@@ -86,10 +87,10 @@ export class AppComponent implements OnInit {
     // In the default single-Kramerius deployment we never seed the dev library
     // id nor rewrite navigations with a library prefix.
     if (this.env.isLibrarySwitchEnabled()) {
-      if (!localStorage.getItem('CDK_DEV_KRAMERIUS_ID')) {
+      if (!getDevLibraryValue(DEV_LIBRARY_ID_KEY)) {
         // Seed with the base library (app.code), not a hardcoded 'cdk', so the
         // switch defaults to whichever library this build ships as.
-        localStorage.setItem('CDK_DEV_KRAMERIUS_ID', this.env.getBaseKrameriusId());
+        setDevLibraryValue(DEV_LIBRARY_ID_KEY, this.env.getBaseKrameriusId());
       }
 
       // Auto-prefix navigations with the active library code when missing

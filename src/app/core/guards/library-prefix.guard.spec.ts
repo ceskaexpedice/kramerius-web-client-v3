@@ -38,13 +38,13 @@ describe('libraryPrefixGuard', () => {
 
   beforeEach(() => {
     __resetLibraryCacheForTests();
-    localStorage.removeItem('CDK_DEV_KRAMERIUS_ID');
-    localStorage.removeItem('CDK_DEV_BASE_URL');
+    sessionStorage.removeItem('CDK_DEV_KRAMERIUS_ID');
+    sessionStorage.removeItem('CDK_DEV_BASE_URL');
   });
 
   afterEach(() => {
-    localStorage.removeItem('CDK_DEV_KRAMERIUS_ID');
-    localStorage.removeItem('CDK_DEV_BASE_URL');
+    sessionStorage.removeItem('CDK_DEV_KRAMERIUS_ID');
+    sessionStorage.removeItem('CDK_DEV_BASE_URL');
   });
 
   it('declines to match instead of redirecting when the switch is off', async () => {
@@ -82,8 +82,8 @@ describe('libraryPrefixGuard', () => {
 
   it('matches when the requested library is already the active one', async () => {
     configure({ librarySwitch: true });
-    localStorage.setItem('CDK_DEV_KRAMERIUS_ID', 'mzk');
-    localStorage.setItem('CDK_DEV_BASE_URL', 'https://kramerius.mzk.cz');
+    sessionStorage.setItem('CDK_DEV_KRAMERIUS_ID', 'mzk');
+    sessionStorage.setItem('CDK_DEV_BASE_URL', 'https://kramerius.mzk.cz');
     const fetchSpy = spyOn(window, 'fetch');
     const result = await run('mzk');
     expect(result).toBe(true);
@@ -129,13 +129,13 @@ describe('libraryPrefixGuard route fall-through', () => {
 
   beforeEach(() => {
     __resetLibraryCacheForTests();
-    localStorage.removeItem('CDK_DEV_KRAMERIUS_ID');
-    localStorage.removeItem('CDK_DEV_BASE_URL');
+    sessionStorage.removeItem('CDK_DEV_KRAMERIUS_ID');
+    sessionStorage.removeItem('CDK_DEV_BASE_URL');
   });
 
   afterEach(() => {
-    localStorage.removeItem('CDK_DEV_KRAMERIUS_ID');
-    localStorage.removeItem('CDK_DEV_BASE_URL');
+    sessionStorage.removeItem('CDK_DEV_KRAMERIUS_ID');
+    sessionStorage.removeItem('CDK_DEV_BASE_URL');
   });
 
   it('lands an unknown single-segment URL on the 404 route', async () => {
@@ -161,8 +161,8 @@ describe('libraryPrefixGuard route fall-through', () => {
 
   it('still routes into a valid library prefix', async () => {
     configure(true);
-    localStorage.setItem('CDK_DEV_KRAMERIUS_ID', 'mzk');
-    localStorage.setItem('CDK_DEV_BASE_URL', 'https://kramerius.mzk.cz');
+    sessionStorage.setItem('CDK_DEV_KRAMERIUS_ID', 'mzk');
+    sessionStorage.setItem('CDK_DEV_BASE_URL', 'https://kramerius.mzk.cz');
     const router = TestBed.inject(Router);
 
     await router.navigateByUrl('/mzk');

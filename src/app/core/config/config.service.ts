@@ -34,6 +34,7 @@ import { EnvironmentService } from '../../shared/services/environment.service';
 import { CdkSourceService } from '../../shared/services/cdk-source.service';
 import { splitLicenseVariants, resolveLicenseForSource } from './license-variants';
 import { sanitizeContentHtml } from '../../shared/utils/sanitize-content-html';
+import { DEV_LIBRARY_ID_KEY, getDevLibraryValue } from '../../shared/utils/dev-library-storage';
 
 const LIBRARIES_API_URL = 'https://api.registr.digitalniknihovna.cz/api/libraries';
 
@@ -214,17 +215,17 @@ export class ConfigService {
     const baseCode = baseConfig.app?.code ?? '';
 
     // 2. Default path: switch off → use the flat config as-is. Nothing is read
-    //    from localStorage or the registry.
+    //    from sessionStorage or the registry.
     if (!switchEnabled) {
       this.applyResolvedConfig(baseConfig, baseCode, false);
       return;
     }
 
     // 3. Switch on (internal dev hack). If a different library was selected in
-    //    localStorage, its local config no longer exists (the flat dir holds a
+    //    sessionStorage, its local config no longer exists (the flat dir holds a
     //    single library), so brand it from the central registry (name/logo) with
     //    DEFAULT homepage sections. Otherwise stay on the base config.
-    const selectedCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
+    const selectedCode = getDevLibraryValue(DEV_LIBRARY_ID_KEY);
     if (!selectedCode || selectedCode === baseCode) {
       this.applyResolvedConfig(baseConfig, baseCode, true);
       return;
@@ -232,7 +233,13 @@ export class ConfigService {
 
     const fallback = await this.buildRegistryFallbackConfig(selectedCode);
     // Client behaviour (not library branding) still follows the base config.
-    this.applyResolvedConfig({ ...fallback, locks: baseConfig.locks }, selectedCode, true);
+    // Content pages (about, terms, GDPR, FAQ, …) come from the base config too:
+    // the registry fallback has none, so /pages/* would otherwise 404 (#157).
+    this.applyResolvedConfig(
+      { ...fallback, locks: baseConfig.locks, pages: baseConfig.pages },
+      selectedCode,
+      true
+    );
   }
 
   /**
@@ -281,7 +288,7 @@ export class ConfigService {
    * library-switch flag to EnvironmentService. The switch flag comes from the
    * base instance, NOT from the effective config — a switched-to library's
    * config (or registry fallback) must not be able to turn the switch off,
-   * otherwise the localStorage backend override would stop being honored.
+   * otherwise the sessionStorage backend override would stop being honored.
    */
   private applyResolvedConfig(config: AppConfiguration, code: string, switchEnabled: boolean): void {
     this.config$.next(config);
@@ -937,7 +944,7 @@ export class ConfigService {
   private activeLibraryCache: { code: string; name: string; name_en: string; logo: string } | null = null;
 
   async getActiveLibrary(): Promise<{ name: string; name_en: string; logo: string } | null> {
-    const activeCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
+    const activeCode = getDevLibraryValue(DEV_LIBRARY_ID_KEY);
     if (!activeCode) return null;
 
     if (!this.activeLibraryCache || this.activeLibraryCache.code !== activeCode) {

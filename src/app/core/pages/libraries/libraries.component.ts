@@ -6,6 +6,7 @@ import { InputComponent } from '../../../shared/components/input/input.component
 import { ConfigService, EXTRA_LIBRARY_REGISTRY } from '../../config/config.service';
 import { LibraryContextService } from '../../../shared/services/library-context.service';
 import {ThumbnailImageComponent} from '../../../shared/components/thumbnail-image/thumbnail-image.component';
+import { DEV_LIBRARY_ID_KEY, DEV_LIBRARY_URL_KEY, getDevLibraryValue, setDevLibraryValue, removeDevLibraryValue } from '../../../shared/utils/dev-library-storage';
 
 interface Library {
   id: number;
@@ -249,9 +250,6 @@ function removeDiacritics(str: string): string {
 })
 export class LibrariesComponent implements OnInit {
 
-  private readonly STORAGE_KEY = 'CDK_DEV_BASE_URL';
-  private readonly STORAGE_KEY_ID = 'CDK_DEV_KRAMERIUS_ID';
-
   libraries = signal<Library[]>([]);
   searchQuery = signal<string | number>('');
   loading = signal(true);
@@ -278,7 +276,7 @@ export class LibrariesComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.activeCode.set(localStorage.getItem(this.STORAGE_KEY_ID) || '');
+    this.activeCode.set(getDevLibraryValue(DEV_LIBRARY_ID_KEY) || '');
     this.loadLibraries();
   }
 
@@ -304,8 +302,8 @@ export class LibrariesComponent implements OnInit {
 
   selectLibrary(lib: Library) {
     try {
-      localStorage.setItem(this.STORAGE_KEY, lib.url);
-      localStorage.setItem(this.STORAGE_KEY_ID, lib.code);
+      setDevLibraryValue(DEV_LIBRARY_URL_KEY, lib.url);
+      setDevLibraryValue(DEV_LIBRARY_ID_KEY, lib.code);
       this.message.set(this.translate.instant('libraries.switching', { name: lib.name }));
       this.isError.set(false);
       // Navigate with library code in URL path; full page load forces env/config reload
@@ -319,8 +317,8 @@ export class LibrariesComponent implements OnInit {
   }
 
   clearOverride() {
-    localStorage.removeItem(this.STORAGE_KEY);
-    localStorage.removeItem(this.STORAGE_KEY_ID);
+    removeDevLibraryValue(DEV_LIBRARY_URL_KEY);
+    removeDevLibraryValue(DEV_LIBRARY_ID_KEY);
     this.message.set(this.translate.instant('libraries.cleared'));
     this.isError.set(false);
     setTimeout(() => window.location.href = '/', 1000);
