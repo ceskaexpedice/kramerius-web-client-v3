@@ -51,6 +51,7 @@ describe('SavedListsPageComponent banner logic', () => {
       translate as any,
       dontShowAgain as any,
       {} as any, // customSearchService
+      { startLogin: () => {} } as any, // authService
     ));
 
     // activeFolder is read by onBannerAction; override the store-backed value with a

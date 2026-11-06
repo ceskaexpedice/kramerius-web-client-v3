@@ -1,7 +1,7 @@
 import {Component, inject} from '@angular/core';
 import {TranslatePipe} from '@ngx-translate/core';
 import * as AuthActions from '../store/auth.actions';
-import {Router} from '@angular/router';
+import {AuthService} from '../auth.service';
 import {Store} from '@ngrx/store';
 import {selectIsAuthenticated, selectUser} from '../store';
 import {AsyncPipe} from '@angular/common';
@@ -31,7 +31,7 @@ export class UserInfoComponent {
     logout: 'logout'
   }
 
-  private router = inject(Router);
+  private authService = inject(AuthService);
   private store = inject(Store);
   private settingsService = inject(SettingsService);
   private downloadHistoryService = inject(DownloadHistoryService);
@@ -71,8 +71,7 @@ export class UserInfoComponent {
   }
 
   login() {
-    const returnUrl = this.router.url;
-    this.router.navigate(['pages/terms'], { queryParams: { returnUrl } });
+    this.authService.startLogin();
   }
 
   logout() {

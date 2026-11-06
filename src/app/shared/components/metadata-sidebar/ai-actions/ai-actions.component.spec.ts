@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { AuthService } from '../../../../core/auth/auth.service';
 import { AiActionsComponent } from './ai-actions.component';
 import { TtsService } from '../../../services/tts.service';
 import { AiPanelService } from '../../../services/ai-panel.service';
@@ -25,7 +25,7 @@ describe('AiActionsComponent OCR availability', () => {
         { provide: DetailViewService, useValue: {} },
         { provide: UserService, useValue: { isLoggedIn: true } },
         { provide: SettingsService, useValue: {} },
-        { provide: Router, useValue: { url: '/view/x' } },
+        { provide: AuthService, useValue: { startLogin: () => {} } },
         {
           provide: DocumentInfoService,
           useValue: { hasAlto: () => ocr.alto, hasOcrText: () => ocr.text, getRuntimeLicenses: () => [] },

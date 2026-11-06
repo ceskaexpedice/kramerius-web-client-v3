@@ -31,6 +31,7 @@ import { CustomSearchService } from '../../shared/services/custom-search.service
 import { MatDialog } from '@angular/material/dialog';
 import { FolderShareDialogComponent } from '../../shared/dialogs/folder-share-dialog/folder-share-dialog.component';
 import { selectIsAuthenticated } from '../../core/auth/store';
+import { AuthService } from '../../core/auth/auth.service';
 import { BreakpointService } from '../../shared/services/breakpoint.service';
 
 @Component({
@@ -169,7 +170,8 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     private router: Router,
     private translate: TranslateService,
     private dontShowAgain: DontShowAgainService,
-    private customSearchService: CustomSearchService
+    private customSearchService: CustomSearchService,
+    private authService: AuthService
   ) {
     this.titleEditPopupState = this.popupPositioningService.createPopupState();
     this.newListPopupState = this.popupPositioningService.createPopupState();
@@ -488,8 +490,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     this.activeFolder.pipe(first()).subscribe(folder => {
       switch (id) {
         case 'login': {
-          const returnUrl = this.router.url;
-          this.router.navigate(['pages/terms'], { queryParams: { returnUrl } });
+          this.authService.startLogin();
           break;
         }
         case 'follow':

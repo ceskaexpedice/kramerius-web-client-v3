@@ -57,6 +57,38 @@ export class AuthService {
     return this.config.isLoginEnabled();
   }
 
+  /**
+   * Single in-app entry point for every "log in" affordance. Routes through the
+   * terms page so the licence/GDPR consent step is never bypassed; the terms page
+   * then calls `login()` with the same `returnUrl`.
+   *
+   * @param returnUrl Where the user should land after logging in. Defaults to the
+   *   current page; pass an explicit target when the user was heading somewhere
+   *   else (e.g. "My library" → the saved lists).
+   */
+  startLogin(returnUrl: string = this.router.url) {
+    if (!this.isLoginEnabled()) {
+      console.warn('AuthService: login is disabled (features.keycloak is false).');
+      return;
+    }
+    this.router.navigate(['pages/terms'], {
+      queryParams: { returnUrl: this.unwrapTermsReturnUrl(returnUrl) },
+    });
+  }
+
+  /**
+   * When login is started from the terms page itself, its own `returnUrl` is the
+   * real destination — don't nest `/pages/terms?returnUrl=/pages/terms?...`.
+   */
+  private unwrapTermsReturnUrl(url: string): string {
+    const tree = this.router.parseUrl(url);
+    const segments = tree.root.children['primary']?.segments.map(s => s.path) ?? [];
+    const isTerms = segments.length >= 2
+      && segments[segments.length - 2] === 'pages'
+      && segments[segments.length - 1] === 'terms';
+    return isTerms ? (tree.queryParams['returnUrl'] || '/') : url;
+  }
+
   login(returnUrl?: string) {
     // features.keycloak off — there is no identity provider to send the user to.
     if (!this.isLoginEnabled()) {

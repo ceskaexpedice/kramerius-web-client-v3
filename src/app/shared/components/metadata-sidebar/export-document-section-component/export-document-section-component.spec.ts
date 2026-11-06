@@ -82,7 +82,7 @@ describe('ExportDocumentSectionComponent PDF options', () => {
         { provide: CdkSourceService, useValue: { code$: sourceCode, getCode: () => sourceCode.value } },
         { provide: UserService, useValue: { userSession$: signal({ authenticated: true }) } },
         { provide: ToastService, useValue: { show: () => {} } },
-        { provide: AuthService, useValue: { login: () => {} } },
+        { provide: AuthService, useValue: { startLogin: () => {} } },
         { provide: Router, useValue: { url: '/view/uuid:doc' } },
       ],
     });

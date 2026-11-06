@@ -12,7 +12,6 @@ import { PageSelectionDialogComponent, PageSelectionDialogResult } from '../../.
 import { EmailExportDialogComponent, EmailExportType } from '../../../dialogs/email-export-dialog/email-export-dialog.component';
 import { LoginPromptDialogComponent } from '../../../dialogs/login-prompt-dialog/login-prompt-dialog.component';
 import { AuthService } from '../../../../core/auth/auth.service';
-import { Router } from '@angular/router';
 import { ToastService } from '../../../services/toast.service';
 import { AppConfigService } from '../../../services/app-config.service';
 import { ConfigService } from '../../../../core/config';
@@ -46,7 +45,6 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
   userService = inject(UserService);
   toastService = inject(ToastService);
   authService = inject(AuthService);
-  router = inject(Router);
 
   iiifBookMode = toSignal(this.iiifViewerService.bookMode$, { initialValue: false });
   pdfProperties = toSignal(this.pdfService.properties$, { initialValue: this.pdfService.pdfProperties });
@@ -482,7 +480,7 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'login') {
-        this.authService.login(this.router.url);
+        this.authService.startLogin();
       }
     });
   }

@@ -38,6 +38,7 @@ import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-tokens';
 import { Store } from '@ngrx/store';
+import { AuthService } from '../../../core/auth/auth.service';
 import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
 import { CdkSourceService } from '../../services/cdk-source.service';
 import { UserService } from '../../services/user.service';
@@ -76,6 +77,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private aiPanelService = inject(AiPanelService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private authService = inject(AuthService);
   private ttsService = inject(TtsService);
   private store = inject(Store);
   private cdkSource = inject(CdkSourceService);
@@ -927,7 +929,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       this.retryImage();
     } else if (id === 'login') {
       // Same entry point as the header's login: the terms page, then back here.
-      this.router.navigate(['pages/terms'], { queryParams: { returnUrl: this.router.url } });
+      this.authService.startLogin();
     }
   }
 
