@@ -272,14 +272,10 @@ describe('IIIFViewer direct-image fallback', () => {
 /**
  * Regression tests for shared crop ("vystrizek") links: /uuid/<pid>?bb=x,y,w,h
  *
- * Three defects this covers, all reported against the legacy client's behaviour:
- *  1. The whole page was shown instead of the crop — the bb handler only drew a
- *     selection overlay via setSelection() and never zoomed the viewport.
- *  2. Crops loaded very slowly — the handler was anchored on imageLoaded$, which
- *     waits for getFullyLoaded() (every visible tile of the full page at home
- *     zoom) before reacting.
- *  3. The viewer opened in selection mode with mouse navigation disabled, so the
- *     first click cleared the crop.
+ * Opens the crop like the legacy client (#187): zoom so the crop fills the
+ * viewer AND mark it as the selection. Zoom alone (7f3d9599) left no clue which
+ * part was selected; selection alone showed the whole page. Anchored on the
+ * viewer `open` event so the crop doesn't wait for the full page to load.
  */
 describe('IIIFViewer bb crop links', () => {
 
@@ -320,12 +316,22 @@ describe('IIIFViewer bb crop links', () => {
     expect(zoomCalls[0]).toEqual({ x: 340, y: 1209, width: 456, height: 449 });
   });
 
-  it('does not enable selection mode for a shared crop', () => {
-    // setSelection() dims the surroundings and calls setMouseNavEnabled(false),
-    // which broke pan/zoom and let the first click wipe the crop.
-    const { selectionCalls } = apply('340,1209,456,449');
+  it('marks the bb region as the selection, after zooming', () => {
+    const ctx = makeComponent('340,1209,456,449');
+    const order: string[] = [];
+    const service = (ctx.component as any).iiifViewerService;
+    const zoom = service.zoomToImageRegion;
+    const select = service.setSelection;
+    service.zoomToImageRegion = (r: any) => { order.push('zoom'); zoom(r); };
+    service.setSelection = (r: any) => { order.push('select'); select(r); };
 
-    expect(selectionCalls.length).toBe(0);
+    (ctx.component as any).applyBoundingBoxFromUrl();
+
+    expect(ctx.selectionCalls.length).toBe(1);
+    const sel = ctx.selectionCalls[0];
+    expect({ x: sel.x, y: sel.y, width: sel.width, height: sel.height })
+      .toEqual({ x: 340, y: 1209, width: 456, height: 449 });
+    expect(order).toEqual(['zoom', 'select']);
   });
 
   it('strips the bb param once applied', () => {
@@ -338,17 +344,19 @@ describe('IIIFViewer bb crop links', () => {
   });
 
   it('does nothing when no bb param is present', () => {
-    const { zoomCalls, navigations } = apply(null);
+    const { zoomCalls, selectionCalls, navigations } = apply(null);
 
     expect(zoomCalls.length).toBe(0);
+    expect(selectionCalls.length).toBe(0);
     expect(navigations.length).toBe(0);
   });
 
   it('ignores a malformed bb param', () => {
     // Wrong arity, non-numeric, and empty values must not reach the viewport.
     for (const bad of ['340,1209,456', '340,1209,456,449,7', 'a,b,c,d', '', '340,,456,449']) {
-      const { zoomCalls, navigations } = apply(bad);
+      const { zoomCalls, selectionCalls, navigations } = apply(bad);
       expect(zoomCalls.length).withContext(bad).toBe(0);
+      expect(selectionCalls.length).withContext(bad).toBe(0);
       expect(navigations.length).withContext(bad).toBe(0);
     }
   });

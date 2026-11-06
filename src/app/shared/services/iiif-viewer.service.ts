@@ -174,6 +174,7 @@ export class IIIFViewerService {
   // rather than binding to a single captured viewer, so it can't get stranded
   // on a destroyed instance.
   private viewerOpenedSubject = new Subject<void>();
+  public viewerOpened$ = this.viewerOpenedSubject.asObservable();
 
   /**
    * Returns an observable that emits exactly once when the NEXT page open cycle
@@ -727,6 +728,32 @@ export class IIIFViewerService {
     this.isSelectionMode = false;
     this.isSelectionModeSubject.next(false);
     this.disableSelectionMode();
+  }
+
+  /**
+   * Zooms the viewport so a region given in IMAGE coordinates fills the viewer,
+   * with a small margin so the selection frame around it stays visible. Used for
+   * shared crop ("vystrizek") links, `?bb=x,y,w,h`.
+   *
+   * `immediately` skips the springs so the crop is the first thing painted,
+   * rather than animating out from a full-page view.
+   */
+  zoomToImageRegion(imageRect: OpenSeadragon.Rect, immediately = true): void {
+    if (!this.viewer) return;
+
+    const viewportRect = this.viewer.viewport.imageToViewportRectangle(imageRect);
+    const marginX = viewportRect.width * 0.05;
+    const marginY = viewportRect.height * 0.05;
+    const padded = new OpenSeadragon.Rect(
+      viewportRect.x - marginX,
+      viewportRect.y - marginY,
+      viewportRect.width + 2 * marginX,
+      viewportRect.height + 2 * marginY,
+    );
+    this.viewer.viewport.fitBounds(padded, immediately);
+
+    this.viewerProperties.zoom = this.viewer.viewport.getZoom();
+    this.propertiesSubject.next(this.viewerProperties);
   }
 
   // Set selection from image coordinates

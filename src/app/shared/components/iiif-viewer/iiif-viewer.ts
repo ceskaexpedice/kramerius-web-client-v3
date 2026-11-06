@@ -244,6 +244,11 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private resizeObserver: ResizeObserver | null = null;
   /** Debounce for re-fitting the page after the container stops resizing. */
   private resizeSettle: ReturnType<typeof setTimeout> | null = null;
+  /**
+   * Whether the page sits at its fitted ("home") view, so a layout change should
+   * re-fit it. Cleared when the reader zooms, or a shared crop zooms for them.
+   */
+  private atHome = true;
 
   ngOnInit(): void {
     this.iiifViewerService.uuid = this.metadata?.uuid || null;
@@ -327,33 +332,53 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       })
     );
 
-    // Check for selection in URL
+    // Shared crop ("vystrizek") from the ?bb= query param.
+    //
+    // Anchored on viewerOpened$ (OpenSeadragon's `open`, fired as soon as the
+    // tile source is ready) rather than imageLoaded$, which waits until every
+    // visible tile of the WHOLE page has downloaded — zooming at `open` makes
+    // OSD fetch tiles for the crop region only, so crop links load fast.
     this.subscriptions.push(
-      this.iiifViewerService.imageLoaded$.subscribe(() => {
-        const bb = this.route.snapshot.queryParamMap.get('bb');
-        if (bb) {
-          const parts = bb.split(',');
-          if (parts.length === 4) {
-            const x = parseFloat(parts[0]);
-            const y = parseFloat(parts[1]);
-            const w = parseFloat(parts[2]);
-            const h = parseFloat(parts[3]);
-
-            if (!isNaN(x) && !isNaN(y) && !isNaN(w) && !isNaN(h)) {
-              const rect = new OpenSeadragon.Rect(x, y, w, h);
-              this.iiifViewerService.setSelection(rect);
-
-              this.router.navigate([], {
-                relativeTo: this.route,
-                queryParams: { bb: null },
-                queryParamsHandling: 'merge',
-                replaceUrl: true
-              });
-            }
-          }
-        }
+      this.iiifViewerService.viewerOpened$.subscribe(() => {
+        this.applyBoundingBoxFromUrl();
       })
     );
+  }
+
+  /**
+   * Opens a shared crop the way the legacy client did (#187): zoom so the crop
+   * fills the viewer AND mark it as the selection — dimmed surroundings, frame,
+   * selection controls. Zoom alone left no clue which part had been selected;
+   * selection alone showed the whole page with a tiny highlight.
+   *
+   * The selection is locked, so pan/zoom keep working. The param is stripped
+   * afterwards (replaceUrl) so a later page open doesn't re-apply it.
+   */
+  private applyBoundingBoxFromUrl(): void {
+    const bb = this.route.snapshot.queryParamMap.get('bb');
+    if (!bb) return;
+
+    const parts = bb.split(',');
+    if (parts.length !== 4) return;
+
+    const [x, y, w, h] = parts.map(part => (part.trim() === '' ? NaN : Number(part)));
+    if ([x, y, w, h].some(value => isNaN(value))) return;
+    // A zero-area box would make fitBounds zoom to infinity.
+    if (w <= 0 || h <= 0) return;
+
+    const rect = new OpenSeadragon.Rect(x, y, w, h);
+    this.iiifViewerService.zoomToImageRegion(rect);
+    // fitBounds(immediately) fires no animation-finish, so the resize handler
+    // would still think the page is at home and re-fit it, undoing the zoom.
+    this.atHome = false;
+    this.iiifViewerService.setSelection(rect);
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { bb: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   ngAfterViewInit(): void {
@@ -766,24 +791,23 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // While the container is still animating (panel slide = 300ms) the zoom
     // OpenSeadragon reports is transient, so it is ignored, and the re-fit
     // happens once the size has settled.
-    let atHome = true;
     const isAtFittedZoom = (): boolean => {
       const viewport = this.viewer?.viewport;
       if (!viewport) return false;
       const fitted = Math.max(viewport.getHomeZoom(), (this.viewer as any).minZoomLevel || 0);
       return Math.abs(viewport.getZoom(true) - fitted) <= fitted * 0.02;
     };
-    this.viewer.addHandler('open', () => { atHome = true; });
+    this.viewer.addHandler('open', () => { this.atHome = true; });
     this.viewer.addHandler('animation-finish', () => {
       if (this.resizeSettle) return;
-      atHome = isAtFittedZoom();
+      this.atHome = isAtFittedZoom();
     });
     this.viewer.addHandler('resize', () => {
       this.updateMinZoomLevel();
       if (this.resizeSettle) clearTimeout(this.resizeSettle);
       this.resizeSettle = setTimeout(() => {
         this.resizeSettle = null;
-        if (atHome && this.viewer) {
+        if (this.atHome && this.viewer) {
           this.updateMinZoomLevel();
           this.viewer.viewport.goHome(true);
           const min = (this.viewer as any).minZoomLevel || 0;
