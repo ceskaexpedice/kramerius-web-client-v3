@@ -159,6 +159,8 @@ import { PeriodicalService } from '../../../../shared/services/periodical.servic
         [dateTo]="dateTo"
         [dateOffset]="dateOffset"
         [datePickerDefault]="periodicalDefaultDate"
+        [datePickerMin]="periodicalService.dateFilterBounds().min"
+        [datePickerMax]="periodicalService.dateFilterBounds().max"
         (datePickerChange)="onDateRangeChange($event)"
       >
         <button
@@ -194,18 +196,29 @@ export class PeriodicalFiltersComponent extends BaseFiltersComponent {
     return Number.isFinite(year) && year > 0 ? year : this.currentYear;
   }
 
-  /** Date picker opens on 1.1. of the current volume's (or periodical's first) year instead of today */
+  /**
+   * Date picker opens on the first date that actually exists in the current
+   * volume (its first issue) or periodical (1.1. of its first year) instead of today.
+   */
   get periodicalDefaultDate(): Date | null {
+    const boundsMin = this.periodicalService.dateFilterBounds().min;
+    if (boundsMin) return boundsMin;
     const year = Number(this.periodicalService.metadata?.dateRangeStartYear);
     return Number.isFinite(year) && year > 0 ? new Date(year, 0, 1) : null;
   }
 
+  // Clamped to the slider bounds so a hand-edited URL (e.g. yearTo=1898 inside
+  // volume 1897) can't push the year range outside the current document.
   get periodicalYearFrom(): number {
-    return this.customSearchService.getYearFrom() ?? this.periodicalYearMin;
+    return this.clampYear(this.customSearchService.getYearFrom() ?? this.periodicalYearMin);
   }
 
   get periodicalYearTo(): number {
-    return this.customSearchService.getYearTo() ?? this.periodicalYearMax;
+    return this.clampYear(this.customSearchService.getYearTo() ?? this.periodicalYearMax);
+  }
+
+  private clampYear(year: number): number {
+    return Math.min(Math.max(year, this.periodicalYearMin), this.periodicalYearMax);
   }
 
   getElementTypeByFacetKey(facetKey: string): FacetElementType {

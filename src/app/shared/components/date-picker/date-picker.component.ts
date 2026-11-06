@@ -87,6 +87,9 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   dateFromInput = signal<string>('');
   dateToInput = signal<string>('');
 
+  /** A typed date is well-formed but outside minDate/maxDate - shows the allowed range hint. */
+  outOfRangeInput = signal<boolean>(false);
+
   // Direct input text (for directInput mode)
   directInputText = signal<string>('');
 
@@ -116,8 +119,61 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   @Input() directInput: boolean = false; // Render input with formatted value; click opens popup focused on first field
   @Input() size: 'sm' | 'md' | 'lg' | 'md-lg' = 'md';
 
-  minDate: Date = new Date(1400, 0, 1);
-  maxDate: Date = new Date(2100, 11, 31);
+  /**
+   * Optional selectable bounds (inclusive, day precision). Days outside are
+   * disabled in the calendars, typed dates outside are rejected and computed
+   * end dates (+N days) are clamped - e.g. a periodical volume limits the
+   * picker to its first..last issue. Null = unrestricted.
+   */
+  @Input() minDate: Date | null = null;
+  @Input() maxDate: Date | null = null;
+
+  /** Years offered by the month/year selectors when bounds are set (null = all). */
+  get boundedYears(): number[] | null {
+    if (!this.minDate || !this.maxDate) return null;
+    const from = this.minDate.getFullYear();
+    const to = this.maxDate.getFullYear();
+    // Keep the array reference stable between change-detection runs.
+    if (this.boundedYearsCache?.from !== from || this.boundedYearsCache?.to !== to) {
+      const years: number[] = [];
+      for (let y = from; y <= to; y++) years.push(y);
+      this.boundedYearsCache = { from, to, years };
+    }
+    return this.boundedYearsCache.years;
+  }
+  private boundedYearsCache: { from: number; to: number; years: number[] } | null = null;
+
+  private toDay(date: Date): number {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  }
+
+  private isWithinBounds(date: Date): boolean {
+    const day = this.toDay(date);
+    if (this.minDate && day < this.toDay(this.minDate)) return false;
+    if (this.maxDate && day > this.toDay(this.maxDate)) return false;
+    return true;
+  }
+
+  private clampToBounds(date: Date): Date {
+    const day = this.toDay(date);
+    if (this.minDate && day < this.toDay(this.minDate)) return new Date(this.toDay(this.minDate));
+    if (this.maxDate && day > this.toDay(this.maxDate)) return new Date(this.toDay(this.maxDate));
+    return date;
+  }
+
+  /**
+   * from + days, clamped to maxDate. When clamped, the offset is reduced to the
+   * real number of days so the committed "+N days" label stays truthful.
+   */
+  private offsetEndDate(from: Date, days: number): Date {
+    const end = new Date(from.getTime() + days * 24 * 60 * 60 * 1000);
+    const clamped = this.clampToBounds(end);
+    if (clamped.getTime() !== end.getTime() && this.toDay(clamped) !== this.toDay(end)) {
+      const realDays = Math.max(0, Math.round((this.toDay(clamped) - this.toDay(from)) / (24 * 60 * 60 * 1000)));
+      this.selectedOffset.set(realDays);
+    }
+    return clamped;
+  }
 
   @Output() dateRangeChange = new EventEmitter<DateRange>();
   @Output() datePickerChange = new EventEmitter<DatePickerOutput>();
@@ -231,11 +287,20 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     this.openedPopupCalendar = false;
   }
 
+  /** Formatted allowed range for the out-of-range hint. */
+  get boundsLabel(): { from: string; to: string } {
+    return {
+      from: this.minDate ? this.formatDate(this.minDate) : '',
+      to: this.maxDate ? this.formatDate(this.maxDate) : '',
+    };
+  }
+
   private initializePopupValues() {
+    this.outOfRangeInput.set(false);
     // Initialize popup with current committed values; without a committed dateFrom
     // fall back to the context's default date (e.g. a periodical volume's year), then today
-    const initialFromDate = this.fromDate() || this.defaultDate || new Date();
-    const initialToDate = this.toDate() || initialFromDate; // Default to same as fromDate if no toDate
+    const initialFromDate = this.clampToBounds(this.fromDate() || this.defaultDate || this.minDate || new Date());
+    const initialToDate = this.clampToBounds(this.toDate() || initialFromDate); // Default to same as fromDate if no toDate
 
     this.selectedDateFrom.set(initialFromDate);
     this.selectedDateTo.set(initialToDate);
@@ -409,7 +474,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   }
 
   // Parse date string in DD.MM.YYYY format
-  private parseDate(dateStr: string): Date | null {
+  private parseDate(dateStr: string, checkBounds = true): Date | null {
     if (!dateStr || dateStr.trim() === '') return null;
 
     // Remove any whitespace
@@ -438,6 +503,9 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
       return null;
     }
 
+    // Outside the allowed bounds (e.g. a date the opened volume doesn't contain)
+    if (checkBounds && !this.isWithinBounds(date)) return null;
+
     return date;
   }
 
@@ -445,6 +513,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   onDateFromInputChange(value: string): void {
     this.dateFromInput.set(value);
     const parsedDate = this.parseDate(value);
+    this.outOfRangeInput.set(!parsedDate && !!this.parseDate(value, false));
 
     if (parsedDate) {
       // Valid date entered
@@ -454,7 +523,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
 
       // Auto-calculate toDate based on offset if applicable
       if (this.selectedOffset() > 0) {
-        const calculatedToDate = new Date(parsedDate.getTime() + this.selectedOffset() * 24 * 60 * 60 * 1000);
+        const calculatedToDate = this.offsetEndDate(parsedDate, this.selectedOffset());
         this.selectedDateTo.set(calculatedToDate);
         this.dateToInput.set(this.formatDate(calculatedToDate));
         this.updateToCalendarMonth(calculatedToDate);
@@ -486,6 +555,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   onDateToInputChange(value: string): void {
     this.dateToInput.set(value);
     const parsedDate = this.parseDate(value);
+    this.outOfRangeInput.set(!parsedDate && !!this.parseDate(value, false));
 
     if (parsedDate) {
       // Valid date entered
@@ -542,7 +612,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
 
   // Calendar interaction methods
   onDateFromSelect(date: Date | null): void {
-    if (!date) return;
+    if (!date || !this.isWithinBounds(date)) return;
 
     // In range mode, selecting FROM after current TO pulls TO up so the
     // interval stays valid instead of silently ignoring the click
@@ -560,7 +630,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
 
     // Auto-calculate toDate based on offset
     if (this.selectedOffset() > 0) {
-      const calculatedToDate = new Date(date.getTime() + this.selectedOffset() * 24 * 60 * 60 * 1000);
+      const calculatedToDate = this.offsetEndDate(date, this.selectedOffset());
       this.selectedDateTo.set(calculatedToDate);
       this.dateToInput.set(this.formatDate(calculatedToDate)); // Update input string
       this.updateToCalendarMonth(calculatedToDate);
@@ -582,7 +652,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   }
 
   onDateToSelect(date: Date | null): void {
-    if (!date) return;
+    if (!date || !this.isWithinBounds(date)) return;
 
     // Block selection if date is before current fromDate (only in range mode)
     if (this.isRangeModeActive) {
@@ -777,7 +847,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     this.isRangeModeActive = true; // Enable range mode to show second calendar
 
     if (this.selectedDateFrom()) {
-      const calculatedToDate = new Date(this.selectedDateFrom()!.getTime() + days * 24 * 60 * 60 * 1000);
+      const calculatedToDate = this.offsetEndDate(this.selectedDateFrom()!, days);
       this.selectedDateTo.set(calculatedToDate);
       this.dateToInput.set(this.formatDate(calculatedToDate)); // Update input string
       this.updateToCalendarMonth(calculatedToDate);
@@ -809,6 +879,10 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
   }
 
   onSubmit(): void {
+    // Safety clamp: never commit dates outside the allowed bounds
+    if (this.selectedDateFrom()) this.selectedDateFrom.set(this.clampToBounds(this.selectedDateFrom()!));
+    if (this.selectedDateTo()) this.selectedDateTo.set(this.clampToBounds(this.selectedDateTo()!));
+
     // Safety clamp: never commit an inverted interval
     const from = this.selectedDateFrom();
     const to = this.selectedDateTo();

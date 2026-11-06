@@ -103,6 +103,12 @@
         }
       </div>
 
+      @if (outOfRangeInput() && minDate && maxDate) {
+        <p class="date-out-of-range" role="alert">
+          {{ 'date-picker-out-of-range' | translate: boundsLabel }}
+        </p>
+      }
+
       <div class="controls-section">
 
         <div class="left-controls">
@@ -134,6 +140,7 @@
             [month]="monthFrom()"
             [year]="yearFrom()"
             [showMonthNavigation]="true"
+            [availableYears]="boundedYears"
             (monthYearChange)="onMonthYearChangeFrom($event)">
           </app-month-year-selector>
 
@@ -147,6 +154,7 @@
               [month]="monthTo()"
               [year]="yearTo()"
               [showMonthNavigation]="true"
+              [availableYears]="boundedYears"
               (monthYearChange)="onMonthYearChangeTo($event)">
             </app-month-year-selector>
 
@@ -165,6 +173,8 @@
             [startView]="'month'"
             [selected]="selectedDateFrom()"
             [dateClass]="dateClassFrom"
+            [minDate]="minDate"
+            [maxDate]="maxDate"
             (selectedChange)="onDateFromSelect($event)"
           ></mat-calendar>
         </div>
@@ -177,6 +187,8 @@
               [startView]="'month'"
               [selected]="selectedDateTo()"
               [dateClass]="dateClassTo"
+              [minDate]="minDate"
+              [maxDate]="maxDate"
               (selectedChange)="onDateToSelect($event)"
             ></mat-calendar>
           </div>

@@ -1139,6 +1139,38 @@ export class SolrService {
     });
   }
 
+  /**
+   * Earliest and latest publication date (YYYY-MM-DD) among the issues of a
+   * periodical volume. The volume's own date.min/date.max span the whole year
+   * (e.g. 1897-01-01..1897-12-31) even when its issues only start on 16.12., so
+   * the real bounds come from the children. Nulls when no child carries a date.
+   */
+  getPeriodicalVolumeIssueDateBounds(volumePid: string, cdkCollection?: string | null): Observable<{ min: string | null; max: string | null }> {
+    const query = this.buildPeriodicalChildrenQuery(
+      volumePid,
+      `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement}`,
+      undefined,
+      cdkCollection
+    );
+    const fetchEdge = (field: 'date.min' | 'date.max', direction: 'asc' | 'desc') => {
+      const params = this.createHttpParams({
+        q: query,
+        fq: `${field}:[* TO *]`,
+        fl: field,
+        rows: 1,
+        sort: `${field} ${direction}`,
+        wt: 'json'
+      });
+      return this.http.get<any>(this.API_URL, { params }).pipe(
+        map(res => {
+          const value: string | undefined = res.response?.docs?.[0]?.[field];
+          return value ? value.slice(0, 10) : null;
+        })
+      );
+    };
+    return forkJoin({ min: fetchEdge('date.min', 'asc'), max: fetchEdge('date.max', 'desc') });
+  }
+
   getPeriodicalVolumes(pid: string,
     filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 10000, sortBy: SolrSortFields = SolrSortFields.dateMin, sortDirection: SolrSortDirections = SolrSortDirections.asc,
     advancedQuery?: string, availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, cdkCollection?: string | null

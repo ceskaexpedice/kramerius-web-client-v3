@@ -426,6 +426,7 @@
   "advanced-filter-fulltext-placeholder": "Enter search term",
   "exact-match": "Distinguish between uppercase letters and diacritics",
   "date--from": "From",
+  "date-picker-out-of-range": "Date outside the available range ({{from}} – {{to}}).",
   "date--to": "To",
   "date-picker-selected-days--label": "Selected",
   "show--metadata-sidebar": "Show panel",

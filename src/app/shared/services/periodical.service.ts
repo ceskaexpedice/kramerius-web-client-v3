@@ -35,6 +35,7 @@ import { SearchService } from './search.service';
 import { appendToAdvancedQuery, buildDateOverlapQuery, buildYearRangeQuery, normalizeDateRangeParams } from '../utils/date-range-query';
 import { ConfigService } from '../../core/config/config.service';
 import { ALL_SOURCES } from '../utils/cdk-source.constants';
+import { Metadata } from '../models/metadata.model';
 
 @Injectable()
 export class PeriodicalService extends BaseFilterService {
@@ -53,6 +54,14 @@ export class PeriodicalService extends BaseFilterService {
     }
   });
   selectedYear = signal<string | null>(null);
+
+  /**
+   * Dates the date-range filter may select from: the first..last issue of the
+   * opened volume (or 1.1. of the periodical's first year .. 31.12. of its last
+   * year on the years level). Null bounds = unrestricted.
+   */
+  dateFilterBounds = signal<{ min: Date | null; max: Date | null }>({ min: null, max: null });
+  private dateFilterBoundsPid: string | null = null;
 
   // Debug wrapper for selectedYear.set to track when it changes
   private setSelectedYear(value: string | null) {
@@ -221,6 +230,11 @@ export class PeriodicalService extends BaseFilterService {
         this.dispatchPeriodicalSearch(Object.keys(queryParams).length ? queryParams : null);
       }
     });
+
+    this.metadata$.pipe(
+      filter(Boolean),
+      takeUntil(this.destroy$)
+    ).subscribe(meta => this.updateDateFilterBounds(meta));
 
     this.document$.pipe(
       filter(Boolean),
@@ -519,6 +533,42 @@ export class PeriodicalService extends BaseFilterService {
   }
 
   /**
+   * Restricts the date-range filter to dates that actually exist in the opened
+   * document: a volume's first..last issue (fetched from its children, since the
+   * volume's own date.min/date.max cover the whole year), a periodical's whole
+   * year span. The year bounds are applied immediately as a fallback.
+   */
+  private updateDateFilterBounds(meta: Metadata): void {
+    const pid = meta?.uuid;
+    if (!pid || pid === this.dateFilterBoundsPid) return;
+    if (meta.model !== 'periodical' && meta.model !== 'periodicalvolume') return;
+    this.dateFilterBoundsPid = pid;
+
+    const startYear = Number(meta.dateRangeStartYear);
+    const endYear = Number(meta.dateRangeEndYear ?? meta.dateRangeStartYear);
+    this.dateFilterBounds.set({
+      min: Number.isFinite(startYear) && startYear > 0 ? new Date(startYear, 0, 1) : null,
+      max: Number.isFinite(endYear) && endYear > 0 ? new Date(endYear, 11, 31) : null,
+    });
+
+    if (meta.model !== 'periodicalvolume') return;
+
+    const params = this.route.snapshot.queryParams;
+    const cdkCollection = this.configService.isCdk() ? (params?.['source'] || null) : null;
+    this.solrService.getPeriodicalVolumeIssueDateBounds(pid, cdkCollection).pipe(take(1)).subscribe({
+      next: ({ min, max }) => {
+        if (this.dateFilterBoundsPid !== pid) return; // navigated away meanwhile
+        const current = this.dateFilterBounds();
+        this.dateFilterBounds.set({
+          min: min ? parseIsoDay(min) : current.min,
+          max: max ? parseIsoDay(max) : current.max,
+        });
+      },
+      error: () => { /* keep the year fallback */ }
+    });
+  }
+
+  /**
    * True when a dateFrom/dateTo filter is active but its year span does not
    * overlap the currently opened volume's year(s) — the issue list would be
    * empty, so the caller should navigate back to the years timeline.
@@ -760,4 +810,10 @@ export class PeriodicalService extends BaseFilterService {
     this.monthlyIssuesCache.clear();
     this.loadingMonths.clear();
   }
+}
+
+/** 'YYYY-MM-DD' -> local Date at midnight (avoids the UTC shift of new Date(iso)). */
+function parseIsoDay(value: string): Date {
+  const [y, m, d] = value.split('-').map(Number);
+  return new Date(y, m - 1, d);
 }

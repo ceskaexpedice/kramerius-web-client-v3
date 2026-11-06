@@ -421,6 +421,7 @@
   "advanced-filter-fulltext-placeholder": "Zadat hledaný výraz",
   "exact-match": "Rozlišovat velká písmena a diakritiku",
   "date--from": "Od",
+  "date-picker-out-of-range": "Datum mimo dostupný rozsah ({{from}} – {{to}}).",
   "date--to": "Do",
   "date-picker-selected-days--label": "Vybráno",
   "show--metadata-sidebar": "Zobrazit panel",

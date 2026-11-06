@@ -421,6 +421,7 @@
   "advanced-filter-fulltext-placeholder": "Suchbegriff eingeben",
   "exact-match": "Groß-/Kleinschreibung und Diakritika unterscheiden",
   "date--from": "Von",
+  "date-picker-out-of-range": "Datum außerhalb des verfügbaren Bereichs ({{from}} – {{to}}).",
   "date--to": "Bis",
   "date-picker-selected-days--label": "Ausgewählt",
   "show--metadata-sidebar": "Bereich anzeigen",

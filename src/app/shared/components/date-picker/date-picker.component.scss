@@ -91,6 +91,15 @@ hr {
   margin-bottom: var(--spacing-x2);
 }
 
+.date-out-of-range {
+  // Wrap within the popup's existing width instead of widening it.
+  width: 0;
+  min-width: 100%;
+  margin: 0 0 var(--spacing-x2);
+  font-size: var(--font-size-small);
+  color: var(--color-text-error, var(--color-error));
+}
+
 .date-input-section {
   flex: 1;
 }
@@ -216,6 +225,17 @@ hr {
       &.mat-calendar-body-today {
         box-shadow: none !important;
         border: none !important;
+      }
+    }
+
+    // Days outside minDate/maxDate (e.g. not in the opened volume)
+    &.mat-calendar-body-disabled {
+      cursor: not-allowed;
+
+      .mat-calendar-body-cell-content {
+        opacity: 0.3;
+        text-decoration: line-through;
+        background-color: transparent !important;
       }
     }
 
