@@ -989,6 +989,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     const currentPid = this.imagePid || this.metadata?.uuid;
     if (!currentPid) return EMPTY;
 
+    // Leave area selection when another page opens (as the old client did) —
+    // the selection belongs to the page that is going away.
+    this.iiifViewerService.cancelSelectionOnPageChange();
+
     // Clear existing overlays when changing pages
     this.iiifViewerService.clearAllOverlays();
 

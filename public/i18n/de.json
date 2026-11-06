@@ -542,6 +542,7 @@
   "selection-edit-or-cancel": "Hilfe zu Schnellaktionen",
   "edit-selection": "Bearbeiten",
   "selection-tip-right-click": "Erstellen Sie eine neue Auswahl durch Ziehen. Der JPG-Export kann auch mit der Eingabetaste bestätigt werden.",
+  "selection-tip-locked": "Die Auswahl heben Sie mit dem Kreuz oder der Esc-Taste auf. Der JPG-Export kann auch mit der Eingabetaste bestätigt werden.",
   "selection-tip-dont-show-again": "Danke für den Tipp, diese Meldung nicht mehr anzeigen.",
   "ok": "OK",
   "select-all-pages": "Alle Seiten auswählen",

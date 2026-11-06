@@ -538,6 +538,7 @@
   "selection-edit-or-cancel": "Pomoc dla szybkich akcji",
   "edit-selection": "Edytuj",
   "selection-tip-right-click": "Nowy wybór możesz wykonać przeciągając. Eksport JPG można potwierdzić klawiszem Enter.",
+  "selection-tip-locked": "Wybór anulujesz krzyżykiem lub klawiszem Esc. Eksport JPG można potwierdzić klawiszem Enter.",
   "selection-tip-dont-show-again": "Dzięki za wskazówkę, nie pokazuj tej wiadomości ponownie.",
   "ok": "OK",
   "select-all-pages": "Wybierz wszystkie strony",

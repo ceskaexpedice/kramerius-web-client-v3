@@ -227,7 +227,7 @@
            [class.ai-only-view]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
         <div class="detail-view--page--content--wrapper"
              [class.pdf-document]="detailViewService.isPdf || (articleMetadata$ | async)?.pdf"
-             [class.selection-mode]="iiifViewerService.isSelectionMode$ | async"
+             [class.selection-mode]="iiifViewerService.isSelectionDrawing$ | async"
              [class.records-view]="document.model === DocumentTypeEnum.soundrecording && detailViewService.soundRecordingViewMode() === 'records'"
              [class.hidden]="aiPanelService.panelVisible() && aiPanelService.effectivePanelMode() === 'ai-only'">
 

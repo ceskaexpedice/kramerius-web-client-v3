@@ -2,8 +2,8 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { EnvironmentService } from './environment.service';
 import { APP_ROUTES_ENUM } from '../../app.routes';
-import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject, Subscription, combineLatest } from 'rxjs';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 import OpenSeadragon from 'openseadragon';
 import { AltoService, AltoTextBlock, TextRegion } from './alto.service';
 import { CdkSourceService } from './cdk-source.service';
@@ -96,6 +96,12 @@ export class IIIFViewerService {
 
   private viewer: OpenSeadragon.Viewer | null = null;
   private isSelectionMode: boolean = false;
+  /**
+   * Selection mode was requested while book mode was on. Area selection works on
+   * a single page only (as in the old client), so book mode is turned off first
+   * and selection mode starts once the single page has opened.
+   */
+  private pendingSelectionMode = false;
   private drawStartPoint: OpenSeadragon.Point | null = null;
   private selectionOverlay: HTMLElement | null = null;
   private mouseTracker: OpenSeadragon.MouseTracker | null = null;
@@ -270,10 +276,27 @@ export class IIIFViewerService {
   clearSelectedArea(): void {
     this.clearSelectionOverlays();
     this.selectedAreaSubject.next(null);
+    if (this.isSelectionMode && this.selectionLockedSubject.value) {
+      this.startDrawing();
+    }
   }
 
   private isSelectionModeSubject = new BehaviorSubject<boolean>(false);
   public isSelectionMode$ = this.isSelectionModeSubject.asObservable();
+
+  /**
+   * True once an area has been selected. Like the old client, a finished
+   * selection is locked: the pointer pans and zooms the page again and the
+   * selection stays until it is cancelled (✕ or Esc) — a click or drag on the
+   * page no longer clears or redraws it.
+   */
+  private selectionLockedSubject = new BehaviorSubject<boolean>(false);
+
+  /** Selection mode is waiting for the user to drag out an area (crosshair cursor). */
+  public isSelectionDrawing$ = combineLatest([this.isSelectionModeSubject, this.selectionLockedSubject]).pipe(
+    map(([mode, locked]) => mode && !locked),
+    distinctUntilChanged(),
+  );
 
   private isDraggingSubject = new BehaviorSubject<boolean>(false);
   // distinctUntilChanged: a BehaviorSubject re-emits even when the value is
@@ -281,8 +304,6 @@ export class IIIFViewerService {
   // detection. Dropping the no-op emissions avoids pointless re-renders of the
   // floating selection UI during pointer gestures.
   public isDragging$ = this.isDraggingSubject.pipe(distinctUntilChanged());
-
-  private lastSelectionTime: number = 0;
 
   get currentMatchNumber(): number {
     return this.currentMatchIndexSubject.value + 1;
@@ -295,6 +316,13 @@ export class IIIFViewerService {
   constructor(
     private env: EnvironmentService
   ) {
+    // Finish a selection-mode request that had to turn book mode off first.
+    this.viewerOpenedSubject.subscribe(() => {
+      if (this.pendingSelectionMode && !this.isBookMode()) {
+        this.pendingSelectionMode = false;
+        this.setSelectionMode(true);
+      }
+    });
   }
 
   set uuid(uuid: string | null) {
@@ -368,6 +396,11 @@ export class IIIFViewerService {
   // Set viewer instance
   setViewer(viewer: OpenSeadragon.Viewer): void {
     this.viewer = viewer;
+    // The viewer component is re-created on every page change. Leave selection
+    // mode like the old client did on a page change; otherwise the mode stays on
+    // (crosshair, toolbar hidden) while its MouseTracker is still bound to the
+    // destroyed viewer's element and the new page just pans under the cursor.
+    this.cancelSelectionOnPageChange();
     this.setupRectangleClickHandler();
     this.setupImageLoadedHandler();
     // Forward this viewer's `open` events into the instance-independent stream
@@ -481,11 +514,8 @@ export class IIIFViewerService {
     this.propertiesSubject.next(this.viewerProperties);
 
     // Reset selection mode if active
-    if (this.isSelectionMode) {
-      this.disableSelectionMode();
-      this.isSelectionMode = false;
-      this.isSelectionModeSubject.next(false);
-    }
+    this.pendingSelectionMode = false;
+    this.exitSelectionMode();
     this.isDraggingSubject.next(false);
 
     // Clear all overlays and counters
@@ -663,15 +693,40 @@ export class IIIFViewerService {
   setSelectionMode(enabled: boolean): void {
     if (!this.viewer) return;
 
-    if (enabled && !this.isSelectionMode) {
-      this.isSelectionMode = true;
-      this.isSelectionModeSubject.next(true);
-      this.enableSelectionMode();
-    } else if (!enabled && this.isSelectionMode) {
-      this.isSelectionMode = false;
-      this.isSelectionModeSubject.next(false);
-      this.disableSelectionMode();
+    if (!enabled) {
+      this.pendingSelectionMode = false;
+      this.exitSelectionMode();
+      return;
     }
+    if (this.isSelectionMode) return;
+
+    // Image coordinates are ambiguous with two pages in the world, so selection
+    // runs on a single page: turn book mode off and start once it has reopened.
+    if (this.isBookMode()) {
+      this.pendingSelectionMode = true;
+      this.toggleBookMode();
+      return;
+    }
+
+    this.isSelectionMode = true;
+    this.isSelectionModeSubject.next(true);
+    this.enableSelectionMode();
+  }
+
+  /**
+   * Leaves selection mode because another page (or source) is being opened.
+   * Unlike setSelectionMode(false) it keeps a pending request from book-mode
+   * switch-off, which reopens the viewer on its way to selection mode.
+   */
+  cancelSelectionOnPageChange(): void {
+    this.exitSelectionMode();
+  }
+
+  private exitSelectionMode(): void {
+    if (!this.isSelectionMode) return;
+    this.isSelectionMode = false;
+    this.isSelectionModeSubject.next(false);
+    this.disableSelectionMode();
   }
 
   // Set selection from image coordinates
@@ -692,12 +747,12 @@ export class IIIFViewerService {
 
     this.createDimOverlays(viewportRect);
 
-    // Enable selection mode if not already enabled, or if tracker is missing
-    if (!this.isSelectionMode || !this.mouseTracker) {
+    if (!this.isSelectionMode) {
       this.isSelectionMode = true;
       this.isSelectionModeSubject.next(true);
-      this.enableSelectionMode();
+      this.attachKeyboardHandler();
     }
+    this.lockSelection();
 
     this.selectedAreaSubject.next(imageRect);
   }
@@ -705,19 +760,48 @@ export class IIIFViewerService {
   // Enable selection mode
   private enableSelectionMode(): void {
     if (!this.viewer) return;
-    if (this.mouseTracker) return; // Already enabled
+    this.attachKeyboardHandler();
+    this.startDrawing();
+  }
 
-    console.log('Enabling selection mode and mouse tracker');
-    this.viewer.setMouseNavEnabled(false);
-
-    // Add keyboard event listener for ESC key
+  private attachKeyboardHandler(): void {
+    if (this.keyboardHandler) return;
     this.keyboardHandler = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && this.isSelectionMode) {
-        console.log('ESC pressed, disabling selection mode');
         this.setSelectionMode(false);
       }
     };
     document.addEventListener('keydown', this.keyboardHandler);
+  }
+
+  /**
+   * Freezes a finished selection (old-client behaviour): the drawing tracker
+   * goes away and the page pans and zooms normally, while the selection, its
+   * dimmed surroundings and controls stay until ✕ or Esc.
+   */
+  private lockSelection(): void {
+    this.selectionLockedSubject.next(true);
+    this.drawStartPoint = null;
+    this.isDraggingSubject.next(false);
+    try {
+      this.viewer?.setMouseNavEnabled(true);
+    } catch (e) {
+      console.warn('Failed to set mouse nav enabled, viewer not fully initialized:', e);
+    }
+    const tracker = this.mouseTracker;
+    this.mouseTracker = null;
+    // Called from the tracker's own release handler — destroy it only after
+    // OpenSeadragon has finished dispatching that event.
+    if (tracker) setTimeout(() => tracker.destroy(), 0);
+  }
+
+  // Starts (or restarts) dragging out a new area.
+  private startDrawing(): void {
+    if (!this.viewer) return;
+    this.selectionLockedSubject.next(false);
+    if (this.mouseTracker) return; // Already drawing
+
+    this.viewer.setMouseNavEnabled(false);
 
     this.mouseTracker = new OpenSeadragon.MouseTracker({
       element: this.viewer.element,
@@ -744,29 +828,15 @@ export class IIIFViewerService {
         // floating selection controls. Ignore presses that land on those
         // controls so their own click handlers run and the selection survives.
         if (this.isEventOnSelectionControls(event)) return;
-        console.log('MouseTracker: press');
         this.drawStartPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(this.toContainerPx(event.position));
         this.isDraggingSubject.next(true);
         event.preventDefaultAction = true;
       },
+      // A plain click while waiting for a drag does nothing (old client): the
+      // mode stays on until an area is dragged out or the mode is cancelled.
       clickHandler: (event: any) => {
-        // Don't treat a click on the selection controls as a click on the
-        // canvas (which would clear the selection out from under the button).
         if (this.isEventOnSelectionControls(event)) return;
-        console.log('MouseTracker: click', event.quick);
-        // Prevent clearing if selection was just made (within 300ms)
-        if (Date.now() - this.lastSelectionTime < 300) {
-          console.log('Click ignored due to recent selection');
-          return;
-        }
-
-        // Clear selection on click
-        if (event.quick) {
-          console.log('Click detected via clickHandler, clearing selection');
-          this.clearSelectionOverlays();
-          this.selectedAreaSubject.next(null);
-          event.preventDefaultAction = true;
-        }
+        event.preventDefaultAction = true;
       },
       dragHandler: (event: any) => {
         // console.log('MouseTracker: drag');
@@ -817,23 +887,25 @@ export class IIIFViewerService {
             Math.abs(endPoint.y - this.drawStartPoint.y)
           );
 
-          // Check if selection is too small (likely a click)
-          const minSize = 0.005;
-          if (rect.width < minSize || rect.height < minSize) {
-            console.log('Selection too small, treating as click/clear');
-            this.clearSelectionOverlays();
-            this.selectedAreaSubject.next(null);
-          } else {
-            console.log('Selected area (viewport):', rect);
-
-            const imageRect = this.viewer!.viewport.viewportToImageRectangle(rect);
-            console.log('Selected area (image):', imageRect);
-            this.selectedAreaSubject.next(imageRect);
-            this.lastSelectionTime = Date.now();
-          }
-
           this.drawStartPoint = null;
           event.preventDefaultAction = true;
+
+          // Too small to be meant as an area (likely a click): drop the drawn
+          // rectangle and keep waiting for a real drag.
+          const minSize = 0.005;
+          if (rect.width < minSize || rect.height < minSize) {
+            this.clearSelectionOverlays();
+            return;
+          }
+
+          // Single page only (book mode is switched off for selection), so the
+          // world holds one item and its own conversion is exact.
+          const tiledImage = this.viewer!.world.getItemAt(0);
+          const imageRect = tiledImage
+            ? tiledImage.viewportToImageRectangle(rect)
+            : this.viewer!.viewport.viewportToImageRectangle(rect);
+          this.lockSelection();
+          this.selectedAreaSubject.next(imageRect);
         } catch (error) {
           console.error('Error in releaseHandler:', error);
           this.drawStartPoint = null;
@@ -1025,6 +1097,7 @@ export class IIIFViewerService {
     }
     this.clearSelectionOverlays();
     this.selectedAreaSubject.next(null);
+    this.selectionLockedSubject.next(false);
     this.isDraggingSubject.next(false);
     this.drawStartPoint = null;
   }

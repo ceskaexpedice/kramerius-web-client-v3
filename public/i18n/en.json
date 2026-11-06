@@ -547,6 +547,7 @@
   "selection-edit-or-cancel": "Quick actions help",
   "edit-selection": "Edit",
   "selection-tip-right-click": "Make a new selection by dragging. Export JPG can also be confirmed with the Enter key.",
+  "selection-tip-locked": "Cancel the selection with the cross or the Esc key. Export JPG can also be confirmed with the Enter key.",
   "selection-tip-dont-show-again": "Thanks for the tip, don't show this message again.",
   "ok": "OK",
   "select-all-pages": "Select all pages",

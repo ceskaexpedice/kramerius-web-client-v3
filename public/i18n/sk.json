@@ -539,6 +539,7 @@
   "selection-edit-or-cancel": "Nápoveda pre rýchle akcie",
   "edit-selection": "Upraviť",
   "selection-tip-right-click": "Nový výber vykonáte ťahaním. Export JPG potvrdíte aj klávesou Enter.",
+  "selection-tip-locked": "Výber zrušíte krížikom alebo klávesom Esc. Export JPG potvrdíte aj klávesom Enter.",
   "selection-tip-dont-show-again": "Vďaka za tip, nabudúce už nezobrazuj hlášku.",
   "ok": "OK",
   "select-all-pages": "Vybrať všetky strany",
