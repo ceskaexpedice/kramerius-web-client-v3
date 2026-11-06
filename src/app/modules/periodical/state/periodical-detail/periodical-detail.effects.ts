@@ -32,7 +32,7 @@ import { Router } from '@angular/router';
 import { APP_ROUTES_ENUM } from '../../../../app.routes';
 import {DEFAULT_PERIODICAL_FACET_FIELDS} from '../../../search-results-page/const/facet-fields';
 import { CustomSearchService } from '../../../../shared/services/custom-search.service';
-import { buildDateOverlapQuery } from '../../../../shared/utils/date-range-query';
+import { buildDateOverlapQuery, normalizeDateRangeParams } from '../../../../shared/utils/date-range-query';
 
 @Injectable()
 export class PeriodicalDetailEffects {
@@ -166,29 +166,58 @@ export class PeriodicalDetailEffects {
             shareReplay(1)
           );
 
+          // A date filter on the years level lists the matching ISSUES of the
+          // matching volumes directly (the year filter, if any, still narrows
+          // which volumes - and via the same clause which issues - qualify).
+          const showIssues = hasDateFilter(routerQueryParams) && !hasActiveQuery;
+
           const processVolumes$ = volumes$.pipe(
-            map(volumes => {
+            switchMap(volumes => {
               const availableYears = this.mapAvailableYears(volumes);
               const years = this.buildYearList(data, availableYears);
-
-              return loadPeriodicalSuccess({
+              const success = (children?: any[], childrenTotalCount: number | null = null) => loadPeriodicalSuccess({
                 document: periodical,
                 metadata: data,
                 years,
                 availableYears,
                 availableYearsRootPid: data.uuid,
+                children,
+                childrenTotalCount,
                 facets: {} // Facets will load separately
               });
+
+              if (!showIssues) {
+                return of(success());
+              }
+              if (availableYears.length === 0) {
+                return of(success([], 0));
+              }
+              // `page` is already the Solr start offset, `pageCount` the page size.
+              return this.solr.getPeriodicalIssuesAcrossVolumesPage(data.uuid, filters, page, pageCount, sortDirection, advancedQuery, availabilityFilter, cdkCollection).pipe(
+                map(({ docs, numFound }) => {
+                  docs.forEach(i => {
+                    if (!i['licenses'] || i['licenses'].length === 0 && i['licenses.facet']) {
+                      i['licenses'] = i['licenses.facet'];
+                    }
+                  });
+                  return success(docs, numFound);
+                })
+              );
             }),
             catchError(error => of(loadPeriodicalFailure({ error })))
           );
 
           const filtersWithoutLicenses = filters.filter(f => !f.startsWith('license:'));
-          const facetsRes$ = this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter, cdkCollection).pipe(shareReplay(1));
+          // Facet counts follow what is listed: the issues across all volumes
+          // when a date filter is active, otherwise the volumes themselves.
+          const facetsFor = (facetFilters: string[]) => showIssues
+            ? this.solr.getPeriodicalChildrenFacets({ issuesOfRoot: data.uuid }, `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement}`, facetFilters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter, cdkCollection)
+            : this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, facetFilters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter, cdkCollection);
+          const facetsRes$ = facetsFor(filters).pipe(shareReplay(1));
           // When no license filter is active both requests are identical, so reuse the first instead of firing a duplicate.
           const facetsWithoutLicenses$ = filtersWithoutLicenses.length === filters.length
             ? facetsRes$
-            : this.solr.getPeriodicalChildrenFacets(data.uuid, DocumentTypeEnum.periodicalvolume, filtersWithoutLicenses, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery, availabilityFilter, cdkCollection);
+            : facetsFor(filtersWithoutLicenses);
           const processFacets$ = forkJoin({
             facetsRes: facetsRes$,
             facetsWithoutLicenses: facetsWithoutLicenses$
@@ -508,4 +537,10 @@ export class PeriodicalDetailEffects {
       })
     )
   );
+}
+
+/** True when the route carries a dateFrom/dateTo filter. */
+function hasDateFilter(params: Record<string, any> | null | undefined): boolean {
+  const { dateFrom, dateTo } = normalizeDateRangeParams(params ?? {});
+  return !!(dateFrom || dateTo);
 }

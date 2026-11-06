@@ -129,12 +129,13 @@ export function formatLocalDateKey(date: Date): string {
  * Label for an issue card: the first day of the range as `D.M.`, falling back to
  * the raw `date.str` when no date can be derived.
  */
-export function formatIssueDateLabel(item: IssueDateFields | undefined | null): string {
+export function formatIssueDateLabel(item: IssueDateFields | undefined | null, withYear = false): string {
   const date = parseIssueStartDate(item);
   if (!date) {
     return item?.['date.str'] ?? '';
   }
-  return `${date.getDate()}.${date.getMonth() + 1}.`;
+  const label = `${date.getDate()}.${date.getMonth() + 1}.`;
+  return withYear ? `${label}${date.getFullYear()}` : label;
 }
 
 /**

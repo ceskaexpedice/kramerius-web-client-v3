@@ -24,6 +24,8 @@ export interface PeriodicalDetailState {
    */
   availableYearsRootPid: string | null;
   children: PeriodicalItemChild[];
+  /** Total issues behind a paged children list (years-level date filter); null = not paged. */
+  childrenTotalCount: number | null;
   loading: boolean;
   error: any;
   searchParams: {
@@ -46,6 +48,7 @@ export const initialState: PeriodicalDetailState = {
   availableYears: [],
   availableYearsRootPid: null,
   children: [],
+  childrenTotalCount: null,
   loading: false,
   error: null,
   searchParams: {
@@ -97,7 +100,7 @@ export const periodicalDetailReducer = createReducer(
       }
     };
   }),
-  on(loadPeriodicalSuccess, (state, { document, metadata, years, availableYears, availableYearsRootPid, children, facets }) => ({
+  on(loadPeriodicalSuccess, (state, { document, metadata, years, availableYears, availableYearsRootPid, children, childrenTotalCount, facets }) => ({
     ...state,
     loading: false,
     facets: facets ?? {},
@@ -106,7 +109,8 @@ export const periodicalDetailReducer = createReducer(
     years,
     availableYears: availableYears ?? state.availableYears,
     availableYearsRootPid: availableYears ? (availableYearsRootPid ?? null) : state.availableYearsRootPid,
-    children: children || []
+    children: children || [],
+    childrenTotalCount: childrenTotalCount ?? null
   })),
   on(loadPeriodicalFailure, (state, { error }) => ({ ...state, loading: false, error })),
   on(loadPeriodicalItems, state => ({ ...state, loading: true })),
@@ -114,6 +118,7 @@ export const periodicalDetailReducer = createReducer(
     ...state,
     loading: false,
     children: children || [],
+    childrenTotalCount: null,
     availableYears: availableYears ?? state.availableYears,
     availableYearsRootPid: availableYears ? (availableYearsRootPid ?? null) : state.availableYearsRootPid,
   })),

@@ -186,6 +186,18 @@
             [pid]="periodical.getSelectedPid() || ''">
           </app-periodical-year-issues-grid>
 
+          <!-- Years level + date filter: the issue list is paged server-side -->
+          @if (mode === ViewMode.GridIssues && !periodical.selectedYear() && (periodical.childrenTotalCount() ?? 0) > 0) {
+            <app-paginator
+              [page]="periodical.page"
+              [totalCount]="periodical.childrenTotalCount() ?? 0"
+              [pageSize]="periodical.pageSize"
+              [pageSizeOptions]="[60, 120, 180]"
+              (pageChange)="periodical.goToPage($event)"
+              (pageSizeChange)="periodical.changePageSize($event)">
+            </app-paginator>
+          }
+
           <app-periodical-search-results *ngIf="mode === ViewMode.SearchResults">
           </app-periodical-search-results>
 

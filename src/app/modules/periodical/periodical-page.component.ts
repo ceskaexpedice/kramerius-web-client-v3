@@ -97,8 +97,9 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
         { label: 'layout--grid', icon: 'icon-grid-1', value: 'grid' }
       ];
     } else {
-      // Issues view: show calendar only when items have day+month data
-      if (!this.periodical.canShowCalendar()) {
+      // Issues view: show calendar only when items have day+month data and
+      // belong to one opened volume (not the years-level date-filter list)
+      if (!this.periodical.canShowCalendar() || !this.periodical.selectedYear()) {
         return [
           { label: 'layout--cards', icon: 'icon-element-3', value: 'cards' }
         ];

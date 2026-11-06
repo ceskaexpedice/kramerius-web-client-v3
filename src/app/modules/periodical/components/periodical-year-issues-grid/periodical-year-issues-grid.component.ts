@@ -85,10 +85,11 @@ export class PeriodicalYearIssuesGridComponent {
     }
   }
 
-  getItemTitle(item: PeriodicalItemChild): string {
+  getItemTitle(item: PeriodicalItemChild, withYear = false): string {
     // Base title is the date. Issues published over a range of days are labelled
-    // by the FIRST day of that range (see issue #166).
-    let title = formatIssueDateLabel(item);
+    // by the FIRST day of that range (see issue #166). Lists not tied to one
+    // opened volume (years-level date filter) also show the year.
+    let title = formatIssueDateLabel(item, withYear);
     // When the issue carries a morning/evening (issue-type) attribute, append its
     // localized label so the title reads e.g. "12.5. - morning".
     const issueTypeCode = this.getIssueTypeCode(item);
@@ -120,7 +121,7 @@ export class PeriodicalYearIssuesGridComponent {
       item,
       allItems,
       subtitlePrefix,
-      (item) => this.getItemTitle(item)
+      (item) => this.getItemTitle(item, !this.year)
     );
   }
 

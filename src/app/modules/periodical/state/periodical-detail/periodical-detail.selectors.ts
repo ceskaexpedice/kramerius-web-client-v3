@@ -8,6 +8,7 @@ import {SolrOperators} from '../../../../core/solr/solr-helpers';
 export const selectPeriodicalState = createFeatureSelector<PeriodicalDetailState>('periodical-detail');
 export const selectPeriodicalDocument = createSelector(selectPeriodicalState, state => state?.document);
 export const selectPeriodicalChildren = createSelector(selectPeriodicalState, state => state?.children || []);
+export const selectPeriodicalChildrenTotalCount = createSelector(selectPeriodicalState, state => state?.childrenTotalCount ?? null);
 export const selectPeriodicalYears = createSelector(selectPeriodicalState, state => state?.years);
 export const selectAvailableYears = createSelector(selectPeriodicalState, state => state?.availableYears);
 /** Root periodical the cached `availableYears` belong to; see the reducer note (issue #169). */

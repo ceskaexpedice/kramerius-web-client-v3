@@ -11,6 +11,7 @@ import { RecordHandlerService } from './record-handler.service';
 import {
   selectAvailableYears,
   selectPeriodicalChildren,
+  selectPeriodicalChildrenTotalCount,
   selectPeriodicalDocument,
   selectPeriodicalError,
   selectPeriodicalLoading,
@@ -84,6 +85,8 @@ export class PeriodicalService extends BaseFilterService {
   document$ = this.store.select(selectPeriodicalDocument);
   availableYears$ = this.store.select(selectAvailableYears);
   periodicalChildren$ = this.store.select(selectPeriodicalChildren);
+  /** Total of a paged issue list (years level + date filter); null when the list isn't paged. */
+  childrenTotalCount = toSignal(this.store.select(selectPeriodicalChildrenTotalCount), { initialValue: null as number | null });
   loading$ = this.store.select(selectPeriodicalLoading);
   metadata$ = this.store.select(selectPeriodicalMetadata);
   error$ = this.store.select(selectPeriodicalError);
@@ -130,7 +133,9 @@ export class PeriodicalService extends BaseFilterService {
     // Uses replaceUrl so the single-issue periodical URL is removed from browser history,
     // allowing the back button to skip it and go to the previous page.
     this.periodicalChildren$.pipe(
-      filter(children => children?.length === 1),
+      // A paged list (years-level date filter) can end with a 1-item page -
+      // only redirect when that single issue is the whole result.
+      filter(children => children?.length === 1 && (this.childrenTotalCount() ?? 1) === 1),
       filter(() => this.router.url.split('?')[0].includes(`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}`)),
       takeUntil(this.destroy$)
     ).subscribe(children => {
@@ -512,8 +517,13 @@ export class PeriodicalService extends BaseFilterService {
     }
 
     if (model === 'periodical') {
-      this.viewMode.set(ViewMode.Timeline);
       this.setSelectedYear(null);
+      // A date filter on the years level lists the matching issues directly.
+      if (this.hasDateFilter()) {
+        this.viewMode.set(ViewMode.GridIssues);
+        return;
+      }
+      this.viewMode.set(ViewMode.Timeline);
     } else if (model === 'periodicalvolume') {
       // A date filter outside this volume's year would leave the view empty;
       // jump back to the years timeline (keeping the filter) instead.
@@ -568,6 +578,11 @@ export class PeriodicalService extends BaseFilterService {
     });
   }
 
+  private hasDateFilter(): boolean {
+    const { dateFrom, dateTo } = normalizeDateRangeParams(this.route.snapshot.queryParams);
+    return !!(dateFrom || dateTo);
+  }
+
   /**
    * True when a dateFrom/dateTo filter is active but its year span does not
    * overlap the currently opened volume's year(s) — the issue list would be
@@ -608,6 +623,10 @@ export class PeriodicalService extends BaseFilterService {
   }
 
   setView(view: string): void {
+    // Years level + date filter: the issue cards are the only view (see handleDocument).
+    if (!this.selectedYear() && this.viewMode() === ViewMode.GridIssues && this.hasDateFilter()) {
+      return;
+    }
     this.saveViewModeToLocalStorage(view);
     const hasSelectedYear = !!this.selectedYear();
 

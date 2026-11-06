@@ -97,10 +97,18 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
   }
 
   getViewportHeight(): string {
-    // No taller than the options it holds, so a filtered list leaves no blank space.
-    const rows = Math.max(1, Math.min(this.visibleItemsCount, this.filteredOptions.length));
+    // No taller than the options it holds, so a filtered list leaves no blank space,
+    // and no taller than the room left inside a clipping container (see checkPosition).
+    const maxRows = this.fitRows ?? this.visibleItemsCount;
+    const rows = Math.max(1, Math.min(this.visibleItemsCount, maxRows, this.filteredOptions.length));
     return `${rows * this.virtualItemSize}px`;
   }
+
+  /**
+   * Rows that fit into the space available when the dropdown is opened inside a
+   * clipping container (e.g. the date picker's scrollable popup); null = no limit.
+   */
+  fitRows: number | null = null;
 
   /**
    * Called when the list opens (see toggle()). The viewport renders its items a
@@ -359,11 +367,37 @@ export class SelectComponent<T = any> implements AfterViewInit, OnDestroy, OnCha
     if (!wrapperEl) return;
 
     const rect = wrapperEl.getBoundingClientRect();
-    const dropdownHeight = (this.filterable ? 50 : 0) + this.filteredOptions.length * 40; // Include filter input height if present
-    const spaceBelow = window.innerHeight - rect.bottom;
-    const spaceAbove = rect.top;
+    const rowHeight = this.virtualScroll ? this.virtualItemSize : 40;
+    const filterHeight = this.filterable ? 50 : 0;
+    const gap = 12; // dropdown margin + border
+    const rows = Math.min(this.filteredOptions.length, this.visibleItemsCount);
+    const dropdownHeight = filterHeight + Math.max(1, rows) * rowHeight + gap;
 
-    this.showAbove = spaceBelow < dropdownHeight && spaceAbove > dropdownHeight;
+    // The dropdown is absolutely positioned, so an ancestor with overflow other
+    // than visible (e.g. the date picker popup's scroll area) clips it - measure
+    // the room inside that ancestor, not just inside the window.
+    const clip = this.findClippingAncestor(wrapperEl)?.getBoundingClientRect();
+    const bottomLimit = Math.min(window.innerHeight, clip ? clip.bottom : Infinity);
+    const topLimit = Math.max(0, clip ? clip.top : 0);
+    const spaceBelow = bottomLimit - rect.bottom;
+    const spaceAbove = rect.top - topLimit;
+
+    this.showAbove = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
+
+    const space = this.showAbove ? spaceAbove : spaceBelow;
+    this.fitRows = space < dropdownHeight
+      ? Math.max(2, Math.floor((space - filterHeight - gap) / rowHeight))
+      : null;
+  }
+
+  private findClippingAncestor(el: HTMLElement): HTMLElement | null {
+    let node = el.parentElement;
+    while (node && node !== document.body) {
+      const style = getComputedStyle(node);
+      if (/(auto|scroll|hidden|clip)/.test(style.overflowY)) return node;
+      node = node.parentElement;
+    }
+    return null;
   }
 
   trackByFn = (_: number, option: T) => option;

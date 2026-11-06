@@ -10,7 +10,7 @@ export const loadPeriodical = createAction('[Periodical] Load', props<{ uuid: st
 // but it is only valid for its own title - without the root pid, opening another
 // periodical kept the previous one's volumes and the calendar queried the wrong
 // title (issue #169).
-export const loadPeriodicalSuccess = createAction('[Periodical] Load Success', props<{ document: PeriodicalItem; metadata: Metadata; years: PeriodicalItemYear[]; availableYears: PeriodicalItemYear[]; availableYearsRootPid?: string | null; children?: any[]; facets?: { [key: string]: FacetItem[] } }>());
+export const loadPeriodicalSuccess = createAction('[Periodical] Load Success', props<{ document: PeriodicalItem; metadata: Metadata; years: PeriodicalItemYear[]; availableYears: PeriodicalItemYear[]; availableYearsRootPid?: string | null; children?: any[]; childrenTotalCount?: number | null; facets?: { [key: string]: FacetItem[] } }>());
 export const loadPeriodicalFailure = createAction('[Periodical] Load Failure', props<{ error: any }>());
 
 export const setPeriodicalSearchParams = createAction('[Periodical] Set Search Params', props<{

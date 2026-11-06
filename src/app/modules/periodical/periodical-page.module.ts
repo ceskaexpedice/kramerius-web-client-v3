@@ -1,3 +1,4 @@
+import { PaginatorComponent } from '../../shared/components/paginator/paginator.component';
 import { PanelToggleButtonComponent } from '../../shared/components/panel-toggle-button/panel-toggle-button.component';
 import { PanelResizeHandleComponent } from '../../shared/components/panel-resize-handle/panel-resize-handle.component';
 import { NgModule } from '@angular/core';
@@ -59,6 +60,7 @@ const routes: Routes = [
   ],
   imports: [
     RouterModule.forChild(routes),
+    PaginatorComponent,
     PanelToggleButtonComponent,
     PanelResizeHandleComponent,
     AsyncPipe,
