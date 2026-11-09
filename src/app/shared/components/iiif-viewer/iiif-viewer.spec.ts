@@ -531,3 +531,70 @@ describe('IIIFViewer.processInfoJson tile size', () => {
     expect(info.tiles[0].width).toBe(256);
   });
 });
+
+/**
+ * Page turns keep the viewer mounted while the new page's access check runs
+ * (no white loader flash). The new page must not load before access is
+ * confirmed, or a denied page would show its thumbnail (#105).
+ */
+describe('IIIFViewer holdPage', () => {
+
+  function makeComponent() {
+    const component = Object.create(IIIFViewer.prototype) as IIIFViewer;
+    const updates: string[] = [];
+    const inits: string[] = [];
+    const flag = () => { let v: any = null; const fn: any = () => v; fn.set = (x: any) => { v = x; }; return fn; };
+    (component as any).showFallback = flag();
+    (component as any).fallbackImageUrl = flag();
+    (component as any).accessDenied = flag();
+    (component as any).triggerViewerUpdate = () => updates.push(component.imagePid!);
+    (component as any).loadTileSources = () => ({ subscribe: () => inits.push(component.imagePid!) });
+    (component as any).iiifViewerService = { setTestFallbackMode: () => {}, isBookMode: () => true };
+    (component as any).clearThumbnailBackground = () => {};
+    (component as any).TEST_FALLBACK = false;
+    const change = (props: Partial<IIIFViewer>) => {
+      const changes: any = {};
+      for (const [key, value] of Object.entries(props)) {
+        (component as any)[key] = value;
+        changes[key] = { firstChange: false, currentValue: value };
+      }
+      component.ngOnChanges(changes);
+    };
+    return { component, updates, inits, change };
+  }
+
+  it('switches pages right away when nothing is held', () => {
+    const t = makeComponent();
+    t.change({ imagePid: 'p2' });
+    expect(t.updates).toEqual(['p2']);
+  });
+
+  it('keeps the current page until the access check passes', () => {
+    const t = makeComponent();
+    t.change({ holdPage: true });
+    t.change({ imagePid: 'p2' });
+    expect(t.updates).toEqual([]);
+    t.change({ holdPage: false });
+    expect(t.updates).toEqual(['p2']);
+  });
+
+  it('loads only the last page after several turns during one check', () => {
+    const t = makeComponent();
+    t.change({ holdPage: true, imagePid: 'p2' });
+    t.change({ imagePid: 'p3' });
+    t.change({ holdPage: false });
+    expect(t.updates).toEqual(['p3']);
+  });
+
+  it('does not create the viewer while its first page is held', () => {
+    const t = makeComponent();
+    (t.component as any).holdPage = true;
+    (t.component as any).imagePid = 'p1';
+    (t.component as any).initializeViewer();
+    expect(t.inits).toEqual([]);
+    t.change({ holdPage: false });
+    expect(t.inits).toEqual(['p1']);
+    expect(t.updates).toEqual([]);
+  });
+
+});

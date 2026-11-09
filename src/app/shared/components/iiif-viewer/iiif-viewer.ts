@@ -66,6 +66,14 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   @Input() metadata: Metadata | null = null;
   @Input() imagePid: string | null = null;
+  /**
+   * The page's access check is still running: keep showing the current page and
+   * load `imagePid` only once this turns false, so a page the reader may not see
+   * never shows (not even its thumbnail).
+   */
+  @Input() holdPage = false;
+  private heldInit = false;
+  private heldPageChange = false;
 
   @ViewChild('viewerContainer', { static: false }) viewerContainer!: ElementRef;
 
@@ -449,18 +457,40 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   ngOnChanges(changes: SimpleChanges): void {
     // Update viewer when imagePid changes
     if (changes['imagePid'] && !changes['imagePid'].firstChange) {
-      // Reset fallback state when switching to a new image. The blob object URL
-      // is deliberately not revoked here — OpenSeadragon may still be painting
-      // it; loadDirectImageFallback revokes the previous one as it installs the
-      // next, and ngOnDestroy covers the final page.
-      this.showFallback.set(false);
-      this.fallbackImageUrl.set(null);
-      this.accessDenied.set(false);
-      this.triggerViewerUpdate();
+      if (this.holdPage) {
+        this.heldPageChange = true;
+      } else {
+        this.showImagePid();
+      }
+    }
+    if (changes['holdPage'] && !this.holdPage) {
+      if (this.heldInit) {
+        this.heldInit = false;
+        this.initializeViewer();
+      } else if (this.heldPageChange) {
+        this.heldPageChange = false;
+        this.showImagePid();
+      }
     }
   }
 
+  /** Switches the open viewer to the page `imagePid` now names. */
+  private showImagePid(): void {
+    // Reset fallback state when switching to a new image. The blob object URL
+    // is deliberately not revoked here — OpenSeadragon may still be painting
+    // it; loadDirectImageFallback revokes the previous one as it installs the
+    // next, and ngOnDestroy covers the final page.
+    this.showFallback.set(false);
+    this.fallbackImageUrl.set(null);
+    this.accessDenied.set(false);
+    this.triggerViewerUpdate();
+  }
+
   private initializeViewer(): void {
+    if (this.holdPage) {
+      this.heldInit = true;
+      return;
+    }
     const pid = this.imagePid || this.metadata?.uuid;
     if (!pid) {
       console.error('No PID or UUID provided for IIIF viewer');
@@ -598,8 +628,23 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       return;
     }
 
+    // Only a move away from the home view puts the thumbnail out of place.
+    // OpenSeadragon also raises pan/zoom while the layout settles around a
+    // viewer that stays at home; dropping the thumbnail then left the page
+    // half drawn, tile by tile, instead of blur→sharp.
     let viewportChanged = false;
-    const onViewportChange = () => { viewportChanged = true; };
+    const onViewportChange = () => {
+      const zoom = viewport.getZoom();
+      const home = viewport.getHomeZoom();
+      const center = viewport.getCenter();
+      const homeCenter = viewport.getHomeBounds().getCenter();
+      const tolerance = viewport.getBounds().width * 1e-3;
+      if (Math.abs(zoom - home) > home * 1e-3
+        || Math.abs(center.x - homeCenter.x) > tolerance
+        || Math.abs(center.y - homeCenter.y) > tolerance) {
+        viewportChanged = true;
+      }
+    };
     viewer.addHandler('pan', onViewportChange);
     viewer.addHandler('zoom', onViewportChange);
 
@@ -1033,15 +1078,18 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // Clear existing overlays when changing pages
     this.iiifViewerService.clearAllOverlays();
 
-    // Set thumbnail as background placeholder for blur→sharp effect (single page only)
-    if (!this.iiifViewerService.isBookMode()) {
-      this.setThumbnailBackground(currentPid);
-    } else {
-      this.clearThumbnailBackground();
-    }
-
     return this.loadTileSources(currentPid).pipe(
       switchMap((tileSources) => {
+        // The previous page stays on the canvas until now. Its thumbnail goes in
+        // as the canvas is cleared for the new one (blur→sharp, single page
+        // only), not earlier, or it would show around a page of other proportions.
+        // A locked zoom opens away from home, where the whole-page thumbnail
+        // would only flash before it is dropped (watchThumbnailPlaceholder).
+        if (!this.iiifViewerService.isBookMode() && !this.iiifViewerService.isZoomLocked()) {
+          this.setThumbnailBackground(currentPid);
+        } else {
+          this.clearThumbnailBackground();
+        }
         this.viewer?.open(tileSources);
         return EMPTY;
       })

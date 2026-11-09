@@ -237,15 +237,17 @@
           <!--          @let isPdfContent = detailViewService.isPdf || (articleMetadata$ | async)?.pdf;-->
 
           <!-- Show access denied after access check completes and fails -->
-          @if (checkState === 'LOADED' && (documentInfoService.isLockUnavailable() ||
-          (!recordHandler.isRecordPublic(document.licences) &&
-          !documentInfoService.canAccessDocument() && !userService.hasAnyLicense(document.licences)))) {
+          @let keepViewer = checkState === 'LOADING' && viewerAccessGrantedFor() === document.uuid;
+          @if (checkState === 'LOADED' && isAccessDenied(document)) {
             <app-document-access-denied [metadata]="document">
             </app-document-access-denied>
-          } @else if (checkState === 'INITIAL' || checkState === 'LOADING') {
+          } @else if (checkState === 'INITIAL' || (checkState === 'LOADING' && !keepViewer)) {
             <!-- Show loader while access is being (re)checked. This keeps the
                  viewer (and its thumbnail placeholder) hidden until access is
-                 confirmed, so a denied page never briefly flashes its thumb. -->
+                 confirmed, so a denied page never briefly flashes its thumb.
+                 A page turn after an accessible page keeps the viewer instead
+                 (keepViewer): it shows the previous page and holds the new one
+                 back until the check passes. -->
             <app-inline-loader></app-inline-loader>
           } @else {
             @let articleMetadata = articleMetadata$ | async;
@@ -277,7 +279,8 @@
                   </app-georeference-viewer>
                 } @else {
                   <app-iiif-viewer *ngIf="detailViewService.currentPagePid && !(detailViewService.loading$ | async)"
-                                   [metadata]="document" [imagePid]="detailViewService.currentPagePid">
+                                   [metadata]="document" [imagePid]="detailViewService.currentPagePid"
+                                   [holdPage]="checkState === 'LOADING'">
                   </app-iiif-viewer>
                 }
               }
