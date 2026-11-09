@@ -429,6 +429,18 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
     this.mobileNavVisible.set(true);
   }
 
+  /**
+   * A hit picked in the mobile results panel opens that page, so the panel
+   * closes to show it, like a pick in the pages panel. Its prev/next buttons and
+   * paginator keep it open.
+   */
+  onMobileResultClick(event: MouseEvent): void {
+    if ((event.target as HTMLElement | null)?.closest('app-record-item')) {
+      this.mobileSectionOpen.set(false);
+      this.onMobileSectionClosed();
+    }
+  }
+
   /** Section panel dismissed (its close button or Escape): no section active. */
   onMobileSectionClosed() {
     this.mobileSectionOpen.set(false);

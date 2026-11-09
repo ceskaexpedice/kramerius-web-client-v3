@@ -122,6 +122,13 @@ export class IIIFViewerService {
   private mapModeSubject = new BehaviorSubject<boolean>(false);
   public mapMode$ = this.mapModeSubject.asObservable();
   private lockedZoom: number | null = null;
+  /** Left edge (viewport coordinates) of the locked view, kept across pages. */
+  private lockedLeft: number | null = null;
+  /**
+   * The current viewer already shows the locked view. Until then its own
+   * opening (home) view must not be taken for the reader's choice.
+   */
+  private lockedViewApplied = false;
   private scrollLockHandler: ((event: any) => void) | null = null;
 
   private testFallbackMode = false;
@@ -284,6 +291,10 @@ export class IIIFViewerService {
 
   private isSelectionModeSubject = new BehaviorSubject<boolean>(false);
   public isSelectionMode$ = this.isSelectionModeSubject.asObservable();
+  /** Selection mode is on (a drag draws or moves the area, not a swipe). */
+  inSelectionMode(): boolean {
+    return this.isSelectionModeSubject.value;
+  }
 
   /**
    * True once an area has been selected. Like the old client, a finished
@@ -407,6 +418,14 @@ export class IIIFViewerService {
     // Forward this viewer's `open` events into the instance-independent stream
     // so waiters (nextPageFullyLoaded$) survive a viewer swap on page navigation.
     viewer.addHandler('open', () => this.viewerOpenedSubject.next());
+    // While zoom is locked, every zoom or pan the reader finishes becomes the
+    // view the next page opens with (not only the one at the moment of locking).
+    this.lockedViewApplied = false;
+    viewer.addHandler('animation-finish', () => {
+      if (this.viewer === viewer && this.lockedViewApplied) {
+        this.rememberLockedView();
+      }
+    });
     // Re-attach scroll lock handler on new viewer instance if zoom lock is active
     if (this.scrollLockHandler) {
       this.viewer.addHandler('canvas-scroll', this.scrollLockHandler);
@@ -534,6 +553,7 @@ export class IIIFViewerService {
       }
       this.scrollLockHandler = null;
       this.lockedZoom = null;
+      this.lockedLeft = null;
       this.zoomLockSubject.next(false);
     }
     this.mapModeSubject.next(false);
@@ -1427,7 +1447,8 @@ export class IIIFViewerService {
   toggleZoomLock(): void {
     const locked = !this.zoomLockSubject.value;
     if (locked && this.viewer) {
-      this.lockedZoom = this.viewer.viewport.getZoom();
+      this.lockedViewApplied = true;
+      this.rememberLockedView();
       this.scrollLockHandler = (event: any) => {
         // Prevent OSD from zooming
         event.preventDefaultAction = true;
@@ -1448,6 +1469,7 @@ export class IIIFViewerService {
       this.toastService.show('viewer-controls.zoom-lock-enabled', null, 3000);
     } else {
       this.lockedZoom = null;
+      this.lockedLeft = null;
       if (this.viewer && this.scrollLockHandler) {
         this.viewer.removeHandler('canvas-scroll', this.scrollLockHandler);
       }
@@ -1460,14 +1482,35 @@ export class IIIFViewerService {
     return this.zoomLockSubject.value;
   }
 
+  /** Stores the current zoom and left edge as the locked view. */
+  private rememberLockedView(): void {
+    if (!this.viewer) return;
+    const viewport = this.viewer.viewport;
+    this.lockedZoom = viewport.getZoom(true);
+    this.lockedLeft = viewport.getBounds(true).x;
+  }
+
   /**
-   * If zoom lock is active, restore the locked zoom level on the current viewport.
-   * Called by the viewer component after each page change finishes loading.
+   * If zoom lock is active, open the new page the way the reader left the last
+   * one: same zoom and same column (left edge), scrolled to the top of the page,
+   * so reading continues where a new page starts. Called by the viewer
+   * component after each page change opens.
    */
   applyLockedZoom(): void {
-    if (this.lockedZoom !== null && this.viewer) {
-      this.viewer.viewport.zoomTo(this.lockedZoom, undefined, true);
-    }
+    if (this.lockedZoom === null || !this.viewer) return;
+    const viewport = this.viewer.viewport;
+    viewport.zoomTo(this.lockedZoom, undefined, true);
+
+    const bounds = viewport.getBounds(true);
+    const page = this.viewer.world.getHomeBounds();
+    const centerX = (this.lockedLeft ?? bounds.x) + bounds.width / 2;
+    // A view taller than the page keeps it centred vertically; otherwise start
+    // at the top edge of the page.
+    const centerY = bounds.height >= page.height
+      ? page.y + page.height / 2
+      : page.y + bounds.height / 2;
+    viewport.panTo(new OpenSeadragon.Point(centerX, centerY), true);
+    this.lockedViewApplied = true;
   }
 
   /**

@@ -2,6 +2,7 @@ import { Component, effect, ElementRef, inject, QueryList, ViewChildren } from '
 import { AsyncPipe, NgIf } from '@angular/common';
 import { DetailArticleItemComponent } from '../detail-article-item/detail-article-item.component';
 import { DetailViewService } from '../../services/detail-view.service';
+import { BreakpointService } from '../../../../shared/services/breakpoint.service';
 
 @Component({
   selector: 'app-detail-articles-list',
@@ -16,6 +17,7 @@ import { DetailViewService } from '../../services/detail-view.service';
 })
 export class DetailArticlesListComponent {
   public detailViewService = inject(DetailViewService);
+  private breakpointService = inject(BreakpointService);
 
   @ViewChildren(DetailArticleItemComponent, { read: ElementRef })
   articleItems!: QueryList<ElementRef>;
@@ -29,6 +31,7 @@ export class DetailArticlesListComponent {
 
   clickedArticle(index: number) {
     this.detailViewService.goToArticle(index);
+    this.breakpointService.closeOverlaySidebar();
   }
 
   scrollToActiveArticle() {

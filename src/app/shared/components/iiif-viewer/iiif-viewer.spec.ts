@@ -1,62 +1,152 @@
 import { IIIFViewer } from './iiif-viewer';
 
 /**
- * Regression tests for issue #161: swipe page-turning stopped working once the
- * AI panel split the viewer, and in portrait generally.
+ * Swipe page-turning on touch devices.
  *
- * The gate is isAtBaseZoom(), which used to compare the current zoom against
- * getHomeZoom() alone. updateMinZoomLevel() raises minZoomLevel to fit-height,
- * which in a tall/narrow container sits well above home zoom — so the viewer
- * rested above its own tolerance and every swipe was rejected.
+ * A swipe turns the page only from a page edge that was in view when the drag
+ * started, so a zoomed-in reader pans with a drag and turns the page by
+ * dragging past the edge. It used to be gated on "zoom within 15% of home",
+ * which killed swiping after any pinch and under zoom lock, and on a 600 ms
+ * time limit, which ignored slower drags (mobile testing 2. 11., P1).
+ * Issue #161 (fitted page in a tall or split viewer must swipe) still holds:
+ * a fitted page shows both of its edges.
  */
-describe('IIIFViewer.isAtBaseZoom', () => {
+describe('IIIFViewer swipe', () => {
 
-  /**
-   * Drives the real isAtBaseZoom() against a stub viewport, so the arithmetic
-   * under test is the component's own.
-   */
-  function atBaseZoom(opts: { currentZoom: number; homeZoom: number; minZoomLevel: number }): boolean {
+  const WIDTH = 390;
+
+  type Rect = { x: number; y: number; width: number; height: number };
+
+  function makeComponent(view: Rect, page: Rect = { x: 0, y: 0, width: 1, height: 1.4 }) {
     const component = Object.create(IIIFViewer.prototype) as IIIFViewer;
-    (component as any).SWIPE_CONFIG = { zoomTolerance: 1.15 };
+    const navigations: string[] = [];
+    let selectionMode = false;
+    let now = 0;
+
+    (component as any).SWIPE_CONFIG = {
+      minDistanceRatio: 0.25, flickDistance: 50, flickVelocity: 0.3,
+      maxVerticalRatio: 0.5, edgeTolerance: 0.01
+    };
+    (component as any).touchState = {
+      startX: 0, startY: 0, startTime: 0, tracking: false, maxTouches: 0,
+      edges: { left: false, right: false }
+    };
     (component as any).viewer = {
-      minZoomLevel: opts.minZoomLevel,
-      viewport: {
-        getZoom: () => opts.currentZoom,
-        getHomeZoom: () => opts.homeZoom,
+      viewport: { getBounds: () => view },
+      world: { getHomeBounds: () => page },
+    };
+    (component as any).viewerContainer = { nativeElement: { clientWidth: WIDTH } };
+    (component as any).iiifViewerService = { inSelectionMode: () => selectionMode };
+    (component as any).navigateBySwipe = (dir: string) => navigations.push(dir);
+    spyOn(Date, 'now').and.callFake(() => now);
+
+    const touch = (x: number, y = 400) => ({ clientX: x, clientY: y });
+    const c = component as any;
+    return {
+      navigations,
+      setView: (v: Rect) => { view = v; },
+      setSelectionMode: (on: boolean) => { selectionMode = on; },
+      /** One finger from x0 to x1 over `ms` milliseconds. */
+      drag(x0: number, x1: number, ms: number, y1 = 400, duringDrag?: () => void) {
+        now = 0;
+        c.handleTouchStart({ touches: [touch(x0)] });
+        duringDrag?.();
+        c.handleTouchMove({ touches: [touch(x1, y1)] });
+        now = ms;
+        c.handleTouchEnd({ touches: [], changedTouches: [touch(x1, y1)], preventDefault: () => {} });
+      },
+      /** Pinch with two fingers, then lift one and drag the other. */
+      pinchThenDrag(x0: number, x1: number) {
+        now = 0;
+        c.handleTouchStart({ touches: [touch(x0)] });
+        c.handleTouchStart({ touches: [touch(x0), touch(x0 - 100)] });
+        c.handleTouchMove({ touches: [touch(x0), touch(x0 - 150)] });
+        c.handleTouchEnd({ touches: [touch(x0)], changedTouches: [touch(x0 - 150)], preventDefault: () => {} });
+        c.handleTouchMove({ touches: [touch(x1)] });
+        now = 200;
+        c.handleTouchEnd({ touches: [], changedTouches: [touch(x1)], preventDefault: () => {} });
       },
     };
-    return (component as any).isAtBaseZoom();
   }
 
-  it('treats a portrait viewer resting at fit-height as un-zoomed', () => {
-    // Phone portrait, 2000x3000 image: home=1.0 but minZoomLevel=1.197,
-    // so the viewport rests at 1.197 without the user zooming at all.
-    expect(atBaseZoom({ currentZoom: 1.197, homeZoom: 1.0, minZoomLevel: 1.197 })).toBe(true);
+  const FITTED: Rect = { x: 0, y: -0.2, width: 1, height: 1.75 };
+
+  it('turns the page on a quick swipe at the fitted view', () => {
+    const t = makeComponent(FITTED);
+    t.drag(300, 100, 200);
+    expect(t.navigations).toEqual(['left']);
+    t.drag(100, 300, 200);
+    expect(t.navigations).toEqual(['left', 'right']);
   });
 
-  it('treats the half-width AI split view as un-zoomed', () => {
-    // Same image at half width: minZoomLevel more than doubles.
-    expect(atBaseZoom({ currentZoom: 2.393, homeZoom: 1.0, minZoomLevel: 2.393 })).toBe(true);
+  it('turns the page on a slow but long drag (no time limit)', () => {
+    const t = makeComponent(FITTED);
+    t.drag(300, 100, 1500);
+    expect(t.navigations).toEqual(['left']);
   });
 
-  it('still reports a genuinely zoomed-in viewer as zoomed', () => {
-    // User pinch-zoomed well past the resting level.
-    expect(atBaseZoom({ currentZoom: 5.0, homeZoom: 1.0, minZoomLevel: 2.393 })).toBe(false);
+  it('ignores a short slow drag', () => {
+    const t = makeComponent(FITTED);
+    t.drag(300, 240, 1000);
+    expect(t.navigations).toEqual([]);
   });
 
-  it('allows a small amount of zoom within the tolerance', () => {
-    expect(atBaseZoom({ currentZoom: 2.5, homeZoom: 1.0, minZoomLevel: 2.393 })).toBe(true);
-    expect(atBaseZoom({ currentZoom: 2.76, homeZoom: 1.0, minZoomLevel: 2.393 })).toBe(false);
+  it('ignores a mostly vertical drag', () => {
+    const t = makeComponent(FITTED);
+    t.drag(300, 150, 200, 700);
+    expect(t.navigations).toEqual([]);
   });
 
-  it('keeps working where home zoom is already the resting zoom', () => {
-    // Landscape / desktop: minZoomLevel equals home zoom, the case that always worked.
-    expect(atBaseZoom({ currentZoom: 0.371, homeZoom: 0.371, minZoomLevel: 0.371 })).toBe(true);
-    expect(atBaseZoom({ currentZoom: 1.5, homeZoom: 0.371, minZoomLevel: 0.371 })).toBe(false);
+  it('pans, not turns, when zoomed in mid-page', () => {
+    // Zoomed 2.5x on the middle of the page: neither edge in view.
+    const t = makeComponent({ x: 0.3, y: 0.3, width: 0.4, height: 0.7 });
+    t.drag(300, 100, 200);
+    t.drag(100, 300, 200);
+    expect(t.navigations).toEqual([]);
   });
 
-  it('tolerates a viewer with no minZoomLevel set', () => {
-    expect(atBaseZoom({ currentZoom: 1.0, homeZoom: 1.0, minZoomLevel: 0 })).toBe(true);
+  it('turns to the next page when zoomed in with the right edge in view', () => {
+    const t = makeComponent({ x: 0.6, y: 0.3, width: 0.4, height: 0.7 });
+    t.drag(300, 100, 200);
+    expect(t.navigations).toEqual(['left']);
+    // ...but not back: the left edge is out of view.
+    t.drag(100, 300, 200);
+    expect(t.navigations).toEqual(['left']);
+  });
+
+  it('turns to the previous page when zoomed in with the left edge in view', () => {
+    const t = makeComponent({ x: 0, y: 0.3, width: 0.4, height: 0.7 });
+    t.drag(100, 300, 200);
+    expect(t.navigations).toEqual(['right']);
+  });
+
+  it('judges the edges where the drag started, not where it panned to', () => {
+    const t = makeComponent({ x: 0.3, y: 0.3, width: 0.4, height: 0.7 });
+    // The drag itself pans the right edge into view; it must still not turn the page.
+    t.drag(300, 100, 200, 400, () => t.setView({ x: 0.6, y: 0.3, width: 0.4, height: 0.7 }));
+    expect(t.navigations).toEqual([]);
+  });
+
+  it('treats a page narrower than the viewer (landscape) as fully in view', () => {
+    const t = makeComponent({ x: -0.5, y: 0, width: 2, height: 1.4 });
+    t.drag(300, 100, 200);
+    expect(t.navigations).toEqual(['left']);
+  });
+
+  it('never turns the page from a pinch, not even its one-finger tail', () => {
+    const t = makeComponent(FITTED);
+    t.pinchThenDrag(300, 50);
+    expect(t.navigations).toEqual([]);
+    // The next ordinary swipe works again.
+    t.drag(300, 100, 200);
+    expect(t.navigations).toEqual(['left']);
+  });
+
+  it('does not turn the page while an area is being selected', () => {
+    const t = makeComponent(FITTED);
+    t.setSelectionMode(true);
+    t.drag(300, 100, 200);
+    expect(t.navigations).toEqual([]);
   });
 
 });

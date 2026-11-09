@@ -207,21 +207,30 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   public selectionRect: { top: number, left: number } | null = null;
   public showSelectionControls = false;
 
-  // Swipe detection configuration
+  // Swipe detection configuration. A swipe turns the page only from a page
+  // edge the reader can already see (see visiblePageEdges), so with the page
+  // zoomed in a drag pans it and only a drag past its edge turns the page.
+  // There is no time limit: a slow, long drag counts as much as a quick flick.
   private readonly SWIPE_CONFIG = {
-    minDistance: 50,        // Minimum horizontal distance in pixels
-    maxTime: 600,           // Maximum gesture duration in ms
+    minDistanceRatio: 0.25, // A slow drag must cover this share of the viewer width
+    flickDistance: 50,      // A quick flick needs only this many px...
+    flickVelocity: 0.3,     // ...at this speed (px/ms)
     maxVerticalRatio: 0.5,  // Max vertical/horizontal ratio (prevents diagonal swipes)
-    zoomTolerance: 1.15     // Zoom level tolerance (15% above home zoom)
+    edgeTolerance: 0.01     // Share of the view width a page edge may sit outside it
   } as const;
 
-  // Touch tracking state
+  // Touch tracking state for the gesture in progress (first finger down to
+  // last finger up).
   private touchState = {
     startX: 0,
     startY: 0,
     startTime: 0,
-    isSwiping: false,
-    touchCount: 0
+    tracking: false,
+    // Most fingers down at once during the gesture: a pinch is never a swipe,
+    // not even its one-finger tail after the other finger lifts.
+    maxTouches: 0,
+    // Page edges visible when the gesture started.
+    edges: { left: false, right: false }
   };
 
   private readonly TEST_FALLBACK = false;
@@ -421,6 +430,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       container.removeEventListener('touchstart', this.onTouchStart);
       container.removeEventListener('touchmove', this.onTouchMove);
       container.removeEventListener('touchend', this.onTouchEnd);
+      container.removeEventListener('touchcancel', this.onTouchCancel);
     }
 
     if (this.viewer) {
@@ -797,7 +807,8 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       const fitted = Math.max(viewport.getHomeZoom(), (this.viewer as any).minZoomLevel || 0);
       return Math.abs(viewport.getZoom(true) - fitted) <= fitted * 0.02;
     };
-    this.viewer.addHandler('open', () => { this.atHome = true; });
+    // A locked zoom is the reader's choice, so a layout change must not re-fit it.
+    this.viewer.addHandler('open', () => { this.atHome = !this.iiifViewerService.isZoomLocked(); });
     this.viewer.addHandler('animation-finish', () => {
       if (this.resizeSettle) return;
       this.atHome = isAtFittedZoom();
@@ -1372,17 +1383,19 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   }
 
   /**
-   * Check if viewer is at base zoom level (not zoomed in)
+   * Which horizontal edges of the page (both pages in book mode) the viewport
+   * shows. With the whole width in view - the fitted, un-zoomed page in any
+   * container (issue #161) - both do.
    */
-  private isAtBaseZoom(): boolean {
-    if (!this.viewer) return false;
-
-    const viewport = this.viewer.viewport;
-    const currentZoom = viewport.getZoom();
-
-    const restingZoom = Math.max(viewport.getHomeZoom(), (this.viewer as any).minZoomLevel || 0);
-
-    return currentZoom <= restingZoom * this.SWIPE_CONFIG.zoomTolerance;
+  private visiblePageEdges(): { left: boolean; right: boolean } {
+    if (!this.viewer) return { left: false, right: false };
+    const view = this.viewer.viewport.getBounds(true);
+    const page = this.viewer.world.getHomeBounds();
+    const tolerance = view.width * this.SWIPE_CONFIG.edgeTolerance;
+    return {
+      left: view.x <= page.x + tolerance,
+      right: view.x + view.width >= page.x + page.width - tolerance
+    };
   }
 
   /**
@@ -1400,91 +1413,92 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   /**
    * Setup native touch event listeners for swipe navigation
-   * Uses native events for maximum compatibility across browsers and devices
+   * Uses native events for maximum compatibility across browsers and devices.
+   * The handlers are arrow functions passed as they are (no bind), so a second
+   * call (direct-image fallback re-creates the viewer) does not add them twice
+   * and ngOnDestroy can remove them.
    */
   private setupNativeTouchListeners(): void {
     const container = this.viewerContainer.nativeElement;
 
-    container.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: true });
-    container.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: true });
-    container.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: false });
+    container.addEventListener('touchstart', this.onTouchStart, { passive: true });
+    container.addEventListener('touchmove', this.onTouchMove, { passive: true });
+    container.addEventListener('touchend', this.onTouchEnd, { passive: false });
+    container.addEventListener('touchcancel', this.onTouchCancel, { passive: true });
+  }
+
+  // Stable references for add/removeEventListener; the logic lives in the
+  // handle* methods.
+  private onTouchStart = (e: TouchEvent): void => this.handleTouchStart(e);
+  private onTouchMove = (e: TouchEvent): void => this.handleTouchMove(e);
+  private onTouchEnd = (e: TouchEvent): void => this.handleTouchEnd(e);
+  private onTouchCancel = (): void => this.resetTouchState();
+
+  /**
+   * Touch start. The first finger starts a gesture and records where it is and
+   * which page edges are visible; a further finger only marks it as multi-touch.
+   */
+  private handleTouchStart(e: TouchEvent): void {
+    if (!this.touchState.tracking && e.touches.length === 1) {
+      this.touchState.startX = e.touches[0].clientX;
+      this.touchState.startY = e.touches[0].clientY;
+      this.touchState.startTime = Date.now();
+      this.touchState.tracking = true;
+      this.touchState.edges = this.visiblePageEdges();
+    }
+    this.touchState.maxTouches = Math.max(this.touchState.maxTouches, e.touches.length);
+  }
+
+  private handleTouchMove(e: TouchEvent): void {
+    this.touchState.maxTouches = Math.max(this.touchState.maxTouches, e.touches.length);
   }
 
   /**
-   * Handle touch start - record initial touch position and time
+   * Touch end. Once the last finger lifts, a one-finger horizontal drag that is
+   * long enough (or a quick flick) turns the page - but only from an edge that
+   * was in view when the drag started: swiping left needs the right edge,
+   * swiping right the left one. Zoomed in mid-page, the same drag just pans.
    */
-  private onTouchStart = (e: TouchEvent): void => {
-    // Only track single-finger swipes (multi-touch is for pinch-zoom)
-    if (e.touches.length !== 1) {
-      this.touchState.isSwiping = false;
-      return;
-    }
+  private handleTouchEnd(e: TouchEvent): void {
+    // Fingers still down: the gesture is not over yet.
+    if (e.touches.length > 0) return;
 
-    this.touchState.startX = e.touches[0].clientX;
-    this.touchState.startY = e.touches[0].clientY;
-    this.touchState.startTime = Date.now();
-    this.touchState.touchCount = e.touches.length;
-    this.touchState.isSwiping = false;
-  };
-
-  /**
-   * Handle touch move - mark as swiping if user is dragging
-   */
-  private onTouchMove = (e: TouchEvent): void => {
-    // Ignore if multi-touch (pinch-zoom)
-    if (e.touches.length > 1 || this.touchState.touchCount > 1) {
-      this.touchState.isSwiping = false;
-      return;
-    }
-
-    this.touchState.isSwiping = true;
-  };
-
-  /**
-   * Handle touch end - detect and handle swipe gestures
-   */
-  private onTouchEnd = (e: TouchEvent): void => {
-    // Validate gesture prerequisites
-    if (!this.viewer || !this.touchState.isSwiping || e.changedTouches.length !== 1) {
-      this.resetTouchState();
-      return;
-    }
-
-    // Ignore if multi-touch was used (pinch-zoom)
-    if (this.touchState.touchCount > 1) {
-      this.resetTouchState();
-      return;
-    }
-
+    const state = this.touchState;
     const touch = e.changedTouches[0];
-    const deltaX = touch.clientX - this.touchState.startX;
-    const deltaY = touch.clientY - this.touchState.startY;
-    const duration = Date.now() - this.touchState.startTime;
+    if (!this.viewer || !state.tracking || state.maxTouches !== 1 || !touch
+      || this.iiifViewerService.inSelectionMode()) {
+      this.resetTouchState();
+      return;
+    }
 
+    const deltaX = touch.clientX - state.startX;
+    const deltaY = touch.clientY - state.startY;
+    const duration = Math.max(1, Date.now() - state.startTime);
     const absDeltaX = Math.abs(deltaX);
     const absDeltaY = Math.abs(deltaY);
+    const width = this.viewerContainer.nativeElement.clientWidth || window.innerWidth;
 
-    // Check swipe validity
     const isHorizontal = absDeltaX > absDeltaY * (1 / this.SWIPE_CONFIG.maxVerticalRatio);
-    const isLongEnough = absDeltaX >= this.SWIPE_CONFIG.minDistance;
-    const isFastEnough = duration <= this.SWIPE_CONFIG.maxTime;
-    const isAtBase = this.isAtBaseZoom();
+    const isLongDrag = absDeltaX >= width * this.SWIPE_CONFIG.minDistanceRatio;
+    const isFlick = absDeltaX >= this.SWIPE_CONFIG.flickDistance
+      && absDeltaX / duration >= this.SWIPE_CONFIG.flickVelocity;
+    const direction = deltaX < 0 ? 'left' : 'right';
+    const fromEdge = direction === 'left' ? state.edges.right : state.edges.left;
 
-    // Execute navigation if all conditions met
-    if (isHorizontal && isLongEnough && isFastEnough && isAtBase) {
+    if (isHorizontal && (isLongDrag || isFlick) && fromEdge) {
       e.preventDefault();
-      this.navigateBySwipe(deltaX < 0 ? 'left' : 'right');
+      this.navigateBySwipe(direction);
     }
 
     this.resetTouchState();
-  };
+  }
 
   /**
    * Reset touch state after gesture completes
    */
   private resetTouchState(): void {
-    this.touchState.isSwiping = false;
-    this.touchState.touchCount = 0;
+    this.touchState.tracking = false;
+    this.touchState.maxTouches = 0;
   }
 
   /**

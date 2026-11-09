@@ -16,6 +16,7 @@ import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrollin
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DetailPageItemComponent } from '../detail-page-item/detail-page-item.component';
 import { DetailViewService } from '../../services/detail-view.service';
+import { BreakpointService } from '../../../../shared/services/breakpoint.service';
 import { Page } from '../../../../shared/models/page.model';
 import { uiZoom } from '../../../../shared/utils/ui-zoom';
 
@@ -33,6 +34,7 @@ import { uiZoom } from '../../../../shared/utils/ui-zoom';
 })
 export class DetailPagesGridComponent implements AfterViewInit, OnDestroy {
   public detailViewService = inject(DetailViewService);
+  private breakpointService = inject(BreakpointService);
 
   @ViewChild(CdkVirtualScrollViewport) viewport?: CdkVirtualScrollViewport;
   @ViewChild('gridMeasure') gridMeasure?: ElementRef<HTMLElement>;
@@ -136,6 +138,7 @@ export class DetailPagesGridComponent implements AfterViewInit, OnDestroy {
 
   clickedPage(pid: string) {
     this.detailViewService.navigateToPage(pid);
+    this.breakpointService.closeOverlaySidebar();
   }
 
   scrollToActivePage() {

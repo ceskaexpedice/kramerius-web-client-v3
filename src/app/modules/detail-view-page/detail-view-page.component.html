@@ -435,7 +435,8 @@
             </app-export-document-section-component>
           }
           @case ('results') {
-            <app-search-results-sidebar [currentDocument]="document">
+            <app-search-results-sidebar [currentDocument]="document"
+                                        (click)="onMobileResultClick($event)">
             </app-search-results-sidebar>
           }
           @case ('ai') {
