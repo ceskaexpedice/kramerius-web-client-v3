@@ -1,7 +1,7 @@
 import { PanelToggleButtonComponent } from '../../shared/components/panel-toggle-button/panel-toggle-button.component';
 import { PanelResizeHandleComponent } from '../../shared/components/panel-resize-handle/panel-resize-handle.component';
 import { METADATA_PANEL_ID } from '../../shared/components/detail-layout/metadata-panel-id';
-import { Component, OnInit, inject, computed, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, computed, signal } from '@angular/core';
 import { FixedPanelComponent } from '../../shared/components/fixed-panel/fixed-panel.component';
 import { CommonModule } from '@angular/common';
 import {Router} from '@angular/router';
@@ -26,6 +26,7 @@ import {AdminSelectionCountComponent} from '../../shared/components/admin-select
 import {AdminModeService} from '../../shared/services';
 import {RecordHandlerService} from '../../shared/services/record-handler.service';
 import {FavoritesPopupHelper} from '../../shared/helpers/favorites-popup.helper';
+import {FavoritesPopupComponent} from '../../shared/components/favorites-popup/favorites-popup.component';
 import {FavoritesService} from '../../shared/services/favorites.service';
 import {PopupPositioningService} from '../../shared/services/popup-positioning.service';
 import {UiStateService} from '../../shared/services/ui-state.service';
@@ -61,6 +62,7 @@ import {SearchDocument} from '../models/search-document';
     NoResultsComponent,
     ScrollHideHeaderDirective,
     FixedPanelComponent,
+    FavoritesPopupComponent,
   ],
   providers: [
     MonographVolumesService,
@@ -69,7 +71,7 @@ import {SearchDocument} from '../models/search-document';
   templateUrl: './monograph-volumes-page.component.html',
   styleUrl: './monograph-volumes-page.component.scss'
 })
-export class MonographVolumesPageComponent implements OnInit {
+export class MonographVolumesPageComponent implements OnInit, OnDestroy {
   public favoritesHelper: FavoritesPopupHelper;
 
   private store = inject(Store);
@@ -107,6 +109,10 @@ export class MonographVolumesPageComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  ngOnDestroy(): void {
+    this.favoritesHelper.cleanup();
+  }
+
   /** Phones: the description opens as a slide-up sheet (no floating panel there). */
   mobileInfoOpen = signal(false);
 
@@ -124,6 +130,10 @@ export class MonographVolumesPageComponent implements OnInit {
 
   onFavoritesClicked(event: Event) {
     this.favoritesHelper.onFavoritesClicked(event, this.parent() || null, true);
+  }
+
+  onFavoritesPopupClose() {
+    this.favoritesHelper.onFavoritesPopupClose();
   }
 
   onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {

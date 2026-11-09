@@ -21,6 +21,9 @@ import { MapSeriesService } from '../map-series/map-series.service';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
 import { BreakpointService } from '../../shared/services/breakpoint.service';
+import { FavoritesService } from '../../shared/services/favorites.service';
+import { PopupPositioningService } from '../../shared/services/popup-positioning.service';
+import { FavoritesPopupHelper } from '../../shared/helpers/favorites-popup.helper';
 
 @Component({
   selector: 'app-collections-page',
@@ -41,6 +44,8 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
   private fixedPanel = inject(FixedPanelService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  /** "Add to my library" popup for the collection itself (#207). */
+  public favoritesHelper = new FavoritesPopupHelper(inject(FavoritesService), inject(PopupPositioningService), this.router);
 
   @ViewChild('descriptionElement') descriptionElement?: ElementRef<HTMLElement>;
 
@@ -73,8 +78,17 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.favoritesHelper.cleanup();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  onFavoritesClicked(event: Event, metadata: Metadata | null) {
+    this.favoritesHelper.onFavoritesClicked(event, metadata);
+  }
+
+  onFavoritesPopupClose() {
+    this.favoritesHelper.onFavoritesPopupClose();
   }
 
   checkIfTruncated(element: HTMLElement) {

@@ -32,6 +32,7 @@ import { PaginatorComponent } from '../../shared/components/paginator/paginator.
 import { FormatNumberPipe } from '../../shared/pipes/format-number.pipe';
 import { MobileNavBarComponent } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
 import { FixedPanelComponent } from '../../shared/components/fixed-panel/fixed-panel.component';
+import { FavoritesPopupComponent } from '../../shared/components/favorites-popup/favorites-popup.component';
 
 const routes: Routes = [
   {
@@ -48,6 +49,7 @@ const routes: Routes = [
     TranslatePipe,
     MobileNavBarComponent,
     FixedPanelComponent,
+    FavoritesPopupComponent,
     FilterSidebarComponent,
     ActionToolbarComponent,
     NgForOf,
