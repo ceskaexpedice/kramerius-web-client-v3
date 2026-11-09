@@ -8,6 +8,7 @@ import { ModsParserService } from '../../services/mods-parser.service';
 import { SearchService } from '../../services/search.service';
 import { MetadataSectionItem } from './metadata-section-item/metadata-section-item';
 import { CollapsibleContent } from './collapsible-content/collapsible-content';
+import { buildMonographUnitChildData, hasMonographUnitChildContent, monographUnitHeading } from './monograph-unit-child';
 import { facetKeysEnum } from '../../../modules/search-results-page/const/facets';
 import { Store } from '@ngrx/store';
 import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
@@ -88,6 +89,23 @@ export class MetadataSection implements OnInit, OnChanges {
 
   private _childData = signal<Metadata | null>(null);
   get childData() { return this._childData(); }
+
+  /**
+   * Heading of the child card. A multivolume part is named by its part number
+   * and name; any other child keeps its own MODS title.
+   */
+  get childHeading(): string {
+    const child = this._childData();
+    if (!child) return '';
+    return this.isMonographUnitDoc()
+      ? monographUnitHeading(child.titles)
+      : (child.titles?.[0]?.title ?? '');
+  }
+
+  /** Imprint lines are rendered only on a multivolume part's card (#190). */
+  get childPublishers(): Publisher[] {
+    return this.isMonographUnitDoc() ? (this._childData()?.publishers ?? []) : [];
+  }
 
   // One row per holding institution, its shelf locators joined (#156 follow-up).
   readonly locations = computed(() => groupLocationsByInstitution(this._data()?.locations ?? []));
@@ -495,15 +513,21 @@ export class MetadataSection implements OnInit, OnChanges {
       try {
         const rootMods = await this.modsParser.getModsOrAggregate(rootPid, 'full', libraryCode);
         if (rootMods) {
-          const child = modsData as any;
-          const hasChildData = child && (
-            child.dateStr ||
-            child.authors?.length > 0 ||
-            child.languages?.length > 0 ||
-            child.locations?.length > 0 ||
-            child.notes?.length > 0
-          );
-          this._childData.set(hasChildData ? child : null);
+          if (this.isMonographUnitDoc()) {
+            // A multivolume part: its card carries the part's own imprint (#190).
+            const child = buildMonographUnitChildData(modsData, solrData?.uuid === this.uuid ? solrData?.dateStr : undefined);
+            this._childData.set(hasMonographUnitChildContent(child) ? child : null);
+          } else {
+            const child = modsData as any;
+            const hasChildData = child && (
+              child.dateStr ||
+              child.authors?.length > 0 ||
+              child.languages?.length > 0 ||
+              child.locations?.length > 0 ||
+              child.notes?.length > 0
+            );
+            this._childData.set(hasChildData ? child : null);
+          }
           baseMods = { ...rootMods };
           this.mergeMissing(baseMods, modsData as any);
         }
