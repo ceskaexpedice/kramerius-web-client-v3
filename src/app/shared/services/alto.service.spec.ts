@@ -142,6 +142,40 @@ describe('AltoService', () => {
       expect(matchedIndexes(boxes)).toEqual([0, 1, 4]);
     });
   });
+
+  /**
+   * Newspaper notices open with a bold run-in title — "(Ruderclub „Bruna".)
+   * Die Mitglieder…". When that title fills the first line, the whole notice
+   * used to become an <h3> and render bold, both on the page and in a selected
+   * area. Only a block that is bold all the way through is a heading.
+   */
+  describe('getStyledHtml bold lines', () => {
+    const line = (vpos: number, words: Array<[string, boolean]>) =>
+      `<TextLine HPOS="0" VPOS="${vpos}" WIDTH="300" HEIGHT="20">` +
+      words.map(([w, bold], i) =>
+        `<String CONTENT="${w}" HPOS="${i * 60}" VPOS="${vpos}" WIDTH="50" HEIGHT="20"${bold ? ' STYLE="bold"' : ''}/>`).join('') +
+      `</TextLine>`;
+    const alto = (lines: string) => `<?xml version="1.0" encoding="UTF-8"?>
+      <alto><Layout><Page WIDTH="1000" HEIGHT="1000"><PrintSpace>
+        <TextBlock HPOS="0" VPOS="0" WIDTH="300" HEIGHT="100">${lines}</TextBlock>
+      </PrintSpace></Page></Layout></alto>`;
+
+    it('keeps a paragraph whose first line is a bold run-in title, bolding only the title', () => {
+      const html = service.getStyledHtml(alto(
+        line(0, [['(Ruderclub', true], ['Bruna.)', true]]) +
+        line(25, [['Die', false], ['Mitglieder', false]])));
+
+      expect(html).toBe('<p><strong>(Ruderclub</strong> <strong>Bruna.)</strong> Die Mitglieder</p>');
+    });
+
+    it('makes a block that is bold throughout a heading', () => {
+      const html = service.getStyledHtml(alto(
+        line(0, [['Theater,', true], ['Kunst', true]]) +
+        line(25, [['und', true], ['Literatur.', true]])));
+
+      expect(html).toBe('<h3>Theater, Kunst und Literatur.</h3>');
+    });
+  });
 });
 
 /**
@@ -291,13 +325,14 @@ describe('AltoService OCR fallback', () => {
       expect(blocks!).toEqual([]);
     });
 
-    it('fetchRegionText returns only the text inside the region, as plain text', () => {
+    it('fetchRegionText returns only the text inside the region, with its formatting', () => {
       let result: { text: string; html: string } | undefined;
       service.fetchRegionText('uuid:p1', region).subscribe(r => result = r);
 
       http.expectOne('/items/uuid:p1/ocr/alto').flush(ALTO);
 
-      expect(result).toEqual({ text: 'Hello', html: '' });
+      expect(result!.text).toBe('Hello');
+      expect(result!.html).toBe('<p>Hello</p>');
     });
 
     it('fetchRegionText is empty without ALTO', () => {

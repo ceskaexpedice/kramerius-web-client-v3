@@ -4,6 +4,10 @@
       <span class="ai-content-toolbar__title">{{ headerKey | translate }}</span>
     }
 
+    @if (aiPanelService.currentRegion() && aiPanelService.contentType() !== 'text') {
+      <span class="ai-content-toolbar__scope">{{ 'ai.scope-selection' | translate }}</span>
+    }
+
     @if (aiPanelService.contentType() === 'translation') {
       <app-language-select
         [languages]="translationLanguages"

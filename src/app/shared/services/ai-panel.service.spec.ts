@@ -162,6 +162,15 @@ describe('AiPanelService with a selected area', () => {
     expect(service.content()).toBe('translated');
   });
 
+  it('translates the selected area with its formatting when ALTO styles it', () => {
+    service = configure();
+    fetchRegionText.and.returnValue(of({ text: 'selected text', html: '<h2>Heading</h2><p>selected text</p>' }));
+    service.showTranslation('uuid:page-1', 'en', region);
+
+    expect(translate).toHaveBeenCalledWith('<h2>Heading</h2><p>selected text</p>', 'en', 'google', 'html');
+    expect(service.styledHtml()).toBe('translated');
+  });
+
   it('keeps the area when the language is changed', () => {
     service = configure();
     service.showTranslation('uuid:page-1', 'en', region);

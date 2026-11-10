@@ -839,6 +839,7 @@
   "ai.login-button": "Zaloguj się",
   "ai.quota-exceeded": "Miesięczny limit funkcji AI został wyczerpany. Spróbuj ponownie później.",
   "ai.no-text-in-selection": "W zaznaczonym obszarze nie znaleziono tekstu.",
+  "ai.scope-selection": "Zaznaczony obszar",
   "ai.unauthorized": "Usługa AI nie mogła autoryzować tego żądania. Spróbuj ponownie później.",
   "settings.tts.language": "Język",
   "settings.tts.voice": "Głos",

@@ -8,6 +8,8 @@ import { SettingsService } from '../../../../modules/settings/settings.service';
 import { DocumentInfoService } from '../../../services/document-info.service';
 import { ConfigService } from '../../../../core/config/config.service';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { IIIFViewerService } from '../../../services/iiif-viewer.service';
+import { TextRegion } from '../../../services/alto.service';
 
 @Component({
   selector: 'app-ai-actions',
@@ -26,6 +28,7 @@ export class AiActionsComponent {
   private settingsService = inject(SettingsService);
   documentInfoService = inject(DocumentInfoService);
   private configService = inject(ConfigService);
+  private iiifViewerService = inject(IIIFViewerService);
 
   /**
    * Whether the page has any OCR to work with.
@@ -78,7 +81,7 @@ export class AiActionsComponent {
     if (this.ttsService.isReading()) {
       this.ttsService.stop();
     } else {
-      this.ttsService.startReading(pid, this.detailViewService.document?.uuid);
+      this.ttsService.startReading(pid, this.detailViewService.document?.uuid, this.selectedRegion());
     }
   }
 
@@ -86,13 +89,24 @@ export class AiActionsComponent {
     if (!this.userService.isLoggedIn || this.actionsDisabled) return;
     const pid = this.detailViewService.currentPagePid;
     if (!pid) return;
-    this.aiPanelService.showTranslation(pid);
+    this.aiPanelService.showTranslation(pid, undefined, this.selectedRegion());
   }
 
   onSummarize(): void {
     if (!this.userService.isLoggedIn || this.actionsDisabled) return;
     const pid = this.detailViewService.currentPagePid;
     if (!pid) return;
-    this.aiPanelService.showSummary(pid);
+    this.aiPanelService.showSummary(pid, this.selectedRegion());
+  }
+
+  /**
+   * The area selected on the scan, if any.
+   *
+   * With a selection on screen the reader means that area, not the page: the
+   * sidebar actions used to ignore it and translate the whole page, which came
+   * back as other articles the reader never selected.
+   */
+  private selectedRegion(): TextRegion | null {
+    return this.iiifViewerService.getSelectedRegion();
   }
 }

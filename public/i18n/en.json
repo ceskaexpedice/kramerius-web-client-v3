@@ -849,6 +849,7 @@
   "ai.login-button": "Log in",
   "ai.quota-exceeded": "The monthly AI usage limit has been reached. Please try again later.",
   "ai.no-text-in-selection": "No text found in the selected area.",
+  "ai.scope-selection": "Selected area",
   "ai.unauthorized": "The AI service could not authorize this request. Please try again later.",
   "settings.tts.language": "Language",
   "settings.tts.voice": "Voice",

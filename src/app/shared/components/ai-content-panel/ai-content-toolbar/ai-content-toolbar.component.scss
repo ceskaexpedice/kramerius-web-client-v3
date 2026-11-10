@@ -20,6 +20,17 @@
     min-width: 0;
   }
 
+  // Tells the reader the result covers only the area selected on the scan.
+  &__scope {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border-base);
+    font-size: var(--font-size-small);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+  }
+
   &__title {
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-semi-bold);
