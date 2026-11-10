@@ -784,9 +784,13 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       },
       minZoomLevel: 0,
       maxZoomLevel: 10,
+      // Kept at 1 only while the page fits the view; updatePanConstraint loosens
+      // it once the reader zooms in.
       visibilityRatio: 1,
       constrainDuringPan: false
     });
+    this.viewer.addHandler('zoom', () => this.updatePanConstraint());
+    this.viewer.addHandler('resize', () => this.updatePanConstraint());
 
     // Hand the new viewer to the watermark overlay, which projects its image
     // coordinates through this viewport.
@@ -810,6 +814,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       this.updateMinZoomLevel();
       // Restore locked zoom after the new page opens
       this.iiifViewerService.applyLockedZoom();
+      this.updatePanConstraint();
 
       // Wait for image content to be rendered before clearing thumbnail background.
       // For IIIF tiled images this creates a blur→sharp progressive loading effect.
@@ -1547,6 +1552,25 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private resetTouchState(): void {
     this.touchState.tracking = false;
     this.touchState.maxTouches = 0;
+  }
+
+  /**
+   * How far the reader may pan the page off the view. With visibilityRatio 1 a
+   * zoomed-in page has to fill the whole view, so on release OpenSeadragon
+   * springs its edge back to the viewer edge and a small article near the left
+   * (or right) margin can't be dragged to the middle to read it. Once the page
+   * is wider than the view, half the view may show empty space instead; while
+   * it fits, it stays pinned, so the fitted page (and a touch swipe that turns
+   * it) doesn't slide aside.
+   */
+  private updatePanConstraint(): void {
+    const viewport = this.viewer?.viewport as any;
+    if (!viewport) return;
+    const page = this.viewer!.world.getHomeBounds();
+    // Viewport coordinates: the view is 1 / zoom wide. Target zoom, so the
+    // constraint applied at the end of a zoom animation already matches it.
+    const zoomedIn = page.width * viewport.getZoom(false) > 1.001;
+    viewport.visibilityRatio = zoomedIn ? 0.5 : 1;
   }
 
   /**
