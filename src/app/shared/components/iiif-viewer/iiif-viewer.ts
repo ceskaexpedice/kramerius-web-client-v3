@@ -23,6 +23,7 @@ import { Subject, Subscription, switchMap, EMPTY, catchError, skip, distinctUnti
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import OpenSeadragon from 'openseadragon';
 import { SelectionControls } from '../selection-controls/selection-controls';
+import { placeSelectionControls } from '../selection-controls/selection-controls-placement';
 import { CommonModule } from '@angular/common';
 import { ViewerWatermarkComponent } from '../viewer-watermark/viewer-watermark.component';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -833,10 +834,11 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       this.watchThumbnailPlaceholder();
     });
 
-    this.viewer.addHandler('update-viewport', () => {
-      if (this.showSelectionControls) {
-
-      }
+    // The viewer area changes size when the AI panel or the sidebar opens or
+    // closes. Re-place the toolbar for the new size — beside the selection if
+    // the reader has not moved it, kept inside the viewer if they have.
+    this.viewer.addHandler('resize', () => {
+      this.ngZone.run(() => this.updateControlsPosition());
     });
 
     this.viewer.addHandler('animation', () => {
@@ -1296,28 +1298,15 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       return;
     }
 
-    // Preferred placement: just outside the selection's right edge.
-    let left = elementRect.x + elementRect.width + gap;
-
-    if (containerWidth > 0) {
-      const overflowsRight = left + controlsWidth + margin > containerWidth;
-      if (overflowsRight) {
-        // Flip to the selection's left edge; if that would also clip (selection
-        // is wide or hugs the left), clamp inside the viewer instead.
-        const flipped = elementRect.x - gap - controlsWidth;
-        left = flipped >= margin
-          ? flipped
-          : Math.max(margin, containerWidth - controlsWidth - margin);
-      }
-    }
-
-    // Vertically the controls track the selection's top edge, clamped so they
-    // never run past the bottom (or above the top) of the viewer.
-    let top = elementRect.y;
-    if (containerHeight > 0) {
-      const maxTop = Math.max(margin, containerHeight - controlsHeight - margin);
-      top = Math.min(Math.max(top, margin), maxTop);
-    }
+    // Not moved by the reader: put it beside the selection wherever there is
+    // room, off the selected area when at all possible. Recomputed on every
+    // viewport change and viewer resize (AI panel opened/closed, sidebar…).
+    const { top, left } = placeSelectionControls(
+      elementRect,
+      { width: containerWidth, height: containerHeight },
+      { width: controlsWidth, height: controlsHeight },
+      { gap, margin },
+    );
 
     // `update-viewport` and `animation` fire continuously. Allocating a new
     // object each time would hand the template a fresh identity on every frame
