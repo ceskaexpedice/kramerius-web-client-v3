@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { ConfigService } from '../../../core/config';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
@@ -20,6 +20,21 @@ export class SelectionControls {
     @Output() translate = new EventEmitter<void>();
     @Output() summarize = new EventEmitter<void>();
     @Output() cancel = new EventEmitter<void>();
+
+    /** Collapsed: only the drag handle is shown. */
+    @Input() collapsed = false;
+    @Output() collapsedChange = new EventEmitter<boolean>();
+    /** Incremental pointer movement (px) while the toolbar is dragged by its handle. */
+    @Output() dragBy = new EventEmitter<{ dx: number; dy: number }>();
+
+    /** Movement (px) below which a press on the handle counts as a click, not a drag. */
+    private static readonly DRAG_THRESHOLD = 4;
+    private dragPointerId: number | null = null;
+    private lastX = 0;
+    private lastY = 0;
+    private dragDistance = 0;
+    /** Set when a press turned into a drag, so the click that follows it is ignored. */
+    private suppressNextClick = false;
 
     private configService = inject(ConfigService);
     private detailViewService = inject(DetailViewService, { optional: true });
@@ -61,6 +76,56 @@ export class SelectionControls {
             && this.configService.isSelectionControlEnabled('ai')
             && this.userService.isLoggedIn
             && this.detailViewService.isActionAllowed('text');
+    }
+
+    onHandleClick() {
+        if (this.suppressNextClick) {
+            this.suppressNextClick = false;
+            return;
+        }
+        this.collapsed = !this.collapsed;
+        this.collapsedChange.emit(this.collapsed);
+    }
+
+    // The toolbar lives inside the OpenSeadragon element, so every pointer
+    // event on the handle is stopped here — otherwise OSD would pan the image
+    // (or the selection plugin would start a new rectangle) under the drag.
+    onHandlePointerDown(event: PointerEvent) {
+        if (event.button !== 0) return;
+        event.stopPropagation();
+        this.dragPointerId = event.pointerId;
+        this.dragDistance = 0;
+        this.suppressNextClick = false;
+        this.lastX = event.clientX;
+        this.lastY = event.clientY;
+        try {
+            (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+        } catch { /* pointer already gone (or synthetic) — drag still works while over the handle */ }
+    }
+
+    onHandlePointerMove(event: PointerEvent) {
+        if (this.dragPointerId !== event.pointerId) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const dx = event.clientX - this.lastX;
+        const dy = event.clientY - this.lastY;
+        if (this.dragDistance < SelectionControls.DRAG_THRESHOLD) {
+            this.dragDistance += Math.abs(dx) + Math.abs(dy);
+            if (this.dragDistance < SelectionControls.DRAG_THRESHOLD) return;
+        }
+        this.lastX = event.clientX;
+        this.lastY = event.clientY;
+        this.suppressNextClick = true;
+        if (dx || dy) this.dragBy.emit({ dx, dy });
+    }
+
+    onHandlePointerUp(event: PointerEvent) {
+        if (this.dragPointerId !== event.pointerId) return;
+        event.stopPropagation();
+        this.dragPointerId = null;
+        try {
+            (event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId);
+        } catch { /* not captured */ }
     }
 
     onCancel() {

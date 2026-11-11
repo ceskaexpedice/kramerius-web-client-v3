@@ -62,4 +62,49 @@ describe('SelectionControls AI actions', () => {
     expect(translate).toHaveBeenCalled();
     expect(summarize).toHaveBeenCalled();
   });
+
+  it('collapses to just the handle when it is clicked, hiding the actions', () => {
+    const fixture = setup();
+    const c = fixture.componentInstance;
+    const changed = spyOn(c.collapsedChange, 'emit');
+    const el: HTMLElement = fixture.nativeElement;
+
+    (el.querySelector('.drag-handle') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(changed).toHaveBeenCalledWith(true);
+    expect(el.querySelector('.btn-cancel')).toBeNull();
+    expect(aiButtons(el)).toBe(0);
+    expect(el.querySelectorAll('button').length).toBe(1);
+    expect(el.querySelector('.drag-handle')!.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('emits incremental deltas while dragging the handle and stops the events', () => {
+    const fixture = setup();
+    const c = fixture.componentInstance;
+    const moves: { dx: number; dy: number }[] = [];
+    c.dragBy.subscribe(d => moves.push(d));
+    const handle = fixture.nativeElement.querySelector('.drag-handle') as HTMLElement;
+    const parentSpy = jasmine.createSpy('parent');
+    fixture.nativeElement.addEventListener('pointerdown', parentSpy);
+
+    const ev = (type: string, x: number, y: number) =>
+      new PointerEvent(type, { clientX: x, clientY: y, pointerId: 7, button: 0, bubbles: true });
+    handle.dispatchEvent(ev('pointerdown', 100, 100));
+    handle.dispatchEvent(ev('pointermove', 101, 100)); // under the click threshold
+    handle.dispatchEvent(ev('pointermove', 110, 95));
+    handle.dispatchEvent(ev('pointermove', 115, 95));
+    handle.dispatchEvent(ev('pointerup', 115, 95));
+    handle.dispatchEvent(ev('pointermove', 200, 200));
+
+    expect(moves).toEqual([{ dx: 10, dy: -5 }, { dx: 5, dy: 0 }]);
+    expect(parentSpy).not.toHaveBeenCalled();
+
+    // The click that ends a drag must not collapse the toolbar.
+    const changed = spyOn(c.collapsedChange, 'emit');
+    handle.click();
+    expect(changed).not.toHaveBeenCalled();
+    handle.click();
+    expect(changed).toHaveBeenCalledWith(true);
+  });
 });

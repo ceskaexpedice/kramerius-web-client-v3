@@ -214,6 +214,14 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   public selectionRect: { top: number, left: number } | null = null;
   public showSelectionControls = false;
+  /** Kept across selections: once the reader collapses the toolbar it stays collapsed. */
+  public selectionControlsCollapsed = false;
+  /**
+   * Set once the reader drags the toolbar. From then on it stays where they put
+   * it (only clamped to the viewer) instead of tracking the selection's edge,
+   * so it can be moved off text it would otherwise cover. Reset with the selection.
+   */
+  private selectionControlsPinned = false;
 
   // Swipe detection configuration. A swipe turns the page only from a page
   // edge the reader can already see (see visiblePageEdges), so with the page
@@ -329,6 +337,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
           } else {
             this.showSelectionControls = false;
             this.selectionRect = null;
+            this.selectionControlsPinned = false;
             this.currentImageRect = null;
           }
           this.cdr.detectChanges();
@@ -1282,6 +1291,11 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     const gap = IIIFViewer.CONTROLS_GAP;
     const margin = IIIFViewer.CONTROLS_MARGIN;
 
+    if (this.selectionControlsPinned && this.selectionRect) {
+      this.clampPinnedControls(containerWidth, containerHeight, controlsWidth, controlsHeight);
+      return;
+    }
+
     // Preferred placement: just outside the selection's right edge.
     let left = elementRect.x + elementRect.width + gap;
 
@@ -1317,6 +1331,36 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     }
 
     this.selectionRect = { top, left };
+  }
+
+  /** Keeps a dragged toolbar inside the viewer (after a drag, resize or collapse). */
+  private clampPinnedControls(containerWidth: number, containerHeight: number,
+                              controlsWidth: number, controlsHeight: number) {
+    if (!this.selectionRect) return;
+    const margin = IIIFViewer.CONTROLS_MARGIN;
+    if (containerWidth > 0) {
+      const maxLeft = Math.max(margin, containerWidth - controlsWidth - margin);
+      this.selectionRect.left = Math.min(Math.max(this.selectionRect.left, margin), maxLeft);
+    }
+    if (containerHeight > 0) {
+      const maxTop = Math.max(margin, containerHeight - controlsHeight - margin);
+      this.selectionRect.top = Math.min(Math.max(this.selectionRect.top, margin), maxTop);
+    }
+  }
+
+  onSelectionControlsDrag(delta: { dx: number; dy: number }) {
+    if (!this.selectionRect) return;
+    this.selectionControlsPinned = true;
+    this.selectionRect.left += delta.dx;
+    this.selectionRect.top += delta.dy;
+    this.updateControlsPosition();
+  }
+
+  onSelectionControlsCollapsedChange(collapsed: boolean) {
+    this.selectionControlsCollapsed = collapsed;
+    // The toolbar's height changes; re-clamp once the new size is rendered.
+    this.cdr.detectChanges();
+    this.updateControlsPosition();
   }
 
   onText() {

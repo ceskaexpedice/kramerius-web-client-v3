@@ -1,4 +1,19 @@
-<div class="selection-controls">
+<div class="selection-controls" [class.collapsed]="collapsed">
+
+  <!-- One handle: drag moves the toolbar, a click (or Enter/Space) collapses/expands it. -->
+  <button type="button" class="drag-handle"
+    [attr.aria-expanded]="!collapsed"
+    [attr.aria-label]="(collapsed ? 'selection-expand--arialabel' : 'selection-collapse--arialabel') | translate"
+    [title]="((collapsed ? 'selection-expand--arialabel' : 'selection-collapse--arialabel') | translate) + ' · ' + ('selection-move--title' | translate)"
+    (click)="onHandleClick()"
+    (pointerdown)="onHandlePointerDown($event)"
+    (pointermove)="onHandlePointerMove($event)"
+    (pointerup)="onHandlePointerUp($event)"
+    (pointercancel)="onHandlePointerUp($event)">
+    <i class="icon icon-more-horizontal" aria-hidden="true"></i>
+  </button>
+
+  @if (!collapsed) {
 
   @if (showText) {
     <button (click)="onText()" class="button tertiary outlined"
@@ -42,5 +57,6 @@
     [attr.aria-label]="'selection-cancel--arialabel' | translate" [title]="'selection-cancel--arialabel' | translate">
     <i class="icon icon-close" aria-hidden="true"></i>
   </button>
+  }
 
 </div>
