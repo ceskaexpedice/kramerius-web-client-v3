@@ -844,7 +844,6 @@
   "ai.login-button": "Přihlásit se",
   "ai.quota-exceeded": "Měsíční limit AI funkcí byl vyčerpán. Zkuste to prosím později.",
   "ai.no-text-in-selection": "Ve vybrané oblasti nebyl nalezen žádný text.",
-  "ai.scope-selection": "Výřez",
   "ai.unauthorized": "Službu AI se nepodařilo ověřit. Zkuste to prosím později.",
   "settings.tts.language": "Jazyk",
   "settings.tts.voice": "Hlas",

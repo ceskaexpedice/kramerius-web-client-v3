@@ -203,7 +203,13 @@ export class AiPanelService {
     this.currentRegion.set(null);
   }
 
-  showPageText(pagePid: string): void {
+  /**
+   * Shows the full text of the page — or of the selected area — next to the scan.
+   *
+   * The selected area matters when read-aloud replaces a summary of a selection
+   * (see `showReadAlongText`): the transcript must be of the same area.
+   */
+  showPageText(pagePid: string, region?: TextRegion | null): void {
     this.cancelPending();
     this.panelVisible.set(true);
     this.showOriginal.set(true);
@@ -214,15 +220,15 @@ export class AiPanelService {
     this.isLoading.set(true);
     this.error.set(null);
     this.currentPagePid.set(pagePid);
-    this.currentRegion.set(null);
+    this.currentRegion.set(region ?? null);
 
     // Falls back to the plain /ocr/text datastream when the page has no ALTO,
     // which costs only the styling — see `AltoService.fetchPageText`.
-    this.activeSubscription = this.altoService.fetchPageText(pagePid).pipe(take(1)).subscribe({
+    this.activeSubscription = this.fetchText(pagePid, region).pipe(take(1)).subscribe({
       next: ({ text, html }) => {
         this.isLoading.set(false);
         if (!text) {
-          this.error.set('No text found on this page');
+          this.error.set(region ? this.translate.instant('ai.no-text-in-selection') : 'No text found on this page');
           return;
         }
         if (html) {
@@ -236,6 +242,35 @@ export class AiPanelService {
         this.error.set('Failed to load page text');
       }
     });
+  }
+
+  /**
+   * Makes an open panel show the text that read-aloud is speaking.
+   *
+   * Reading always speaks the whole text, so a summary — or a translation into
+   * another language than the voice speaks — on screen while a different text is
+   * heard is confusing. The panel switches to the transcript, or to the
+   * translation when the reader speaks the text in another language
+   * (`translateTo`). A closed panel, a transcript, or a panel already showing
+   * the text being read is left as it is.
+   */
+  showReadAlongText(pagePid: string, region?: TextRegion | null, translateTo?: string): void {
+    const type = this.contentType();
+    if (!this.panelVisible() || (type !== 'summary' && type !== 'translation')) return;
+    const sameArea = this.currentPagePid() === pagePid && this.isSameRegion(this.currentRegion(), region ?? null);
+    if (type === 'translation' && translateTo === this.targetLanguage() && sameArea) return;
+    if (translateTo) {
+      this.targetLanguage.set(translateTo);
+      this.showTranslation(pagePid, translateTo, region);
+    } else {
+      this.showPageText(pagePid, region);
+    }
+  }
+
+  private isSameRegion(a: TextRegion | null, b: TextRegion | null): boolean {
+    if (!a || !b) return a === b;
+    return a.imageWidth === b.imageWidth && a.imageHeight === b.imageHeight
+      && a.box.length === b.box.length && a.box.every((v, i) => v === b.box[i]);
   }
 
   resummarize(language: string): void {

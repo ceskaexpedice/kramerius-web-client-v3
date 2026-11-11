@@ -214,3 +214,113 @@ describe('AiPanelService with a selected area', () => {
     expect(service.error()).toBe('ai.no-text-in-selection');
   });
 });
+
+/**
+ * Starting read-aloud while a summary is open used to leave the summary on
+ * screen while the full text was heard — two different texts at once.
+ */
+describe('AiPanelService read-along text', () => {
+  let service: AiPanelService;
+  let translate: jasmine.Spy;
+  let fetchPageText: jasmine.Spy;
+  let fetchRegionText: jasmine.Spy;
+  const region = { box: [0, 0, 100, 100], imageWidth: 1000, imageHeight: 1000 };
+
+  beforeEach(() => {
+    translate = jasmine.createSpy('translate').and.returnValue(of('translated'));
+    fetchPageText = jasmine.createSpy('fetchPageText').and.returnValue(of({ text: 'whole page', html: '' }));
+    fetchRegionText = jasmine.createSpy('fetchRegionText').and.returnValue(of({ text: 'selected text', html: '' }));
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        AiPanelService,
+        { provide: AltoService, useValue: { fetchPageText, fetchRegionText } },
+        { provide: AiApiService, useValue: { askLLM: () => of('a summary'), translate } },
+        { provide: LocalStorageService, useValue: { get: () => null, set: () => {} } },
+        { provide: TranslateService, useValue: {
+          getCurrentLang: () => 'cs',
+          getDefaultLang: () => 'cs',
+          instant: (key: string) => key,
+        } },
+      ],
+    });
+    service = TestBed.inject(AiPanelService);
+  });
+
+  it('replaces an open summary with the transcript being read', () => {
+    service.showSummary('uuid:page-1');
+
+    service.showReadAlongText('uuid:page-1');
+
+    expect(service.contentType()).toBe('text');
+    expect(service.content()).toBe('whole page');
+  });
+
+  it('shows the translation when the reader speaks another language', () => {
+    service.showSummary('uuid:page-1');
+
+    service.showReadAlongText('uuid:page-1', null, 'en');
+
+    expect(service.contentType()).toBe('translation');
+    expect(service.targetLanguage()).toBe('en');
+    expect(translate).toHaveBeenCalledWith('whole page', 'en', 'google', 'text');
+  });
+
+  it('keeps the selected area of the summary', () => {
+    service.showSummary('uuid:page-1', region);
+
+    service.showReadAlongText('uuid:page-1', region);
+
+    expect(service.contentType()).toBe('text');
+    expect(service.content()).toBe('selected text');
+    expect(service.currentRegion()).toEqual(region);
+  });
+
+  it('leaves a closed panel closed', () => {
+    service.showReadAlongText('uuid:page-1');
+
+    expect(service.panelVisible()).toBeFalse();
+    expect(fetchPageText).not.toHaveBeenCalled();
+  });
+
+  it('retargets an open translation to the language being read', () => {
+    service.showTranslation('uuid:page-1', 'de');
+
+    service.showReadAlongText('uuid:page-1', null, 'en');
+
+    expect(service.contentType()).toBe('translation');
+    expect(service.targetLanguage()).toBe('en');
+    expect(translate).toHaveBeenCalledWith('whole page', 'en', 'google', 'text');
+  });
+
+  it('replaces an open translation with the transcript when the original is read', () => {
+    service.showTranslation('uuid:page-1', 'de');
+
+    service.showReadAlongText('uuid:page-1');
+
+    expect(service.contentType()).toBe('text');
+    expect(service.content()).toBe('whole page');
+  });
+
+  it('keeps a translation that already shows what is being read', () => {
+    service.targetLanguage.set('en');
+    service.showTranslation('uuid:page-1', 'en');
+    translate.calls.reset();
+
+    service.showReadAlongText('uuid:page-1', null, 'en');
+
+    expect(translate).not.toHaveBeenCalled();
+    expect(service.contentType()).toBe('translation');
+  });
+
+  it('leaves an open transcript alone', () => {
+    service.showPageText('uuid:page-1');
+    fetchPageText.calls.reset();
+
+    service.showReadAlongText('uuid:page-1', null, 'en');
+
+    expect(service.contentType()).toBe('text');
+    expect(fetchPageText).not.toHaveBeenCalled();
+  });
+});
