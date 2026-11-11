@@ -10,11 +10,12 @@ import { ConfigService } from '../../../../core/config/config.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { IIIFViewerService } from '../../../services/iiif-viewer.service';
 import { TextRegion } from '../../../services/alto.service';
+import { CdkTooltipDirective } from '../../../directives/cdk-tooltip';
 
 @Component({
   selector: 'app-ai-actions',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, CdkTooltipDirective],
   templateUrl: './ai-actions.component.html',
   styleUrl: './ai-actions.component.scss'
 })

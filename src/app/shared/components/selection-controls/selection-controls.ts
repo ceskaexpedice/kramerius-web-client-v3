@@ -4,11 +4,12 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import { UserService } from '../../services/user.service';
 import { TtsService } from '../../services/tts.service';
+import { CdkTooltipDirective } from '../../directives/cdk-tooltip';
 
 @Component({
     selector: 'app-selection-controls',
     standalone: true,
-    imports: [TranslatePipe],
+    imports: [TranslatePipe, CdkTooltipDirective],
     templateUrl: './selection-controls.html',
     styleUrl: './selection-controls.scss'
 })

@@ -29,39 +29,58 @@
     </mat-slide-toggle>
 
     <button class="button square-button tertiary outlined" (click)="increaseFontSize()"
-      [attr.aria-label]="'increase-font-size--arialabel' | translate" title="T+">
+      [attr.aria-label]="'increase-font-size--arialabel' | translate"
+      [appCdkTooltip]="'increase-font-size--arialabel' | translate" tooltipPosition="bottom"
+      [title]="'increase-font-size--arialabel' | translate">
       <i class="icon-search-zoom-in-2" aria-hidden="true"></i>
     </button>
 
     <button class="button square-button tertiary outlined" (click)="decreaseFontSize()"
-      [attr.aria-label]="'decrease-font-size--arialabel' | translate" title="T-">
+      [attr.aria-label]="'decrease-font-size--arialabel' | translate"
+      [appCdkTooltip]="'decrease-font-size--arialabel' | translate" tooltipPosition="bottom"
+      [title]="'decrease-font-size--arialabel' | translate">
       <i class="icon-search-zoom-out-2" aria-hidden="true"></i>
     </button>
 
-    <button class="button square-button tertiary outlined" (click)="fullscreenToggle.emit()" [title]="'ai.fullscreen' | translate">
-      <i class="icon-maximize-3"></i>
+    <button class="button square-button tertiary outlined" (click)="fullscreenToggle.emit()"
+      [attr.aria-label]="'ai.fullscreen' | translate"
+      [appCdkTooltip]="'ai.fullscreen' | translate" tooltipPosition="bottom"
+      [title]="'ai.fullscreen' | translate">
+      <i class="icon-maximize-3" aria-hidden="true"></i>
     </button>
 
     @if (canCopyContent) {
-      <button class="button square-button tertiary outlined" (click)="copyContent()" [title]="'ai.copy' | translate">
-        <i class="icon-copy"></i>
+      <button class="button square-button tertiary outlined" (click)="copyContent()"
+        [attr.aria-label]="'ai.copy' | translate"
+        [appCdkTooltip]="'ai.copy' | translate" tooltipPosition="bottom"
+        [title]="'ai.copy' | translate">
+        <i class="icon-copy" aria-hidden="true"></i>
       </button>
     }
 
     @if (ttsService.isReading()) {
+      @let ttsPlayPauseLabel = (ttsService.playbackBlocked() ? 'ai.tts-blocked'
+                                : ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause') | translate;
       <button class="button square-button primary" (click)="onTtsPlayPause()"
-              [title]="(ttsService.playbackBlocked() ? 'ai.tts-blocked'
-                        : ttsService.isPaused() ? 'ai.tts-resume' : 'ai.tts-pause') | translate">
-        <i class="icon" [class.icon-pause]="!ttsService.isPaused()" [class.icon-play]="ttsService.isPaused()"></i>
+              [attr.aria-label]="ttsPlayPauseLabel"
+              [appCdkTooltip]="ttsPlayPauseLabel" tooltipPosition="bottom"
+              [title]="ttsPlayPauseLabel">
+        <i class="icon" [class.icon-pause]="!ttsService.isPaused()" [class.icon-play]="ttsService.isPaused()" aria-hidden="true"></i>
       </button>
-      <button class="button square-button primary" (click)="onTtsStop()" [title]="'ai.tts-stop' | translate">
-        <i class="icon icon-stop"></i>
+      <button class="button square-button primary" (click)="onTtsStop()"
+              [attr.aria-label]="'ai.tts-stop' | translate"
+              [appCdkTooltip]="'ai.tts-stop' | translate" tooltipPosition="bottom"
+              [title]="'ai.tts-stop' | translate">
+        <i class="icon icon-stop" aria-hidden="true"></i>
       </button>
     }
 
+    @let closeLabel = (isFullscreen ? 'ai.exit-fullscreen' : 'ai.close-panel') | translate;
     <button class="button square-button close-button tertiary transparent" (click)="onClose()"
-            [title]="(isFullscreen ? 'ai.exit-fullscreen' : 'ai.close-panel') | translate">
-      <i class="icon-close"></i>
+            [attr.aria-label]="closeLabel"
+            [appCdkTooltip]="closeLabel" tooltipPosition="bottom"
+            [title]="closeLabel">
+      <i class="icon-close" aria-hidden="true"></i>
     </button>
 
   </div>
