@@ -89,11 +89,32 @@ h3 {
     }
   }
 
-  button {
+  .radio-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-x1);
+  }
+
+  > button {
     width: fit-content;
     display: flex;
     align-items: center;
     gap: var(--spacing-x2);
+  }
+}
+
+.radio-hint {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: help;
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-secondary);
+  line-height: 1;
+
+  i {
+    font-size: var(--font-size-small);
   }
 }
 

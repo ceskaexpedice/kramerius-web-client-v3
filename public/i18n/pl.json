@@ -722,6 +722,7 @@
   "email-export-dialog--option-include-images": "Dołączyć obrazy?",
   "email-export-dialog--option-skip-page-numbers": "Czy chcesz pominąć numery stron?",
   "export-generated-algorithmically-note": "Plik jest generowany algorytmicznie i nie stanowi oficjalnej publikacji wydawcy.",
+  "export-whole-document-page-limit-note": "Dokument przekracza limit {{max}} stron. Użyj opcji Wybierz strony.",
   "email-export-success-dialog--header": "Żądanie zostało utworzone",
   "email-export-success-dialog--description": "Na podany adres e-mail wysyłamy żądanie pobrania. Cały proces może potrwać nawet kilkadziesiąt minut.",
   "actions--col": "Akcje",

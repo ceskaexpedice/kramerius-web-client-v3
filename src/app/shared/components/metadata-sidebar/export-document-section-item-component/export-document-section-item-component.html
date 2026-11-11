@@ -24,9 +24,19 @@
   <div class="export-document--item--content" [@expandCollapse]="_expanded() ? 'expanded' : 'collapsed'">
     <mat-radio-group class="radio-group" [(ngModel)]="selectedOption" [name]="groupName"
       (change)="onOptionChange($event)">
-      <mat-radio-button *ngFor="let option of options" [disabled]="option.disabled" [value]="option.value" class="radio-button">
-        {{ option.label | translate }}
-      </mat-radio-button>
+      @for (option of options; track option.value) {
+      <div class="radio-row">
+        <mat-radio-button [disabled]="option.disabled" [value]="option.value" class="radio-button">
+          {{ option.label | translate }}
+        </mat-radio-button>
+        @if (option.hint) {
+        @let hintText = option.hint | translate: option.hintParams;
+        <button type="button" class="radio-hint" [appCdkTooltip]="hintText" [attr.aria-label]="hintText">
+          <i class="icon-info" aria-hidden="true"></i>
+        </button>
+        }
+      </div>
+      }
     </mat-radio-group>
 
     <button class="button primary small" [disabled]="!selectedOption || loading" (click)="onSubmit()">

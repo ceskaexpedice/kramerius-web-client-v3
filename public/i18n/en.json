@@ -737,6 +737,7 @@
   "email-export-dialog--option-include-images": "Include images?",
   "email-export-dialog--option-skip-page-numbers": "Do you want to skip page numbers?",
   "export-generated-algorithmically-note": "The output is generated algorithmically and is not the official distribution of the publication.",
+  "export-whole-document-page-limit-note": "The document exceeds the limit of {{max}} pages. Use Select pages instead.",
   "email-export-success-dialog--header": "Request created",
   "email-export-success-dialog--description": "We are sending a download request to the email address you entered. The whole process may take several tens of minutes.",
   "actions--col": "Actions",

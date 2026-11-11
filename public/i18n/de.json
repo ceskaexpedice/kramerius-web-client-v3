@@ -724,6 +724,7 @@
   "email-export-dialog--option-include-images": "Bilder einbeziehen?",
   "email-export-dialog--option-skip-page-numbers": "Möchten Sie Seitenzahlen überspringen?",
   "export-generated-algorithmically-note": "Die Ausgabe wird algorithmisch erzeugt und stellt nicht die offizielle Ausgabe der Publikation dar.",
+  "export-whole-document-page-limit-note": "Das Dokument überschreitet das Limit von {{max}} Seiten. Verwenden Sie stattdessen Seiten auswählen.",
   "email-export-success-dialog--header": "Anfrage erstellt",
   "email-export-success-dialog--description": "Wir senden eine Download-Anfrage an die von Ihnen angegebene E-Mail-Adresse. Der gesamte Vorgang kann mehrere zehn Minuten dauern.",
   "actions--col": "Aktionen",

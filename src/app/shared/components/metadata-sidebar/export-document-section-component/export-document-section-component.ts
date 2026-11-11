@@ -1,6 +1,7 @@
 import { Component, computed, inject, Input, OnDestroy, OnInit, signal } from '@angular/core';
 import {
-  ExportDocumentSectionItemComponent
+  ExportDocumentSectionItemComponent,
+  ExportOption,
 } from '../export-document-section-item-component/export-document-section-item-component';
 import { ExportService } from '../../../services/export.service';
 import { IIIFViewerService } from '../../../services/iiif-viewer.service';
@@ -215,18 +216,8 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     }
 
     const pages = this.detailViewService.pages;
-    const maxRange = this.appConfig.pdfMaxRange();
-    const exportablePages = this.getExportablePages();
-    const hasExportablePages = exportablePages.length > 0;
-
-    // Disable whole document if:
-    // 1. Total pages exceed maxRange OR
-    // 2. No exportable pages OR
-    // 3. Exportable pages exceed maxRange
-    const disableWholeDocument =
-      !hasExportablePages ||
-      (pages && pages.length > maxRange) ||
-      exportablePages.length > maxRange;
+    const hasExportablePages = this.getExportablePages().length > 0;
+    const disableWholeDocument = !hasExportablePages || this.wholeDocumentOverPageLimit();
 
     // Disable select pages if no exportable pages
     const disableSelectPages = !hasExportablePages;
@@ -244,7 +235,13 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     const docAllowed = this.isDocumentActionAllowed('pdf');
     const wholeDocument = this.configService.hasPublicWorkerExports()
       ? { label: 'whole-document', value: 'whole-document', disabled: !pagesLoaded || !docAllowed }
-      : { label: 'whole-document', value: 'whole-document-legacy', disabled: disableWholeDocument || !docAllowed };
+      : {
+          label: 'whole-document',
+          value: 'whole-document-legacy',
+          disabled: disableWholeDocument || !docAllowed,
+          // Only the synchronous download is capped; the worker export is not.
+          ...this.pageLimitHint('pdf'),
+        };
 
     return [
       wholeDocument,
@@ -252,27 +249,49 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     ];
   });
 
-  printOptions = computed(() => {
+  /**
+   * True when the document has more pages than the synchronous `/pdf/selection`
+   * download (and print) accepts at once — Kramerius' `pdfMaxRange`. Both the
+   * total page count and the exportable-page count are checked, as before.
+   */
+  private wholeDocumentOverPageLimit(): boolean {
     const pages = this.detailViewService.pages;
     const maxRange = this.appConfig.pdfMaxRange();
-    const exportablePages = this.getExportablePages();
-    const hasExportablePages = exportablePages.length > 0;
+    return (!!pages && pages.length > maxRange) || this.getExportablePages().length > maxRange;
+  }
 
-    // Disable whole document if:
-    // 1. Total pages exceed maxRange OR
-    // 2. No exportable pages OR
-    // 3. Exportable pages exceed maxRange
-    const disableWholeDocument =
-      !hasExportablePages ||
-      (pages && pages.length > maxRange) ||
-      exportablePages.length > maxRange;
+  /**
+   * Explains why "whole document" is disabled when the only thing stopping it is
+   * the page limit — otherwise the greyed-out radio looks like a bug. Rendered as
+   * an info icon with a tooltip next to the option. Returned only when the
+   * document-level licence would allow it, so the hint never blames the limit for
+   * what is really a licence restriction.
+   */
+  private pageLimitHint(action: 'pdf' | 'print'): Pick<ExportOption, 'hint' | 'hintParams'> {
+    if (!this.getExportablePages().length) return {};
+    if (!this.isDocumentActionAllowed(action)) return {};
+    if (!this.wholeDocumentOverPageLimit()) return {};
+    return {
+      hint: 'export-whole-document-page-limit-note',
+      hintParams: { max: this.appConfig.pdfMaxRange() },
+    };
+  }
+
+  printOptions = computed(() => {
+    const hasExportablePages = this.getExportablePages().length > 0;
+    const disableWholeDocument = !hasExportablePages || this.wholeDocumentOverPageLimit();
 
     // Disable select pages if no exportable pages
     const disableSelectPages = !hasExportablePages;
 
     return [
       // Same page/document split as `pdfOptions`.
-      { label: 'whole-document', value: 'whole-document', disabled: disableWholeDocument || !this.isDocumentActionAllowed('print') },
+      {
+        label: 'whole-document',
+        value: 'whole-document',
+        disabled: disableWholeDocument || !this.isDocumentActionAllowed('print'),
+        ...this.pageLimitHint('print'),
+      },
       { label: 'select-pages', value: 'select-pages', disabled: disableSelectPages || !this.isActionAllowed('print') }
     ];
   });
