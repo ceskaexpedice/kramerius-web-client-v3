@@ -6,6 +6,32 @@ import { TranslateService } from '@ngx-translate/core';
 import { TRANSLATION_LANGUAGES } from '../translation/translation-languages';
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { marked } from 'marked';
+
+/**
+ * The summary prompts of the previous client (kramerius-web-client,
+ * `LanguageService.summaryPromt`), one per summary language.
+ */
+const SUMMARY_PROMPTS: Record<string, string> = {
+  'cs': 'Sumarizuj v odrážkách zadaný text',
+  'en': 'Summarize the entered text in bullet points',
+  'de': 'Fassen Sie den eingegebenen Text in Stichpunkten zusammen',
+  'sk': 'Zhrňte zadaný text do bodov',
+  'sl': 'Povzeti vneseno besedilo v oznake',
+  'pl': 'Podsumuj wprowadzony tekst w punktach',
+  'es': 'Resuma el texto introducido en viñetas',
+  'fr': 'Résumez le texte saisi en points',
+  'it': 'Sintetizza il testo inserito in punti',
+  'ru': 'Суммируйте введенный текст в пунктах',
+  'uk': 'Сумуйте введений текст в пунктах',
+  'pt': 'Resuma o texto inserido em marcadores',
+  'lt': 'Suvesti įvestą tekstą taškuose',
+  'lv': 'Summējiet ievadīto tekstu punktos',
+  'et': 'Summeerige sisestatud tekst punktides',
+  'sv': 'Sammanfatta den inmatade texten i punkter',
+  'hu': 'Összefoglalja a beírt szöveget pontokban',
+  'zh-CN': '用项目符号总结输入的文本',
+};
 
 const AI_PANEL_FONT_SIZE_KEY = 'ai-panel-font-size';
 const DEFAULT_FONT_SIZE = 16;
@@ -144,7 +170,9 @@ export class AiPanelService {
         const instructions = this.buildSummaryInstructions(this.summaryLanguage());
         this.activeSubscription = this.aiApiService.askLLM(text, instructions, this.selectedModel(), 2000).pipe(take(1)).subscribe({
           next: (summary) => {
-            this.styledHtml.set('');
+            // Rendered from Markdown, as in the previous client, so the bullet
+            // points show as a list. `content` keeps the raw text for copying.
+            this.styledHtml.set(marked.parse(summary, { async: false }));
             this.content.set(summary);
             this.isLoading.set(false);
           },
@@ -248,7 +276,11 @@ export class AiPanelService {
     const target = language
       ? `Write the summary in ${language.name} (language code: ${language.code}), regardless of the language of the source text.`
       : 'Keep the summary in the same language as the original text.';
-    return `You are a helpful assistant. Summarize the following text concisely. ${target}`;
+    // The bullet-point prompt of the previous client, in the summary language.
+    // A free-form "concise" summary of a short page came back as long as the
+    // page itself. The model answers in Markdown, which the panel renders.
+    const prompt = SUMMARY_PROMPTS[languageCode] ?? SUMMARY_PROMPTS['en'];
+    return `${prompt}. ${target}`;
   }
 
   /** The UI language when it is one we can ask for, otherwise Czech. */

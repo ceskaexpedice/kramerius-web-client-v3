@@ -69,6 +69,22 @@ describe('AiPanelService summary language', () => {
     expect(lastInstructions()).not.toContain('same language as the original');
   });
 
+  it('uses the bullet-point prompt of the previous client', () => {
+    service = configure('cs');
+    service.showSummary('uuid:page-1');
+
+    expect(lastInstructions()).toContain('Sumarizuj v odrážkách zadaný text');
+  });
+
+  it('renders the Markdown summary as a list, keeping the raw text for copying', () => {
+    service = configure('cs');
+    askLLM.and.returnValue(of('- first point\n- second point'));
+    service.showSummary('uuid:page-1');
+
+    expect(service.styledHtml()).toContain('<li>first point</li>');
+    expect(service.content()).toBe('- first point\n- second point');
+  });
+
   it('re-runs the summary when a different language is picked', () => {
     service = configure('cs');
     service.showSummary('uuid:page-1');

@@ -38,8 +38,8 @@
     text-justify: inter-word;
     hyphens: auto;
 
-    // Plain text fallback
-    &:not(:has(p)) {
+    // Plain text fallback (OCR text without ALTO)
+    &--plain {
       white-space: pre-wrap;
     }
 
@@ -51,21 +51,52 @@
       border-radius: 2px;
     }
 
-    // Styled HTML from ALTO
-    p {
-      margin: 0 0 0.8em;
+    // Everything below styles HTML bound via [innerHTML] (ALTO text, the
+    // Markdown summary). Such nodes carry no _ngcontent attribute, so the
+    // emulated encapsulation would never match them without ::ng-deep.
+    ::ng-deep {
+      p {
+        margin: 0 0 0.8em;
 
-      &:last-child {
-        margin-bottom: 0;
+        &:last-child {
+          margin-bottom: 0;
+        }
       }
-    }
 
-    strong {
-      font-weight: 600;
-    }
+      // Summary bullet points. styles.scss strips list markers globally.
+      ul, ol {
+        margin: 0 0 0.8em;
+        padding-left: 1.5em;
+        text-align: left;
 
-    em {
-      font-style: italic;
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      ul {
+        list-style: disc;
+      }
+
+      ol {
+        list-style: decimal;
+      }
+
+      li {
+        margin-bottom: 0.4em;
+
+        > ul, > ol {
+          margin: 0.4em 0 0;
+        }
+      }
+
+      strong {
+        font-weight: 600;
+      }
+
+      em {
+        font-style: italic;
+      }
     }
   }
 
