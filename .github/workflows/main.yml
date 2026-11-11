@@ -187,8 +187,18 @@ jobs:
           --file Dockerfile .
 
     - name: Push image to GHCR
-      run: >
-        docker push "${DOCKER_IMAGE}:latest"
+      # The first push of a newly created package (new tag => new package)
+      # is sometimes rejected by GHCR with "denied"; a retry passes.
+      run: |
+        for attempt in 1 2 3 4 5; do
+          if docker push "${DOCKER_IMAGE}:latest"; then
+            exit 0
+          fi
+          echo "docker push failed (attempt ${attempt}/5), retrying in 15 s"
+          sleep 15
+        done
+        echo "docker push failed after 5 attempts"
+        exit 1
 
   deploy:
     name: deploy
@@ -252,6 +262,21 @@ jobs:
       matrix: ${{ fromJSON(needs.set_variables.outputs.docker_names) }}
     steps:
       - run: echo "Matrix - Container ${{ matrix.name }}, Domain ${{ matrix.domain }}"
+      - name: Wait for the deployed app
+        # A new subdomain (tag deploy) needs a while until the TLS certificate
+        # is issued and the container is routed; until then curl fails
+        # (e.g. exit code 60) or gets 404.
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl -sf -o /dev/null "https://${{ matrix.domain }}/assets/env.json"; then
+              echo "App is up (attempt ${attempt})"
+              exit 0
+            fi
+            echo "App not ready yet (attempt ${attempt}/30), retrying in 10 s"
+            sleep 10
+          done
+          echo "App did not come up in time"
+          exit 1
       - name: Check assets/env.json
         run: |
           curl -s -o env.json "https://${{ matrix.domain }}/assets/env.json"
