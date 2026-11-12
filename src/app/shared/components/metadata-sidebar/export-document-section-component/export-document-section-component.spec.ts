@@ -82,7 +82,7 @@ describe('ExportDocumentSectionComponent PDF options', () => {
         { provide: CdkSourceService, useValue: { code$: sourceCode, getCode: () => sourceCode.value } },
         { provide: UserService, useValue: { userSession$: signal({ authenticated: true }) } },
         { provide: ToastService, useValue: { show: () => {} } },
-        { provide: AuthService, useValue: { login: () => {} } },
+        { provide: AuthService, useValue: { startLogin: () => {} } },
         { provide: Router, useValue: { url: '/view/uuid:doc' } },
       ],
     });
@@ -153,6 +153,60 @@ describe('ExportDocumentSectionComponent PDF options', () => {
 
     expect(component.pdfOptions()[0].value).toBe('whole-document-legacy');
     expect(component.pdfOptions()[0].disabled).toBe(true);
+  });
+
+  /**
+   * A whole-document option disabled by the page cap used to look like a broken
+   * radio button. The option now carries a hint (info icon + tooltip) explaining
+   * the limit and pointing at "select pages".
+   */
+  describe('page-limit hint', () => {
+    const HINT = 'export-whole-document-page-limit-note';
+    const overLimit = () => Array.from({ length: 200 }, (_, i) => ({ pid: `p${i}`, exportable: true }));
+
+    it('explains the cap on PDF and print when the document exceeds pdfMaxRange', () => {
+      pages = overLimit();
+      const component = createComponent();
+
+      for (const whole of [component.pdfOptions()[0], component.printOptions()[0]]) {
+        expect(whole.disabled).toBe(true);
+        expect(whole.hint).toBe(HINT);
+        expect(whole.hintParams).toEqual({ max: 120 });
+      }
+    });
+
+    it('adds no hint for a document within the limit', () => {
+      const component = createComponent();
+
+      expect(component.pdfOptions()[0].hint).toBeUndefined();
+      expect(component.printOptions()[0].hint).toBeUndefined();
+    });
+
+    it('omits the PDF hint where the uncapped worker export is offered, keeping it for print', () => {
+      pages = overLimit();
+      hasWorker = true;
+      const component = createComponent();
+
+      expect(component.pdfOptions()[0].hint).toBeUndefined();
+      expect(component.printOptions()[0].hint).toBe(HINT);
+    });
+
+    it('does not blame the limit when the licence is what forbids the whole document', () => {
+      pages = overLimit();
+      documentAllowed = false;
+      const component = createComponent();
+
+      expect(component.pdfOptions()[0].hint).toBeUndefined();
+      expect(component.printOptions()[0].hint).toBeUndefined();
+    });
+
+    it('never puts a hint on select-pages', () => {
+      pages = overLimit();
+      const component = createComponent();
+
+      expect(component.pdfOptions()[1].hint).toBeUndefined();
+      expect(component.printOptions()[1].hint).toBeUndefined();
+    });
   });
 
   it('still collapses to a single direct download for a PDF document', () => {

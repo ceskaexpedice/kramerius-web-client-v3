@@ -11,6 +11,7 @@ import { RecordHandlerService } from './record-handler.service';
 import {
   selectAvailableYears,
   selectPeriodicalChildren,
+  selectPeriodicalChildrenTotalCount,
   selectPeriodicalDocument,
   selectPeriodicalError,
   selectPeriodicalLoading,
@@ -35,6 +36,7 @@ import { SearchService } from './search.service';
 import { appendToAdvancedQuery, buildDateOverlapQuery, buildYearRangeQuery, normalizeDateRangeParams } from '../utils/date-range-query';
 import { ConfigService } from '../../core/config/config.service';
 import { ALL_SOURCES } from '../utils/cdk-source.constants';
+import { Metadata } from '../models/metadata.model';
 
 @Injectable()
 export class PeriodicalService extends BaseFilterService {
@@ -53,6 +55,14 @@ export class PeriodicalService extends BaseFilterService {
     }
   });
   selectedYear = signal<string | null>(null);
+
+  /**
+   * Dates the date-range filter may select from: the first..last issue of the
+   * opened volume (or 1.1. of the periodical's first year .. 31.12. of its last
+   * year on the years level). Null bounds = unrestricted.
+   */
+  dateFilterBounds = signal<{ min: Date | null; max: Date | null }>({ min: null, max: null });
+  private dateFilterBoundsPid: string | null = null;
 
   // Debug wrapper for selectedYear.set to track when it changes
   private setSelectedYear(value: string | null) {
@@ -75,6 +85,8 @@ export class PeriodicalService extends BaseFilterService {
   document$ = this.store.select(selectPeriodicalDocument);
   availableYears$ = this.store.select(selectAvailableYears);
   periodicalChildren$ = this.store.select(selectPeriodicalChildren);
+  /** Total of a paged issue list (years level + date filter); null when the list isn't paged. */
+  childrenTotalCount = toSignal(this.store.select(selectPeriodicalChildrenTotalCount), { initialValue: null as number | null });
   loading$ = this.store.select(selectPeriodicalLoading);
   metadata$ = this.store.select(selectPeriodicalMetadata);
   error$ = this.store.select(selectPeriodicalError);
@@ -121,7 +133,9 @@ export class PeriodicalService extends BaseFilterService {
     // Uses replaceUrl so the single-issue periodical URL is removed from browser history,
     // allowing the back button to skip it and go to the previous page.
     this.periodicalChildren$.pipe(
-      filter(children => children?.length === 1),
+      // A paged list (years-level date filter) can end with a 1-item page -
+      // only redirect when that single issue is the whole result.
+      filter(children => children?.length === 1 && (this.childrenTotalCount() ?? 1) === 1),
       filter(() => this.router.url.split('?')[0].includes(`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}`)),
       takeUntil(this.destroy$)
     ).subscribe(children => {
@@ -221,6 +235,11 @@ export class PeriodicalService extends BaseFilterService {
         this.dispatchPeriodicalSearch(Object.keys(queryParams).length ? queryParams : null);
       }
     });
+
+    this.metadata$.pipe(
+      filter(Boolean),
+      takeUntil(this.destroy$)
+    ).subscribe(meta => this.updateDateFilterBounds(meta));
 
     this.document$.pipe(
       filter(Boolean),
@@ -498,8 +517,13 @@ export class PeriodicalService extends BaseFilterService {
     }
 
     if (model === 'periodical') {
-      this.viewMode.set(ViewMode.Timeline);
       this.setSelectedYear(null);
+      // A date filter on the years level lists the matching issues directly.
+      if (this.hasDateFilter()) {
+        this.viewMode.set(ViewMode.GridIssues);
+        return;
+      }
+      this.viewMode.set(ViewMode.Timeline);
     } else if (model === 'periodicalvolume') {
       // A date filter outside this volume's year would leave the view empty;
       // jump back to the years timeline (keeping the filter) instead.
@@ -516,6 +540,47 @@ export class PeriodicalService extends BaseFilterService {
 
     const storedView = this.loadViewModeFromLocalStorage();
     this.setView(storedView);
+  }
+
+  /**
+   * Restricts the date-range filter to dates that actually exist in the opened
+   * document: a volume's first..last issue (fetched from its children, since the
+   * volume's own date.min/date.max cover the whole year), a periodical's whole
+   * year span. The year bounds are applied immediately as a fallback.
+   */
+  private updateDateFilterBounds(meta: Metadata): void {
+    const pid = meta?.uuid;
+    if (!pid || pid === this.dateFilterBoundsPid) return;
+    if (meta.model !== 'periodical' && meta.model !== 'periodicalvolume') return;
+    this.dateFilterBoundsPid = pid;
+
+    const startYear = Number(meta.dateRangeStartYear);
+    const endYear = Number(meta.dateRangeEndYear ?? meta.dateRangeStartYear);
+    this.dateFilterBounds.set({
+      min: Number.isFinite(startYear) && startYear > 0 ? new Date(startYear, 0, 1) : null,
+      max: Number.isFinite(endYear) && endYear > 0 ? new Date(endYear, 11, 31) : null,
+    });
+
+    if (meta.model !== 'periodicalvolume') return;
+
+    const params = this.route.snapshot.queryParams;
+    const cdkCollection = this.configService.isCdk() ? (params?.['source'] || null) : null;
+    this.solrService.getPeriodicalVolumeIssueDateBounds(pid, cdkCollection).pipe(take(1)).subscribe({
+      next: ({ min, max }) => {
+        if (this.dateFilterBoundsPid !== pid) return; // navigated away meanwhile
+        const current = this.dateFilterBounds();
+        this.dateFilterBounds.set({
+          min: min ? parseIsoDay(min) : current.min,
+          max: max ? parseIsoDay(max) : current.max,
+        });
+      },
+      error: () => { /* keep the year fallback */ }
+    });
+  }
+
+  private hasDateFilter(): boolean {
+    const { dateFrom, dateTo } = normalizeDateRangeParams(this.route.snapshot.queryParams);
+    return !!(dateFrom || dateTo);
   }
 
   /**
@@ -558,6 +623,10 @@ export class PeriodicalService extends BaseFilterService {
   }
 
   setView(view: string): void {
+    // Years level + date filter: the issue cards are the only view (see handleDocument).
+    if (!this.selectedYear() && this.viewMode() === ViewMode.GridIssues && this.hasDateFilter()) {
+      return;
+    }
     this.saveViewModeToLocalStorage(view);
     const hasSelectedYear = !!this.selectedYear();
 
@@ -760,4 +829,10 @@ export class PeriodicalService extends BaseFilterService {
     this.monthlyIssuesCache.clear();
     this.loadingMonths.clear();
   }
+}
+
+/** 'YYYY-MM-DD' -> local Date at midnight (avoids the UTC shift of new Date(iso)). */
+function parseIsoDay(value: string): Date {
+  const [y, m, d] = value.split('-').map(Number);
+  return new Date(y, m - 1, d);
 }

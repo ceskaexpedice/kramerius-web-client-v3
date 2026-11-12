@@ -7,6 +7,7 @@ import { DetailViewService } from '../../modules/detail-view-page/services/detai
 import { IIIFViewerService } from './iiif-viewer.service';
 import { SettingsService } from '../../modules/settings/settings.service';
 import { ToastService } from './toast.service';
+import { AiPanelService } from './ai-panel.service';
 
 /**
  * Regression tests for issue #161: on mobile, a blocked autoplay made reading
@@ -55,6 +56,7 @@ describe('TtsService playback failure handling', () => {
         } },
         { provide: SettingsService, useValue: { settings: null } },
         { provide: ToastService, useValue: { show: () => {} } },
+        { provide: AiPanelService, useValue: { showReadAlongText: () => {} } },
       ],
     });
     service = TestBed.inject(TtsService);
@@ -193,6 +195,7 @@ describe('TtsService reading a selected area', () => {
         } },
         { provide: SettingsService, useValue: { settings: null } },
         { provide: ToastService, useValue: { show: toastShow } },
+        { provide: AiPanelService, useValue: { showReadAlongText: () => {} } },
       ],
     });
     service = TestBed.inject(TtsService);
@@ -234,5 +237,62 @@ describe('TtsService reading a selected area', () => {
     expect(service.error()).toBe('ai.no-text-in-selection');
     expect(toastShow).toHaveBeenCalledWith('ai.no-text-in-selection');
     expect(detailViewStub.goToPage).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * Reading always speaks the full text, so an open summary must give way to the
+ * text being heard — the transcript, or its translation when the voice speaks
+ * another language.
+ */
+describe('TtsService and the AI panel', () => {
+  let service: TtsService;
+  let showReadAlongText: jasmine.Spy;
+  const region = { box: [0, 0, 100, 100], imageWidth: 1000, imageHeight: 1000 };
+
+  function configure(ttsVoices: unknown[] | null): void {
+    showReadAlongText = jasmine.createSpy('showReadAlongText');
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        TtsService,
+        { provide: AltoService, useValue: { fetchBlocksForReading: () => of([{ text: 'page' }]) } },
+        { provide: AiApiService, useValue: {
+          textToSpeech: () => of('AAAA'),
+          detectLanguage: () => of('cs'),
+          translate: (t: string) => of(t),
+        } },
+        { provide: DetailViewService, useValue: { pages: [{ pid: 'page-1' }], goToPage: () => {} } },
+        { provide: IIIFViewerService, useValue: { showTtsHighlight: () => {}, clearTtsHighlight: () => {} } },
+        { provide: SettingsService, useValue: { settings: ttsVoices ? { ttsVoices } : null } },
+        { provide: ToastService, useValue: { show: () => {} } },
+        { provide: AiPanelService, useValue: { showReadAlongText } },
+      ],
+    });
+    service = TestBed.inject(TtsService);
+    spyOn((service as any).audio as HTMLAudioElement, 'play').and.returnValue(Promise.resolve());
+  }
+
+  afterEach(() => service.stop());
+
+  it('asks the panel for the transcript when the voice speaks the text as is', () => {
+    configure(null);
+    service.startReading('page-1');
+
+    expect(showReadAlongText).toHaveBeenCalledOnceWith('page-1', null, undefined);
+  });
+
+  it('asks the panel for the translation the voice speaks', () => {
+    configure([{ langCode: 'en', voice: 'en-voice', isPrimary: true }]);
+    service.startReading('page-1');
+
+    expect(showReadAlongText).toHaveBeenCalledOnceWith('page-1', null, 'en');
+  });
+
+  it('keeps the selected area being read', () => {
+    configure(null);
+    service.startReading('page-1', undefined, region);
+
+    expect(showReadAlongText).toHaveBeenCalledOnceWith('page-1', region, undefined);
   });
 });

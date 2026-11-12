@@ -1,5 +1,6 @@
 import { Component, ElementRef, QueryList, ViewChildren, effect, inject } from '@angular/core';
 import { DetailViewService } from '../../services/detail-view.service';
+import { BreakpointService } from '../../../../shared/services/breakpoint.service';
 
 /**
  * Sidebar list of the works bound in a convolute ("parts").
@@ -17,6 +18,7 @@ import { DetailViewService } from '../../services/detail-view.service';
 })
 export class DetailPartsListComponent {
   public detailViewService = inject(DetailViewService);
+  private breakpointService = inject(BreakpointService);
 
   @ViewChildren('partItem', { read: ElementRef })
   partItems!: QueryList<ElementRef>;
@@ -31,6 +33,7 @@ export class DetailPartsListComponent {
 
   clickedPart(index: number): void {
     this.detailViewService.goToConvolutePart(index);
+    this.breakpointService.closeOverlaySidebar();
   }
 
   private scrollToActivePart(): void {

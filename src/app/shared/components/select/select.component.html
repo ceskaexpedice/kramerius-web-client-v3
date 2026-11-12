@@ -21,7 +21,8 @@
   </div>
 
   <!-- Options List -->
-  <div class="options-list" [class.with-filter]="filterable">
+  <div class="options-list" [class.with-filter]="filterable"
+    [style.max-height.px]="!virtualScroll && fitRows ? fitRows * 40 : null">
 
     <ng-container *ngIf="virtualScroll; else standardList">
       <cdk-virtual-scroll-viewport [itemSize]="virtualItemSize" [style.height]="getViewportHeight()">

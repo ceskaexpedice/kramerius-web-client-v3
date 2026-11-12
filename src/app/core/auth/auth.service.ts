@@ -11,6 +11,9 @@ import { Store } from '@ngrx/store';
 import * as AuthActions from './store/auth.actions';
 import { AuthTokens, TokenResponse, User } from './auth.models';
 
+/** Where Keycloak lands the user after a confirmed logout (see `logoutReturnGuard`). */
+export const LOGOUT_RETURN_PATH = 'auth/logged-out';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -27,6 +30,11 @@ export class AuthService {
   private store = inject(Store);
   private config = inject(ConfigService);
 
+  // Must run before the auth subjects below read the stored session: when the
+  // app boots on the post-logout landing route, the stored tokens are stale and
+  // must be gone before anything (subjects, interceptor, user load) uses them.
+  private readonly returnedFromLogout = this.completeLogoutIfReturning();
+
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
   private userSubject = new BehaviorSubject<User | null>(this.getStoredUser());
 
@@ -36,6 +44,15 @@ export class AuthService {
   constructor(
     private env: EnvironmentService
   ) {
+    // Back from Keycloak's logout screen, the browser may restore this page
+    // from the back/forward cache with its old in-memory state. If the stored
+    // session changed meanwhile (e.g. it was cleared before a forced logout),
+    // that snapshot is stale — reload so the UI matches the real session.
+    window.addEventListener('pageshow', (event: PageTransitionEvent) => {
+      if (event.persisted && this.isAuthenticatedSubject.value !== this.hasValidToken()) {
+        window.location.reload();
+      }
+    });
   }
 
   private get API_URL(): string {
@@ -55,6 +72,38 @@ export class AuthService {
    */
   isLoginEnabled(): boolean {
     return this.config.isLoginEnabled();
+  }
+
+  /**
+   * Single in-app entry point for every "log in" affordance. Routes through the
+   * terms page so the licence/GDPR consent step is never bypassed; the terms page
+   * then calls `login()` with the same `returnUrl`.
+   *
+   * @param returnUrl Where the user should land after logging in. Defaults to the
+   *   current page; pass an explicit target when the user was heading somewhere
+   *   else (e.g. "My library" → the saved lists).
+   */
+  startLogin(returnUrl: string = this.router.url) {
+    if (!this.isLoginEnabled()) {
+      console.warn('AuthService: login is disabled (features.keycloak is false).');
+      return;
+    }
+    this.router.navigate(['pages/terms'], {
+      queryParams: { returnUrl: this.unwrapTermsReturnUrl(returnUrl) },
+    });
+  }
+
+  /**
+   * When login is started from the terms page itself, its own `returnUrl` is the
+   * real destination — don't nest `/pages/terms?returnUrl=/pages/terms?...`.
+   */
+  private unwrapTermsReturnUrl(url: string): string {
+    const tree = this.router.parseUrl(url);
+    const segments = tree.root.children['primary']?.segments.map(s => s.path) ?? [];
+    const isTerms = segments.length >= 2
+      && segments[segments.length - 2] === 'pages'
+      && segments[segments.length - 1] === 'terms';
+    return isTerms ? (tree.queryParams['returnUrl'] || '/') : url;
   }
 
   login(returnUrl?: string) {
@@ -100,34 +149,56 @@ export class AuthService {
       map(response => this.mapTokenResponse(response)),
       tap(newTokens => this.handleSuccessfulAuth(newTokens)),
       catchError(error => {
-        this.logout();
+        // The refresh token is rejected — the session is dead either way.
+        this.logout(true);
         return throwError(() => error);
       })
     );
   }
 
-  logout() {
-    // Clear persisted storage. This does NOT trigger any UI re-render, so it's
-    // safe to do before navigating away.
+  /**
+   * Ends the session via Keycloak.
+   *
+   * The local session is NOT cleared here (issue #115): Keycloak shows a
+   * confirmation screen, and a user who backs out of it (Back, refresh, typing
+   * the URL) is still logged in at Keycloak — so the client must still be too.
+   * Keycloak redirects to `LOGOUT_RETURN_PATH` only after a confirmed logout;
+   * that route clears the stored session (see `completeLogoutIfReturning`) and
+   * forwards to `returnUrl`, i.e. exactly the page logout was clicked on.
+   *
+   * Keeping the in-memory state also avoids repainting every document with lock
+   * icons before the browser leaves the page.
+   *
+   * @param clearLocalSession Clear the stored session before redirecting. Used
+   *   when the session is already dead (failed token refresh): keeping the stale
+   *   tokens would only bounce a user who cancels straight back into logout.
+   */
+  logout(clearLocalSession = false) {
+    if (clearLocalSession) {
+      this.clearStoredSession();
+    }
+    const returnUrl = window.location.pathname + window.location.search + window.location.hash;
+    const redirectUri = `${window.location.origin}/${LOGOUT_RETURN_PATH}?returnUrl=${encodeURIComponent(returnUrl)}`;
+    this.navigateExternal(`${this.API_URL}/auth/logout?redirect_uri=${encodeURIComponent(redirectUri)}`);
+  }
+
+  /**
+   * Runs once at construction. If the app was loaded on the post-logout landing
+   * route, Keycloak has confirmed the logout, so the stored session is cleared
+   * before anything reads it. The route guard then forwards to `returnUrl`.
+   */
+  private completeLogoutIfReturning(): boolean {
+    if (window.location.pathname !== `/${LOGOUT_RETURN_PATH}`) {
+      return false;
+    }
+    this.clearStoredSession();
+    return true;
+  }
+
+  private clearStoredSession(): void {
     this.storage.remove(this.TOKEN_KEY);
     this.storage.remove(this.USER_KEY);
     this.storage.remove(this.ORIGINAL_ROUTE_KEY);
-
-    // Redirect to backend logout endpoint (which handles Keycloak logout and
-    // redirects back to the current page) FIRST.
-    //
-    // We must NOT clear the in-memory user state (auth subjects, licenses,
-    // HTTP cache) before this navigation: doing so synchronously invalidates
-    // the license signals and lets Angular run a change-detection tick that
-    // repaints every document with lock icons before the browser leaves the
-    // page. The result is a jarring "everything locks up, then the Keycloak
-    // logout screen appears" flash (issue #115).
-    //
-    // Because this is a full-page navigation, the in-memory state is discarded
-    // anyway; when the user returns from Keycloak the app reloads fresh and the
-    // locks re-render correctly at that point instead of before logout.
-    const redirectUri = encodeURIComponent(window.location.href);
-    this.navigateExternal(`${this.API_URL}/auth/logout?redirect_uri=${redirectUri}`);
   }
 
   /**

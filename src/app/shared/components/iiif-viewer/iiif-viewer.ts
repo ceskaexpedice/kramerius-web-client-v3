@@ -23,6 +23,7 @@ import { Subject, Subscription, switchMap, EMPTY, catchError, skip, distinctUnti
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import OpenSeadragon from 'openseadragon';
 import { SelectionControls } from '../selection-controls/selection-controls';
+import { placeSelectionControls } from '../selection-controls/selection-controls-placement';
 import { CommonModule } from '@angular/common';
 import { ViewerWatermarkComponent } from '../viewer-watermark/viewer-watermark.component';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -38,6 +39,7 @@ import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-tokens';
 import { Store } from '@ngrx/store';
+import { AuthService } from '../../../core/auth/auth.service';
 import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
 import { CdkSourceService } from '../../services/cdk-source.service';
 import { UserService } from '../../services/user.service';
@@ -65,6 +67,14 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   @Input() metadata: Metadata | null = null;
   @Input() imagePid: string | null = null;
+  /**
+   * The page's access check is still running: keep showing the current page and
+   * load `imagePid` only once this turns false, so a page the reader may not see
+   * never shows (not even its thumbnail).
+   */
+  @Input() holdPage = false;
+  private heldInit = false;
+  private heldPageChange = false;
 
   @ViewChild('viewerContainer', { static: false }) viewerContainer!: ElementRef;
 
@@ -76,6 +86,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private aiPanelService = inject(AiPanelService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private authService = inject(AuthService);
   private ttsService = inject(TtsService);
   private store = inject(Store);
   private cdkSource = inject(CdkSourceService);
@@ -204,22 +215,39 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   public selectionRect: { top: number, left: number } | null = null;
   public showSelectionControls = false;
+  /** Kept across selections: once the reader collapses the toolbar it stays collapsed. */
+  public selectionControlsCollapsed = false;
+  /**
+   * Set once the reader drags the toolbar. From then on it stays where they put
+   * it (only clamped to the viewer) instead of tracking the selection's edge,
+   * so it can be moved off text it would otherwise cover. Reset with the selection.
+   */
+  private selectionControlsPinned = false;
 
-  // Swipe detection configuration
+  // Swipe detection configuration. A swipe turns the page only from a page
+  // edge the reader can already see (see visiblePageEdges), so with the page
+  // zoomed in a drag pans it and only a drag past its edge turns the page.
+  // There is no time limit: a slow, long drag counts as much as a quick flick.
   private readonly SWIPE_CONFIG = {
-    minDistance: 50,        // Minimum horizontal distance in pixels
-    maxTime: 600,           // Maximum gesture duration in ms
+    minDistanceRatio: 0.25, // A slow drag must cover this share of the viewer width
+    flickDistance: 50,      // A quick flick needs only this many px...
+    flickVelocity: 0.3,     // ...at this speed (px/ms)
     maxVerticalRatio: 0.5,  // Max vertical/horizontal ratio (prevents diagonal swipes)
-    zoomTolerance: 1.15     // Zoom level tolerance (15% above home zoom)
+    edgeTolerance: 0.01     // Share of the view width a page edge may sit outside it
   } as const;
 
-  // Touch tracking state
+  // Touch tracking state for the gesture in progress (first finger down to
+  // last finger up).
   private touchState = {
     startX: 0,
     startY: 0,
     startTime: 0,
-    isSwiping: false,
-    touchCount: 0
+    tracking: false,
+    // Most fingers down at once during the gesture: a pinch is never a swipe,
+    // not even its one-finger tail after the other finger lifts.
+    maxTouches: 0,
+    // Page edges visible when the gesture started.
+    edges: { left: false, right: false }
   };
 
   private readonly TEST_FALLBACK = false;
@@ -242,6 +270,11 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   private resizeObserver: ResizeObserver | null = null;
   /** Debounce for re-fitting the page after the container stops resizing. */
   private resizeSettle: ReturnType<typeof setTimeout> | null = null;
+  /**
+   * Whether the page sits at its fitted ("home") view, so a layout change should
+   * re-fit it. Cleared when the reader zooms, or a shared crop zooms for them.
+   */
+  private atHome = true;
 
   ngOnInit(): void {
     this.iiifViewerService.uuid = this.metadata?.uuid || null;
@@ -305,6 +338,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
           } else {
             this.showSelectionControls = false;
             this.selectionRect = null;
+            this.selectionControlsPinned = false;
             this.currentImageRect = null;
           }
           this.cdr.detectChanges();
@@ -325,33 +359,53 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       })
     );
 
-    // Check for selection in URL
+    // Shared crop ("vystrizek") from the ?bb= query param.
+    //
+    // Anchored on viewerOpened$ (OpenSeadragon's `open`, fired as soon as the
+    // tile source is ready) rather than imageLoaded$, which waits until every
+    // visible tile of the WHOLE page has downloaded — zooming at `open` makes
+    // OSD fetch tiles for the crop region only, so crop links load fast.
     this.subscriptions.push(
-      this.iiifViewerService.imageLoaded$.subscribe(() => {
-        const bb = this.route.snapshot.queryParamMap.get('bb');
-        if (bb) {
-          const parts = bb.split(',');
-          if (parts.length === 4) {
-            const x = parseFloat(parts[0]);
-            const y = parseFloat(parts[1]);
-            const w = parseFloat(parts[2]);
-            const h = parseFloat(parts[3]);
-
-            if (!isNaN(x) && !isNaN(y) && !isNaN(w) && !isNaN(h)) {
-              const rect = new OpenSeadragon.Rect(x, y, w, h);
-              this.iiifViewerService.setSelection(rect);
-
-              this.router.navigate([], {
-                relativeTo: this.route,
-                queryParams: { bb: null },
-                queryParamsHandling: 'merge',
-                replaceUrl: true
-              });
-            }
-          }
-        }
+      this.iiifViewerService.viewerOpened$.subscribe(() => {
+        this.applyBoundingBoxFromUrl();
       })
     );
+  }
+
+  /**
+   * Opens a shared crop the way the legacy client did (#187): zoom so the crop
+   * fills the viewer AND mark it as the selection — dimmed surroundings, frame,
+   * selection controls. Zoom alone left no clue which part had been selected;
+   * selection alone showed the whole page with a tiny highlight.
+   *
+   * The selection is locked, so pan/zoom keep working. The param is stripped
+   * afterwards (replaceUrl) so a later page open doesn't re-apply it.
+   */
+  private applyBoundingBoxFromUrl(): void {
+    const bb = this.route.snapshot.queryParamMap.get('bb');
+    if (!bb) return;
+
+    const parts = bb.split(',');
+    if (parts.length !== 4) return;
+
+    const [x, y, w, h] = parts.map(part => (part.trim() === '' ? NaN : Number(part)));
+    if ([x, y, w, h].some(value => isNaN(value))) return;
+    // A zero-area box would make fitBounds zoom to infinity.
+    if (w <= 0 || h <= 0) return;
+
+    const rect = new OpenSeadragon.Rect(x, y, w, h);
+    this.iiifViewerService.zoomToImageRegion(rect);
+    // fitBounds(immediately) fires no animation-finish, so the resize handler
+    // would still think the page is at home and re-fit it, undoing the zoom.
+    this.atHome = false;
+    this.iiifViewerService.setSelection(rect);
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { bb: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   ngAfterViewInit(): void {
@@ -394,6 +448,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       container.removeEventListener('touchstart', this.onTouchStart);
       container.removeEventListener('touchmove', this.onTouchMove);
       container.removeEventListener('touchend', this.onTouchEnd);
+      container.removeEventListener('touchcancel', this.onTouchCancel);
     }
 
     if (this.viewer) {
@@ -412,18 +467,40 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   ngOnChanges(changes: SimpleChanges): void {
     // Update viewer when imagePid changes
     if (changes['imagePid'] && !changes['imagePid'].firstChange) {
-      // Reset fallback state when switching to a new image. The blob object URL
-      // is deliberately not revoked here — OpenSeadragon may still be painting
-      // it; loadDirectImageFallback revokes the previous one as it installs the
-      // next, and ngOnDestroy covers the final page.
-      this.showFallback.set(false);
-      this.fallbackImageUrl.set(null);
-      this.accessDenied.set(false);
-      this.triggerViewerUpdate();
+      if (this.holdPage) {
+        this.heldPageChange = true;
+      } else {
+        this.showImagePid();
+      }
+    }
+    if (changes['holdPage'] && !this.holdPage) {
+      if (this.heldInit) {
+        this.heldInit = false;
+        this.initializeViewer();
+      } else if (this.heldPageChange) {
+        this.heldPageChange = false;
+        this.showImagePid();
+      }
     }
   }
 
+  /** Switches the open viewer to the page `imagePid` now names. */
+  private showImagePid(): void {
+    // Reset fallback state when switching to a new image. The blob object URL
+    // is deliberately not revoked here — OpenSeadragon may still be painting
+    // it; loadDirectImageFallback revokes the previous one as it installs the
+    // next, and ngOnDestroy covers the final page.
+    this.showFallback.set(false);
+    this.fallbackImageUrl.set(null);
+    this.accessDenied.set(false);
+    this.triggerViewerUpdate();
+  }
+
   private initializeViewer(): void {
+    if (this.holdPage) {
+      this.heldInit = true;
+      return;
+    }
     const pid = this.imagePid || this.metadata?.uuid;
     if (!pid) {
       console.error('No PID or UUID provided for IIIF viewer');
@@ -561,8 +638,23 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       return;
     }
 
+    // Only a move away from the home view puts the thumbnail out of place.
+    // OpenSeadragon also raises pan/zoom while the layout settles around a
+    // viewer that stays at home; dropping the thumbnail then left the page
+    // half drawn, tile by tile, instead of blur→sharp.
     let viewportChanged = false;
-    const onViewportChange = () => { viewportChanged = true; };
+    const onViewportChange = () => {
+      const zoom = viewport.getZoom();
+      const home = viewport.getHomeZoom();
+      const center = viewport.getCenter();
+      const homeCenter = viewport.getHomeBounds().getCenter();
+      const tolerance = viewport.getBounds().width * 1e-3;
+      if (Math.abs(zoom - home) > home * 1e-3
+        || Math.abs(center.x - homeCenter.x) > tolerance
+        || Math.abs(center.y - homeCenter.y) > tolerance) {
+        viewportChanged = true;
+      }
+    };
     viewer.addHandler('pan', onViewportChange);
     viewer.addHandler('zoom', onViewportChange);
 
@@ -702,9 +794,13 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       },
       minZoomLevel: 0,
       maxZoomLevel: 10,
+      // Kept at 1 only while the page fits the view; updatePanConstraint loosens
+      // it once the reader zooms in.
       visibilityRatio: 1,
       constrainDuringPan: false
     });
+    this.viewer.addHandler('zoom', () => this.updatePanConstraint());
+    this.viewer.addHandler('resize', () => this.updatePanConstraint());
 
     // Hand the new viewer to the watermark overlay, which projects its image
     // coordinates through this viewport.
@@ -728,6 +824,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       this.updateMinZoomLevel();
       // Restore locked zoom after the new page opens
       this.iiifViewerService.applyLockedZoom();
+      this.updatePanConstraint();
 
       // Wait for image content to be rendered before clearing thumbnail background.
       // For IIIF tiled images this creates a blur→sharp progressive loading effect.
@@ -737,10 +834,11 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       this.watchThumbnailPlaceholder();
     });
 
-    this.viewer.addHandler('update-viewport', () => {
-      if (this.showSelectionControls) {
-
-      }
+    // The viewer area changes size when the AI panel or the sidebar opens or
+    // closes. Re-place the toolbar for the new size — beside the selection if
+    // the reader has not moved it, kept inside the viewer if they have.
+    this.viewer.addHandler('resize', () => {
+      this.ngZone.run(() => this.updateControlsPosition());
     });
 
     this.viewer.addHandler('animation', () => {
@@ -764,24 +862,24 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // While the container is still animating (panel slide = 300ms) the zoom
     // OpenSeadragon reports is transient, so it is ignored, and the re-fit
     // happens once the size has settled.
-    let atHome = true;
     const isAtFittedZoom = (): boolean => {
       const viewport = this.viewer?.viewport;
       if (!viewport) return false;
       const fitted = Math.max(viewport.getHomeZoom(), (this.viewer as any).minZoomLevel || 0);
       return Math.abs(viewport.getZoom(true) - fitted) <= fitted * 0.02;
     };
-    this.viewer.addHandler('open', () => { atHome = true; });
+    // A locked zoom is the reader's choice, so a layout change must not re-fit it.
+    this.viewer.addHandler('open', () => { this.atHome = !this.iiifViewerService.isZoomLocked(); });
     this.viewer.addHandler('animation-finish', () => {
       if (this.resizeSettle) return;
-      atHome = isAtFittedZoom();
+      this.atHome = isAtFittedZoom();
     });
     this.viewer.addHandler('resize', () => {
       this.updateMinZoomLevel();
       if (this.resizeSettle) clearTimeout(this.resizeSettle);
       this.resizeSettle = setTimeout(() => {
         this.resizeSettle = null;
-        if (atHome && this.viewer) {
+        if (this.atHome && this.viewer) {
           this.updateMinZoomLevel();
           this.viewer.viewport.goHome(true);
           const min = (this.viewer as any).minZoomLevel || 0;
@@ -927,7 +1025,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       this.retryImage();
     } else if (id === 'login') {
       // Same entry point as the header's login: the terms page, then back here.
-      this.router.navigate(['pages/terms'], { queryParams: { returnUrl: this.router.url } });
+      this.authService.startLogin();
     }
   }
 
@@ -989,18 +1087,25 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     const currentPid = this.imagePid || this.metadata?.uuid;
     if (!currentPid) return EMPTY;
 
+    // Leave area selection when another page opens (as the old client did) —
+    // the selection belongs to the page that is going away.
+    this.iiifViewerService.cancelSelectionOnPageChange();
+
     // Clear existing overlays when changing pages
     this.iiifViewerService.clearAllOverlays();
 
-    // Set thumbnail as background placeholder for blur→sharp effect (single page only)
-    if (!this.iiifViewerService.isBookMode()) {
-      this.setThumbnailBackground(currentPid);
-    } else {
-      this.clearThumbnailBackground();
-    }
-
     return this.loadTileSources(currentPid).pipe(
       switchMap((tileSources) => {
+        // The previous page stays on the canvas until now. Its thumbnail goes in
+        // as the canvas is cleared for the new one (blur→sharp, single page
+        // only), not earlier, or it would show around a page of other proportions.
+        // A locked zoom opens away from home, where the whole-page thumbnail
+        // would only flash before it is dropped (watchThumbnailPlaceholder).
+        if (!this.iiifViewerService.isBookMode() && !this.iiifViewerService.isZoomLocked()) {
+          this.setThumbnailBackground(currentPid);
+        } else {
+          this.clearThumbnailBackground();
+        }
         this.viewer?.open(tileSources);
         return EMPTY;
       })
@@ -1188,28 +1293,20 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     const gap = IIIFViewer.CONTROLS_GAP;
     const margin = IIIFViewer.CONTROLS_MARGIN;
 
-    // Preferred placement: just outside the selection's right edge.
-    let left = elementRect.x + elementRect.width + gap;
-
-    if (containerWidth > 0) {
-      const overflowsRight = left + controlsWidth + margin > containerWidth;
-      if (overflowsRight) {
-        // Flip to the selection's left edge; if that would also clip (selection
-        // is wide or hugs the left), clamp inside the viewer instead.
-        const flipped = elementRect.x - gap - controlsWidth;
-        left = flipped >= margin
-          ? flipped
-          : Math.max(margin, containerWidth - controlsWidth - margin);
-      }
+    if (this.selectionControlsPinned && this.selectionRect) {
+      this.clampPinnedControls(containerWidth, containerHeight, controlsWidth, controlsHeight);
+      return;
     }
 
-    // Vertically the controls track the selection's top edge, clamped so they
-    // never run past the bottom (or above the top) of the viewer.
-    let top = elementRect.y;
-    if (containerHeight > 0) {
-      const maxTop = Math.max(margin, containerHeight - controlsHeight - margin);
-      top = Math.min(Math.max(top, margin), maxTop);
-    }
+    // Not moved by the reader: put it beside the selection wherever there is
+    // room, off the selected area when at all possible. Recomputed on every
+    // viewport change and viewer resize (AI panel opened/closed, sidebar…).
+    const { top, left } = placeSelectionControls(
+      elementRect,
+      { width: containerWidth, height: containerHeight },
+      { width: controlsWidth, height: controlsHeight },
+      { gap, margin },
+    );
 
     // `update-viewport` and `animation` fire continuously. Allocating a new
     // object each time would hand the template a fresh identity on every frame
@@ -1223,6 +1320,36 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     }
 
     this.selectionRect = { top, left };
+  }
+
+  /** Keeps a dragged toolbar inside the viewer (after a drag, resize or collapse). */
+  private clampPinnedControls(containerWidth: number, containerHeight: number,
+                              controlsWidth: number, controlsHeight: number) {
+    if (!this.selectionRect) return;
+    const margin = IIIFViewer.CONTROLS_MARGIN;
+    if (containerWidth > 0) {
+      const maxLeft = Math.max(margin, containerWidth - controlsWidth - margin);
+      this.selectionRect.left = Math.min(Math.max(this.selectionRect.left, margin), maxLeft);
+    }
+    if (containerHeight > 0) {
+      const maxTop = Math.max(margin, containerHeight - controlsHeight - margin);
+      this.selectionRect.top = Math.min(Math.max(this.selectionRect.top, margin), maxTop);
+    }
+  }
+
+  onSelectionControlsDrag(delta: { dx: number; dy: number }) {
+    if (!this.selectionRect) return;
+    this.selectionControlsPinned = true;
+    this.selectionRect.left += delta.dx;
+    this.selectionRect.top += delta.dy;
+    this.updateControlsPosition();
+  }
+
+  onSelectionControlsCollapsedChange(collapsed: boolean) {
+    this.selectionControlsCollapsed = collapsed;
+    // The toolbar's height changes; re-clamp once the new size is rendered.
+    this.cdr.detectChanges();
+    this.updateControlsPosition();
   }
 
   onText() {
@@ -1342,17 +1469,19 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   }
 
   /**
-   * Check if viewer is at base zoom level (not zoomed in)
+   * Which horizontal edges of the page (both pages in book mode) the viewport
+   * shows. With the whole width in view - the fitted, un-zoomed page in any
+   * container (issue #161) - both do.
    */
-  private isAtBaseZoom(): boolean {
-    if (!this.viewer) return false;
-
-    const viewport = this.viewer.viewport;
-    const currentZoom = viewport.getZoom();
-
-    const restingZoom = Math.max(viewport.getHomeZoom(), (this.viewer as any).minZoomLevel || 0);
-
-    return currentZoom <= restingZoom * this.SWIPE_CONFIG.zoomTolerance;
+  private visiblePageEdges(): { left: boolean; right: boolean } {
+    if (!this.viewer) return { left: false, right: false };
+    const view = this.viewer.viewport.getBounds(true);
+    const page = this.viewer.world.getHomeBounds();
+    const tolerance = view.width * this.SWIPE_CONFIG.edgeTolerance;
+    return {
+      left: view.x <= page.x + tolerance,
+      right: view.x + view.width >= page.x + page.width - tolerance
+    };
   }
 
   /**
@@ -1370,91 +1499,111 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   /**
    * Setup native touch event listeners for swipe navigation
-   * Uses native events for maximum compatibility across browsers and devices
+   * Uses native events for maximum compatibility across browsers and devices.
+   * The handlers are arrow functions passed as they are (no bind), so a second
+   * call (direct-image fallback re-creates the viewer) does not add them twice
+   * and ngOnDestroy can remove them.
    */
   private setupNativeTouchListeners(): void {
     const container = this.viewerContainer.nativeElement;
 
-    container.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: true });
-    container.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: true });
-    container.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: false });
+    container.addEventListener('touchstart', this.onTouchStart, { passive: true });
+    container.addEventListener('touchmove', this.onTouchMove, { passive: true });
+    container.addEventListener('touchend', this.onTouchEnd, { passive: false });
+    container.addEventListener('touchcancel', this.onTouchCancel, { passive: true });
+  }
+
+  // Stable references for add/removeEventListener; the logic lives in the
+  // handle* methods.
+  private onTouchStart = (e: TouchEvent): void => this.handleTouchStart(e);
+  private onTouchMove = (e: TouchEvent): void => this.handleTouchMove(e);
+  private onTouchEnd = (e: TouchEvent): void => this.handleTouchEnd(e);
+  private onTouchCancel = (): void => this.resetTouchState();
+
+  /**
+   * Touch start. The first finger starts a gesture and records where it is and
+   * which page edges are visible; a further finger only marks it as multi-touch.
+   */
+  private handleTouchStart(e: TouchEvent): void {
+    if (!this.touchState.tracking && e.touches.length === 1) {
+      this.touchState.startX = e.touches[0].clientX;
+      this.touchState.startY = e.touches[0].clientY;
+      this.touchState.startTime = Date.now();
+      this.touchState.tracking = true;
+      this.touchState.edges = this.visiblePageEdges();
+    }
+    this.touchState.maxTouches = Math.max(this.touchState.maxTouches, e.touches.length);
+  }
+
+  private handleTouchMove(e: TouchEvent): void {
+    this.touchState.maxTouches = Math.max(this.touchState.maxTouches, e.touches.length);
   }
 
   /**
-   * Handle touch start - record initial touch position and time
+   * Touch end. Once the last finger lifts, a one-finger horizontal drag that is
+   * long enough (or a quick flick) turns the page - but only from an edge that
+   * was in view when the drag started: swiping left needs the right edge,
+   * swiping right the left one. Zoomed in mid-page, the same drag just pans.
    */
-  private onTouchStart = (e: TouchEvent): void => {
-    // Only track single-finger swipes (multi-touch is for pinch-zoom)
-    if (e.touches.length !== 1) {
-      this.touchState.isSwiping = false;
-      return;
-    }
+  private handleTouchEnd(e: TouchEvent): void {
+    // Fingers still down: the gesture is not over yet.
+    if (e.touches.length > 0) return;
 
-    this.touchState.startX = e.touches[0].clientX;
-    this.touchState.startY = e.touches[0].clientY;
-    this.touchState.startTime = Date.now();
-    this.touchState.touchCount = e.touches.length;
-    this.touchState.isSwiping = false;
-  };
-
-  /**
-   * Handle touch move - mark as swiping if user is dragging
-   */
-  private onTouchMove = (e: TouchEvent): void => {
-    // Ignore if multi-touch (pinch-zoom)
-    if (e.touches.length > 1 || this.touchState.touchCount > 1) {
-      this.touchState.isSwiping = false;
-      return;
-    }
-
-    this.touchState.isSwiping = true;
-  };
-
-  /**
-   * Handle touch end - detect and handle swipe gestures
-   */
-  private onTouchEnd = (e: TouchEvent): void => {
-    // Validate gesture prerequisites
-    if (!this.viewer || !this.touchState.isSwiping || e.changedTouches.length !== 1) {
-      this.resetTouchState();
-      return;
-    }
-
-    // Ignore if multi-touch was used (pinch-zoom)
-    if (this.touchState.touchCount > 1) {
-      this.resetTouchState();
-      return;
-    }
-
+    const state = this.touchState;
     const touch = e.changedTouches[0];
-    const deltaX = touch.clientX - this.touchState.startX;
-    const deltaY = touch.clientY - this.touchState.startY;
-    const duration = Date.now() - this.touchState.startTime;
+    if (!this.viewer || !state.tracking || state.maxTouches !== 1 || !touch
+      || this.iiifViewerService.inSelectionMode()) {
+      this.resetTouchState();
+      return;
+    }
 
+    const deltaX = touch.clientX - state.startX;
+    const deltaY = touch.clientY - state.startY;
+    const duration = Math.max(1, Date.now() - state.startTime);
     const absDeltaX = Math.abs(deltaX);
     const absDeltaY = Math.abs(deltaY);
+    const width = this.viewerContainer.nativeElement.clientWidth || window.innerWidth;
 
-    // Check swipe validity
     const isHorizontal = absDeltaX > absDeltaY * (1 / this.SWIPE_CONFIG.maxVerticalRatio);
-    const isLongEnough = absDeltaX >= this.SWIPE_CONFIG.minDistance;
-    const isFastEnough = duration <= this.SWIPE_CONFIG.maxTime;
-    const isAtBase = this.isAtBaseZoom();
+    const isLongDrag = absDeltaX >= width * this.SWIPE_CONFIG.minDistanceRatio;
+    const isFlick = absDeltaX >= this.SWIPE_CONFIG.flickDistance
+      && absDeltaX / duration >= this.SWIPE_CONFIG.flickVelocity;
+    const direction = deltaX < 0 ? 'left' : 'right';
+    const fromEdge = direction === 'left' ? state.edges.right : state.edges.left;
 
-    // Execute navigation if all conditions met
-    if (isHorizontal && isLongEnough && isFastEnough && isAtBase) {
+    if (isHorizontal && (isLongDrag || isFlick) && fromEdge) {
       e.preventDefault();
-      this.navigateBySwipe(deltaX < 0 ? 'left' : 'right');
+      this.navigateBySwipe(direction);
     }
 
     this.resetTouchState();
-  };
+  }
 
   /**
    * Reset touch state after gesture completes
    */
   private resetTouchState(): void {
-    this.touchState.isSwiping = false;
-    this.touchState.touchCount = 0;
+    this.touchState.tracking = false;
+    this.touchState.maxTouches = 0;
+  }
+
+  /**
+   * How far the reader may pan the page off the view. With visibilityRatio 1 a
+   * zoomed-in page has to fill the whole view, so on release OpenSeadragon
+   * springs its edge back to the viewer edge and a small article near the left
+   * (or right) margin can't be dragged to the middle to read it. Once the page
+   * is wider than the view, half the view may show empty space instead; while
+   * it fits, it stays pinned, so the fitted page (and a touch swipe that turns
+   * it) doesn't slide aside.
+   */
+  private updatePanConstraint(): void {
+    const viewport = this.viewer?.viewport as any;
+    if (!viewport) return;
+    const page = this.viewer!.world.getHomeBounds();
+    // Viewport coordinates: the view is 1 / zoom wide. Target zoom, so the
+    // constraint applied at the end of a zoom animation already matches it.
+    const zoomedIn = page.width * viewport.getZoom(false) > 1.001;
+    viewport.visibilityRatio = zoomedIn ? 0.5 : 1;
   }
 
   /**

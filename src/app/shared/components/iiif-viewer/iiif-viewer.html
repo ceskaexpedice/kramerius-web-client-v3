@@ -23,7 +23,9 @@
       <app-selection-controls [style.top.px]="selectionRect.top"
         [style.left.px]="selectionRect.left" [style.position]="'absolute'" (text)="onText()" (export)="onExport()"
         (share)="onShare()" (cancel)="onSelectionCancel()"
-        (read)="onSelectionRead()" (translate)="onSelectionTranslate()" (summarize)="onSelectionSummarize()">
+        (read)="onSelectionRead()" (translate)="onSelectionTranslate()" (summarize)="onSelectionSummarize()"
+        [collapsed]="selectionControlsCollapsed" (collapsedChange)="onSelectionControlsCollapsedChange($event)"
+        (dragBy)="onSelectionControlsDrag($event)">
       </app-selection-controls>
     }
   </div>

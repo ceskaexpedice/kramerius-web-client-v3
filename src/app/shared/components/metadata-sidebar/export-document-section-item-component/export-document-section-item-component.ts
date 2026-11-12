@@ -1,14 +1,18 @@
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MatRadioModule } from '@angular/material/radio';
+import { CdkTooltipDirective } from '../../../directives/cdk-tooltip';
 import { FormsModule } from '@angular/forms';
-import { NgFor } from '@angular/common';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 
 export interface ExportOption {
   label: string;
   value: string;
   disabled: boolean;
+  /** Optional translation key shown in a tooltip on an info icon next to the option. */
+  hint?: string;
+  /** Interpolation params for the `hint` translation. */
+  hintParams?: Record<string, unknown>;
 }
 
 @Component({
@@ -17,7 +21,7 @@ export interface ExportOption {
     TranslatePipe,
     MatRadioModule,
     FormsModule,
-    NgFor,
+    CdkTooltipDirective,
   ],
   templateUrl: './export-document-section-item-component.html',
   styleUrl: './export-document-section-item-component.scss',

@@ -6,6 +6,7 @@
 import { Injectable } from '@angular/core';
 import { environment as staticEnv } from '../../../environments/environment';
 import { ensureTrailingSlash } from '../misc/trailing-slash';
+import { DEV_LIBRARY_ID_KEY, DEV_LIBRARY_URL_KEY, getDevLibraryValue } from '../utils/dev-library-storage';
 
 @Injectable({ providedIn: 'root' })
 export class EnvironmentService {
@@ -126,10 +127,10 @@ export class EnvironmentService {
 
   getKrameriusUrl(withParam = true): string {
     // Internal-only library switch: when enabled, a selected dev library's
-    // base URL is kept in localStorage. Ignored entirely in the default
+    // base URL is kept in sessionStorage. Ignored entirely in the default
     // (single-Kramerius) deployment.
     if (this.librarySwitchEnabled) {
-      const devOverride = localStorage.getItem('CDK_DEV_BASE_URL');
+      const devOverride = getDevLibraryValue(DEV_LIBRARY_URL_KEY);
       if (devOverride) {
         return ensureTrailingSlash(devOverride) + (withParam ? 'search/api/client/v7.0/' : '');
       }
@@ -155,7 +156,7 @@ export class EnvironmentService {
   getKrameriusId(): string {
     // The dev library id is only honored when the internal library switch is on.
     if (this.librarySwitchEnabled) {
-      const devId = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
+      const devId = getDevLibraryValue(DEV_LIBRARY_ID_KEY);
       if (devId) return devId;
     }
     return this.getBaseKrameriusId();

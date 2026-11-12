@@ -109,6 +109,10 @@ describe('periodical-date', () => {
       })).toBe('3.1.');
     });
 
+    it('appends the year when asked (list spanning several volumes)', () => {
+      expect(formatIssueDateLabel({ 'date.str': '02.01.1898' }, true)).toBe('2.1.1898');
+    });
+
     it('labels a single-day issue with that day', () => {
       expect(formatIssueDateLabel({ 'date.str': '12.05.1986' })).toBe('12.5.');
     });

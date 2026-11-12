@@ -11,6 +11,7 @@ import { DetailViewService } from '../../modules/detail-view-page/services/detai
 import { IIIFViewerService } from './iiif-viewer.service';
 import { SettingsService } from '../../modules/settings/settings.service';
 import { ToastService } from './toast.service';
+import { AiPanelService } from './ai-panel.service';
 
 /**
  * The AI proxy answers with a quota body once the monthly token budget is spent:
@@ -145,6 +146,7 @@ describe('AI quota exhaustion', () => {
           } },
           { provide: SettingsService, useValue: { settings: null } },
           { provide: ToastService, useValue: toastStub },
+          { provide: AiPanelService, useValue: { showReadAlongText: () => {} } },
         ],
       });
       service = TestBed.inject(TtsService);

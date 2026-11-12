@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { AuthService } from '../../../../core/auth/auth.service';
 import { AiActionsComponent } from './ai-actions.component';
 import { TtsService } from '../../../services/tts.service';
 import { AiPanelService } from '../../../services/ai-panel.service';
@@ -8,6 +8,7 @@ import { UserService } from '../../../services/user.service';
 import { SettingsService } from '../../../../modules/settings/settings.service';
 import { DocumentInfoService } from '../../../services/document-info.service';
 import { ConfigService } from '../../../../core/config/config.service';
+import { IIIFViewerService } from '../../../services/iiif-viewer.service';
 
 /**
  * Read-aloud, translation and summarisation need the page's words, not their
@@ -25,7 +26,8 @@ describe('AiActionsComponent OCR availability', () => {
         { provide: DetailViewService, useValue: {} },
         { provide: UserService, useValue: { isLoggedIn: true } },
         { provide: SettingsService, useValue: {} },
-        { provide: Router, useValue: { url: '/view/x' } },
+        { provide: AuthService, useValue: { startLogin: () => {} } },
+        { provide: IIIFViewerService, useValue: { getSelectedRegion: () => null } },
         {
           provide: DocumentInfoService,
           useValue: { hasAlto: () => ocr.alto, hasOcrText: () => ocr.text, getRuntimeLicenses: () => [] },

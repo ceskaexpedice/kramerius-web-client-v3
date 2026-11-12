@@ -10,7 +10,7 @@
         <span>{{ 'ai.read-aloud' | translate }}</span>
       </div>
       <span class="button tertiary transparent sm ai-actions__item-settings" (click)="openReadingSettings($event)"
-        role="button" tabindex="0" [attr.aria-label]="'settings' | translate" [title]="'settings' | translate"
+        role="button" tabindex="0" [attr.aria-label]="'settings' | translate" [appCdkTooltip]="'settings' | translate" [title]="'settings' | translate"
         (keydown.enter)="openReadingSettings($event)" (keydown.space)="$event.preventDefault(); openReadingSettings($event)">
         <i class="icon-settings-2" aria-hidden="true"></i>
       </span>

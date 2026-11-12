@@ -1,4 +1,5 @@
 @use "mixins";
+@use "_z-index.scss" as *;
 
 .collection-description-wrapper {
   margin-top: var(--spacing-x6);
@@ -202,4 +203,22 @@ app-mobile-nav-bar {
 // Room for the fixed bar so it never covers the last cards.
 :host:has(app-mobile-nav-bar) .page-container {
   padding-bottom: calc(60px + var(--mobile-nav-safe-bottom, 0px));
+}
+
+// "Add to my library" popup opened from the toolbar heart (#207).
+.favorites-popup-wrapper {
+  position: fixed;
+  z-index: $detail-favorites-popup;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+
+  &.positioned {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  app-favorites-popup {
+    display: block;
+  }
 }

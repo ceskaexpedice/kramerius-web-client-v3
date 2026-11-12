@@ -165,16 +165,16 @@ export class AltoService {
   /**
    * The text inside a selected region of the page.
    *
-   * Same shape as `fetchPageText`, but with `html` always empty: the styled
-   * HTML is built for whole pages, so a region is handed over as plain text.
-   * Without ALTO there are no coordinates to cut the region by, so the result
-   * is empty rather than the whole page's text.
+   * Same shape as `fetchPageText`: `html` is the styled rendition cut to the
+   * region, so a translated selection keeps its headings and paragraphs the way
+   * a translated page does. Without ALTO there are no coordinates to cut the
+   * region by, so the result is empty rather than the whole page's text.
    */
   fetchRegionText(pid: string, region: TextRegion): Observable<{ text: string; html: string }> {
     return this.fetchAltoXml(pid).pipe(
       map(altoXml => ({
         text: this.getTextInBox(altoXml, region.box, region.imageWidth, region.imageHeight),
-        html: '',
+        html: this.getStyledHtml(altoXml, region),
       })),
       catchError(() => of({ text: '', html: '' })),
     );
@@ -634,10 +634,16 @@ export class AltoService {
 
   /**
    * Converts ALTO XML to styled HTML, preserving font sizes, bold, and alignment
+   *
+   * With a region only the lines and words overlapping it are kept — the same
+   * overlap rule as `getTextInBox` — so the result covers exactly the text the
+   * plain extraction does, just with its layout.
+   *
    * @param altoXml - ALTO XML string
+   * @param region - Optional selected area in image pixel coordinates
    * @returns HTML string with inline styles
    */
-  getStyledHtml(altoXml: string): string {
+  getStyledHtml(altoXml: string, region?: TextRegion | null): string {
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(altoXml, 'text/xml');
 
@@ -645,6 +651,28 @@ export class AltoService {
     if (parserError) {
       return '';
     }
+
+    let altoBox: number[] | null = null;
+    if (region) {
+      const dims = this.getAltoDimensions(altoXml);
+      if (!dims.width || !dims.height) return '';
+      const scaleX = region.imageWidth / dims.width;
+      const scaleY = region.imageHeight / dims.height;
+      altoBox = [
+        region.box[0] / scaleX,
+        region.box[1] / scaleY,
+        region.box[2] / scaleX,
+        region.box[3] / scaleY,
+      ];
+    }
+    const overlapsRegion = (el: Element): boolean => {
+      if (!altoBox) return true;
+      const h = parseInt(el.getAttribute('HPOS') || '0', 10);
+      const v = parseInt(el.getAttribute('VPOS') || '0', 10);
+      const w = parseInt(el.getAttribute('WIDTH') || '0', 10);
+      const hh = parseInt(el.getAttribute('HEIGHT') || '0', 10);
+      return h < altoBox[2] && h + w > altoBox[0] && v < altoBox[3] && v + hh > altoBox[1];
+    };
 
     // Parse styles
     const textStyles = new Map<string, number>();
@@ -660,7 +688,10 @@ export class AltoService {
     const htmlParts: string[] = [];
 
     const textLines = Array.from(xmlDoc.getElementsByTagName('TextLine'));
-    let currentLines: string[] = [];
+    // Each line is kept in two renderings: `styled` marks bold/italic words for
+    // use inside a paragraph, `plain` leaves them out for use in a heading. Which
+    // one a block uses is only known once the whole block has been read.
+    let currentLines: Array<{ styled: string; plain: string; allBold: boolean }> = [];
     let currentTag: 'p' | 'h1' | 'h2' | 'h3' = 'p';
     let currentAlign = 'left';
     let currentBaseFontSize = 0;
@@ -672,7 +703,16 @@ export class AltoService {
         return;
       }
 
-      const blockContent = currentLines.join(' ');
+      // A block is a bold heading only when it is bold all the way through. A
+      // notice opening with a bold run-in title ("(Ruderclub „Bruna".) Die
+      // Mitglieder…") fills its first line with bold words, and judging by that
+      // line alone turned the whole notice into a heading.
+      if (currentTag === 'p' && currentLines.every(l => l.allBold)) {
+        currentTag = 'h3';
+      }
+      const blockContent = currentLines
+        .map(l => (currentTag === 'p' ? l.styled : l.plain))
+        .join(' ');
       const styles: string[] = [];
 
       if (currentAlign !== 'left') {
@@ -695,7 +735,7 @@ export class AltoService {
 
     for (const line of textLines) {
       const textLineWidth = parseInt(line.getAttribute('WIDTH') || '0', 10);
-      if (textLineWidth < 50) {
+      if (textLineWidth < 50 || !overlapsRegion(line)) {
         continue;
       }
 
@@ -759,6 +799,10 @@ export class AltoService {
           continue;
         }
 
+        if (!overlapsRegion(stringEl)) {
+          continue;
+        }
+
         const style = stringEl.getAttribute('STYLE') || '';
         const isBold = style.includes('bold');
         const isItalic = style.includes('italics');
@@ -780,27 +824,21 @@ export class AltoService {
         continue;
       }
 
-      const isHeadingLine = currentBaseFontSize > 11 || lineAllBold;
-      let lineHtml = words
+      const plain = words.map(({ content }) => escapeHtml(content)).join(' ');
+      let styled = words
         .map(({ content, isBold, isItalic }) => {
           let word = escapeHtml(content);
-          if (!isHeadingLine) {
-            if (isBold) word = `<strong>${word}</strong>`;
-            if (isItalic) word = `<em>${word}</em>`;
-          }
+          if (isBold) word = `<strong>${word}</strong>`;
+          if (isItalic) word = `<em>${word}</em>`;
           return word;
         })
         .join(' ');
 
-      if (!isHeadingLine && currentTag === 'p' && lineFontSize > 0 && lineFontSize !== currentBaseFontSize) {
-        lineHtml = `<span style="font-size:${this.altoFontToCss(lineFontSize)}">${lineHtml}</span>`;
+      if (lineFontSize > 0 && lineFontSize !== currentBaseFontSize) {
+        styled = `<span style="font-size:${this.altoFontToCss(lineFontSize)}">${styled}</span>`;
       }
 
-      currentLines.push(lineHtml);
-
-      if (currentLines.length === 1 && lineAllBold && currentTag === 'p') {
-        currentTag = 'h3';
-      }
+      currentLines.push({ styled, plain, allBold: lineAllBold });
 
       lastBottom = bottom;
       lastLeft = textLineHpos;

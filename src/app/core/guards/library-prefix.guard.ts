@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { CanMatchFn, Route, UrlSegment } from '@angular/router';
 import { ConfigService } from '../config/config.service';
 import { EnvironmentService } from '../../shared/services/environment.service';
+import { DEV_LIBRARY_ID_KEY, DEV_LIBRARY_URL_KEY, getDevLibraryValue, setDevLibraryValue } from '../../shared/utils/dev-library-storage';
 
 const libraryCache = new Map<string, { code: string; url: string } | null>();
 
@@ -56,8 +57,8 @@ export const libraryPrefixGuard: CanMatchFn = async (_route: Route, segments: Ur
     return false;
   }
 
-  const currentCode = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
-  const currentUrl = localStorage.getItem('CDK_DEV_BASE_URL');
+  const currentCode = getDevLibraryValue(DEV_LIBRARY_ID_KEY);
+  const currentUrl = getDevLibraryValue(DEV_LIBRARY_URL_KEY);
 
   if (currentCode === libCode && currentUrl) {
     return true;
@@ -69,10 +70,10 @@ export const libraryPrefixGuard: CanMatchFn = async (_route: Route, segments: Ur
     return false;
   }
 
-  // If library changed, set localStorage and reload so env/config pick up new API URLs
+  // If library changed, store it for this tab and reload so env/config pick up new API URLs
   if (currentCode !== libCode) {
-    localStorage.setItem('CDK_DEV_BASE_URL', library.url);
-    localStorage.setItem('CDK_DEV_KRAMERIUS_ID', library.code);
+    setDevLibraryValue(DEV_LIBRARY_URL_KEY, library.url);
+    setDevLibraryValue(DEV_LIBRARY_ID_KEY, library.code);
     window.location.reload();
     return false;
   }

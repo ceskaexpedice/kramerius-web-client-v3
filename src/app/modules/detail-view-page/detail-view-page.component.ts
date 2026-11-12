@@ -124,6 +124,16 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
   // Favorites popup helper
   public favoritesHelper: FavoritesPopupHelper;
 
+  /**
+   * Uuid of the document whose page on screen passed its access check. Every
+   * page turn re-runs the check; meanwhile the viewer of that document stays up
+   * showing the previous page instead of being swapped for a loader, which
+   * flashed white on every page turn. The viewer holds the new page back until
+   * access is confirmed ([holdPage]), so a denied page still never shows its
+   * thumbnail (#105). Keyed by uuid so a newly opened document starts with the loader.
+   */
+  readonly viewerAccessGrantedFor = signal<string | null>(null);
+
   // Article detail observable - converted to metadata format
   articleMetadata$: Observable<any>;
 
@@ -152,6 +162,14 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
     // An open panel keeps the chrome up (it docks between header and nav).
     effect(() => {
       this.uiState.setImmersive(this.breakpointService.isMobile() && !this.mobileNavVisible() && !this.mobilePanelOpen());
+    });
+
+    effect(() => {
+      const state = this.documentInfoService.state();
+      if (state === 'LOADING') return;
+      const document = untracked(() => this.detailViewService.document);
+      this.viewerAccessGrantedFor.set(
+        state === 'LOADED' && document && !this.isAccessDenied(document) ? document.uuid : null);
     });
 
     // The pages panel (left filter-sidebar) was closed: bring the nav back.
@@ -427,6 +445,29 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
       this.mobileSectionOpen.set(true);
     }
     this.mobileNavVisible.set(true);
+  }
+
+  /**
+   * The reader may not see the page the last access check was for (the
+   * access-denied screen replaces the viewer).
+   */
+  isAccessDenied(document: { licences: string[] }): boolean {
+    return this.documentInfoService.isLockUnavailable()
+      || (!this.recordHandler.isRecordPublic(document.licences)
+        && !this.documentInfoService.canAccessDocument()
+        && !this.userService.hasAnyLicense(document.licences));
+  }
+
+  /**
+   * A hit picked in the mobile results panel opens that page, so the panel
+   * closes to show it, like a pick in the pages panel. Its prev/next buttons and
+   * paginator keep it open.
+   */
+  onMobileResultClick(event: MouseEvent): void {
+    if ((event.target as HTMLElement | null)?.closest('app-record-item')) {
+      this.mobileSectionOpen.set(false);
+      this.onMobileSectionClosed();
+    }
   }
 
   /** Section panel dismissed (its close button or Escape): no section active. */

@@ -1,4 +1,5 @@
 @use "mixins";
+@use "_z-index.scss" as *;
 // Common layout styles moved to /public/styles/_page-layout.scss
 
 // Row container holding the scrolling content column and the fixed metadata
@@ -69,3 +70,20 @@
   }
 }
 
+// "Add to my library" popup opened from the toolbar heart (#207).
+.favorites-popup-wrapper {
+  position: fixed;
+  z-index: $detail-favorites-popup;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+
+  &.positioned {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  app-favorites-popup {
+    display: block;
+  }
+}

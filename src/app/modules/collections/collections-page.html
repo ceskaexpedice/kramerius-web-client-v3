@@ -72,6 +72,8 @@
                 <!-- Phones: actions collapse into the "more" menu (as on the
                      periodical and monograph pages) so they don't overlap the title. -->
                 <app-toolbar-controls [showViewToggle]="false" [showFavorites]="true" [showShare]="true"
+                  [favoritesActive]="(metadata?.uuid ? (favoritesHelper.getFavoritedStatus(metadata.uuid) | async) : false) ?? false"
+                  (favoritesClicked)="onFavoritesClicked($event, metadata || null)"
                   [mobileMenuMode]="breakpointService.isMobile()"
                   [showQuote]="true" [showInfo]="breakpointService.isMobile()" [showSelect]="true"
                   (infoClicked)="onInfoClicked()"
@@ -242,3 +244,13 @@
     </app-mobile-nav-bar>
   }
 </div>
+
+<!-- "Add to my library" popup for the collection (#207). Positioned fixed to
+     avoid overflow clipping; without it the toolbar heart did nothing. -->
+@if (favoritesHelper.favoritesPopupState.showPopup()) {
+<div class="favorites-popup-wrapper" [class.positioned]="favoritesHelper.favoritesPopupState.popupPositioned()">
+  <app-favorites-popup [itemId]="favoritesHelper.currentItemId()" [itemName]="favoritesHelper.currentItemName()"
+    (close)="onFavoritesPopupClose()" (success)="onFavoritesPopupClose()">
+  </app-favorites-popup>
+</div>
+}

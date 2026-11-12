@@ -193,4 +193,20 @@ export class BreakpointService {
   toggleSidebar() {
     this.manualToggle.update(value => !value);
   }
+
+  /**
+   * The collapsible sidebar covers the content instead of sitting docked beside
+   * it: the portrait phone's fixed panel, the landscape phone or the tablet overlay.
+   */
+  isSidebarOverlay = computed(() => !this.sidebarVisible() || this.isShortViewport());
+
+  /**
+   * A pick in the sidebar (a page, article or part) means the reader wants to
+   * read it, so an overlay sidebar gets out of the way. A docked one stays.
+   */
+  closeOverlaySidebar(): void {
+    if (this.isSidebarOverlay()) {
+      this.manualToggle.set(false);
+    }
+  }
 }

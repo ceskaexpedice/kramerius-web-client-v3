@@ -2,10 +2,10 @@
   backdrop-filter: blur(2px);
   display: flex;
   flex-direction: column;
-  gap: 56px;
+  gap: 40px;
   width: 100%;
   height: 100%;
-  padding: 40px;
+  padding: 32px 40px;
   overflow-y: auto;
   background-color: var(--color-bg-base);
   border-radius: var(--spacing-x3);
@@ -15,33 +15,33 @@
 .access-denied-header {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   width: 100%;
 }
 
 .header-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   color: var(--color-text-base);
 }
 
 .access-denied-title {
   font-family: var(--font-family-primary);
   font-weight: 500;
-  font-size: var(--font-size-4xlarge);
-  line-height: var(--line-height-7);
+  font-size: var(--font-size-xxlarge);
+  line-height: var(--line-height-4);
   margin: 0;
 }
 
 .access-denied-description {
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-large);
+  font-size: var(--font-size-base);
   line-height: var(--line-height-2);
   margin: 0;
 
   p {
-    margin: 0 0 12px 0;
+    margin: 0 0 8px 0;
 
     &:last-child {
       margin-bottom: 0;
@@ -54,7 +54,7 @@
   }
 
   a {
-    font-weight: 500;
+    font-weight: 400;
     color: var(--color-text-link);
     text-decoration: underline;
     cursor: pointer;
@@ -72,10 +72,9 @@
 }
 
 // Introduces the instruction list ("To view it:"). The instruction pages are
-// sentence fragments that continue this line, so it is emphasised to read as
-// their heading rather than as another sentence of body copy.
+// sentence fragments that continue this line.
 .instruction-lead-in {
-  font-weight: 500;
+  font-weight: 400;
 }
 
 // Links inside content injected via [innerHTML] carry no component style
@@ -83,7 +82,7 @@
 :host ::ng-deep {
   // One per license, each a separate route to the content.
   .instruction-content .instruction-item {
-    margin: 0 0 12px 0;
+    margin: 0 0 8px 0;
 
     &:last-child {
       margin-bottom: 0;
@@ -92,7 +91,7 @@
 
   .instruction-content a,
   .banner-content a {
-    font-weight: 500;
+    font-weight: 400;
     color: var(--color-text-link);
     text-decoration: underline;
     cursor: pointer;
@@ -172,17 +171,17 @@
 @media (max-width: 768px) {
   .access-denied-container {
     padding: 24px 16px;
-    gap: 40px;
+    gap: 32px;
   }
 
   .access-denied-title {
-    font-size: var(--font-size-3xlarge);
-    line-height: var(--line-height-5);
+    font-size: var(--font-size-xlarge);
+    line-height: var(--line-height-3);
   }
 
   .access-denied-description {
-    font-size: var(--font-size-base);
-    line-height: var(--line-height-xs2);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-1);
   }
 
   .faq-title {

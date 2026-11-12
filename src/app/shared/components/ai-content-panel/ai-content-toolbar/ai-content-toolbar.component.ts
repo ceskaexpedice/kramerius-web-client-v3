@@ -8,11 +8,12 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { TRANSLATION_LANGUAGES } from '../../../translation/translation-languages';
 import { copyTextToClipboard } from '../../../misc/misc-functions';
 import { DetailViewService } from '../../../../modules/detail-view-page/services/detail-view.service';
+import { CdkTooltipDirective } from '../../../directives/cdk-tooltip';
 
 @Component({
   selector: 'app-ai-content-toolbar',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, LanguageSelectComponent, MatSlideToggle],
+  imports: [CommonModule, TranslatePipe, LanguageSelectComponent, MatSlideToggle, CdkTooltipDirective],
   templateUrl: './ai-content-toolbar.component.html',
   styleUrl: './ai-content-toolbar.component.scss'
 })

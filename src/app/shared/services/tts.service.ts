@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { AltoService, AltoTextBlock, TextRegion } from './alto.service';
 import { AiApiService, TtsProvider, isQuotaExceeded } from './ai-api.service';
+import { AiPanelService } from './ai-panel.service';
 import { DetailViewService } from '../../modules/detail-view-page/services/detail-view.service';
 import { IIIFViewerService } from './iiif-viewer.service';
 import { SettingsService } from '../../modules/settings/settings.service';
@@ -17,6 +18,7 @@ export class TtsService {
   private iiifViewerService = inject(IIIFViewerService);
   private settingsService = inject(SettingsService);
   private toastService = inject(ToastService);
+  private aiPanelService = inject(AiPanelService);
 
   private audio = new Audio();
   private prefetchedAudio: string | null = null;
@@ -228,6 +230,7 @@ export class TtsService {
           this.aiApiService.detectLanguage(blocks[0].text).pipe(take(1)).subscribe({
             next: (lang) => {
               this._detectedLanguage.set(lang);
+              this.syncAiPanel(pagePid, lang);
               this.readCurrentBlock();
             },
             error: (err) => {
@@ -239,6 +242,7 @@ export class TtsService {
               }
               // Default to Czech if detection fails for any other reason
               this._detectedLanguage.set('cs');
+              this.syncAiPanel(pagePid, 'cs');
               this.readCurrentBlock();
             }
           });
@@ -252,6 +256,18 @@ export class TtsService {
         this.advanceToNextPage();
       }
     });
+  }
+
+  /**
+   * Points an open summary or translation at the text actually being read: the
+   * transcript, or its translation when the voice speaks another language (`maybeTranslate`).
+   * Runs once per reading, when the language is first known — later pages are
+   * followed by the panel's own page-change reload.
+   */
+  private syncAiPanel(pagePid: string, lang: string): void {
+    const { voiceLangCode } = this.resolveVoiceAndProvider(lang);
+    const translateTo = voiceLangCode && voiceLangCode !== lang ? voiceLangCode : undefined;
+    this.aiPanelService.showReadAlongText(pagePid, this.region, translateTo);
   }
 
   private readCurrentBlock(): void {

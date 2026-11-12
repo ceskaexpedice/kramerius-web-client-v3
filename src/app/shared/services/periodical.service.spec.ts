@@ -69,4 +69,28 @@ describe('PeriodicalService.handleDocument view mode', () => {
 
     expect(viewMode()).toBe(ViewMode.GridYears);
   });
+
+  it('lists issue cards on the years level when a date filter is active', () => {
+    const { service, viewMode } = makeService({
+      queryParams: { dateFrom: '1897-12-01', dateTo: '1898-12-31' },
+      submittedTerm: '',
+      storedView: 'timeline',
+    });
+
+    service.handleDocument({ model: 'periodical' });
+
+    expect(viewMode()).toBe(ViewMode.GridIssues);
+  });
+
+  it('keeps the years view for a year filter alone', () => {
+    const { service, viewMode } = makeService({
+      queryParams: { yearFrom: '1898', yearTo: '1900' },
+      submittedTerm: '',
+      storedView: 'grid',
+    });
+
+    service.handleDocument({ model: 'periodical' });
+
+    expect(viewMode()).toBe(ViewMode.GridYears);
+  });
 });

@@ -24,6 +24,9 @@ import { CdkSourceService } from '../../shared/services/cdk-source.service';
 import { ConfigService } from '../config/config.service';
 import { SKIP_ERROR_INTERCEPTOR } from '../services/http-context-tokens';
 
+/** A parent pid, or every volume of a periodical (see buildPeriodicalChildrenQuery). */
+export type PeriodicalChildrenParent = string | { issuesOfRoot: string };
+
 @Injectable({ providedIn: 'root' })
 export class SolrService {
 
@@ -321,12 +324,24 @@ export class SolrService {
   /**
    * Builds a specific query for periodical children (volumes/items)
    */
-  private buildPeriodicalChildrenQuery(parentPid: string, model: string, advancedQuery?: string, cdkCollection?: string | null): string {
-    const baseParts = [
-      `!pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)}`,
-      `own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(parentPid)}`,
-      `(model:${model})`
-    ];
+  /**
+   * `parent` is either a parent pid (its direct children) or `{ issuesOfRoot }`
+   * - the direct children of EVERY volume of that periodical (issues across all
+   * volumes, e.g. for a date filter on the years level). The latter avoids an
+   * OR over hundreds of volume pids.
+   */
+  private buildPeriodicalChildrenQuery(parent: PeriodicalChildrenParent, model: string, advancedQuery?: string, cdkCollection?: string | null): string {
+    const baseParts = typeof parent === 'string'
+      ? [
+        `!pid:${SolrQueryBuilder.escapeSolrQuery(parent)}`,
+        `own_parent.pid:${SolrQueryBuilder.escapeSolrQuery(parent)}`,
+        `(model:${model})`
+      ]
+      : [
+        `root.pid:${SolrQueryBuilder.escapeSolrQuery(parent.issuesOfRoot)}`,
+        `own_parent.model:${DocumentTypeEnum.periodicalvolume}`,
+        `(model:${model})`
+      ];
 
     // CDK: scope children to a specific member library so the grid/facets come from
     // the selected source. Omitted ⇒ aggregated (unscoped) view.
@@ -786,7 +801,7 @@ export class SolrService {
    * Gets facets specifically for periodical children (volumes or items)
    */
   getPeriodicalChildrenFacets(
-    parentPid: string,
+    parentPid: PeriodicalChildrenParent,
     model: string,
     filters: string[],
     facetFields: string[] = DEFAULT_PERIODICAL_FACET_FIELDS,
@@ -1139,6 +1154,38 @@ export class SolrService {
     });
   }
 
+  /**
+   * Earliest and latest publication date (YYYY-MM-DD) among the issues of a
+   * periodical volume. The volume's own date.min/date.max span the whole year
+   * (e.g. 1897-01-01..1897-12-31) even when its issues only start on 16.12., so
+   * the real bounds come from the children. Nulls when no child carries a date.
+   */
+  getPeriodicalVolumeIssueDateBounds(volumePid: string, cdkCollection?: string | null): Observable<{ min: string | null; max: string | null }> {
+    const query = this.buildPeriodicalChildrenQuery(
+      volumePid,
+      `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement}`,
+      undefined,
+      cdkCollection
+    );
+    const fetchEdge = (field: 'date.min' | 'date.max', direction: 'asc' | 'desc') => {
+      const params = this.createHttpParams({
+        q: query,
+        fq: `${field}:[* TO *]`,
+        fl: field,
+        rows: 1,
+        sort: `${field} ${direction}`,
+        wt: 'json'
+      });
+      return this.http.get<any>(this.API_URL, { params }).pipe(
+        map(res => {
+          const value: string | undefined = res.response?.docs?.[0]?.[field];
+          return value ? value.slice(0, 10) : null;
+        })
+      );
+    };
+    return forkJoin({ min: fetchEdge('date.min', 'asc'), max: fetchEdge('date.max', 'desc') });
+  }
+
   getPeriodicalVolumes(pid: string,
     filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 10000, sortBy: SolrSortFields = SolrSortFields.dateMin, sortDirection: SolrSortDirections = SolrSortDirections.asc,
     advancedQuery?: string, availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }, cdkCollection?: string | null
@@ -1163,6 +1210,49 @@ export class SolrService {
 
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])
+    );
+  }
+
+  /**
+   * One page of the issues (+ supplements) of EVERY volume of a periodical -
+   * the years-level list for a date filter. Unlike getPeriodicalItems (which
+   * loads a whole volume for the calendar) this is paged and returns numFound.
+   */
+  getPeriodicalIssuesAcrossVolumesPage(
+    rootPid: string,
+    filters: string[],
+    start: number,
+    rows: number,
+    sortDirection: SolrSortDirections = SolrSortDirections.asc,
+    advancedQuery?: string,
+    availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] },
+    cdkCollection?: string | null
+  ): Observable<{ docs: any[]; numFound: number }> {
+    const query = this.buildPeriodicalChildrenQuery(
+      { issuesOfRoot: rootPid },
+      `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement}`,
+      advancedQuery,
+      cdkCollection
+    );
+    const dir = sortDirection === SolrSortDirections.desc ? 'desc' : 'asc';
+
+    let params = new HttpParams()
+      .set('q', query)
+      .set('fl', 'date.str, pid, accessibility,model,part.number.str,issue.type.code,date_range_start.day,date_range_start.month,date_range_start.year,date_range_end.day,date_range_end.month,date_range_end.year,licenses,contains_licenses,licenses.facet, root.pid, own_parent.pid')
+      .set('start', String(Math.max(0, start)))
+      .set('rows', String(Math.max(1, rows)))
+      .set('sort', `date.min ${dir}, part.number.sort ${dir}, model asc, issue.type.sort asc`)
+      .set('wt', 'json');
+
+    this.buildFqParams(filters, {}).forEach(fq => params = params.append('fq', fq));
+
+    if (availabilityFilter?.isActive && availabilityFilter.licenses.length > 0) {
+      const licenseClauses = availabilityFilter.licenses.map(lic => `${facetKeysEnum.license}:"${lic}"`).join(' OR ');
+      params = params.append('fq', `{!tag=avail}(${licenseClauses})`);
+    }
+
+    return this.http.get<any>(this.API_URL, { params }).pipe(
+      map(res => ({ docs: res.response?.docs ?? [], numFound: res.response?.numFound ?? 0 }))
     );
   }
 

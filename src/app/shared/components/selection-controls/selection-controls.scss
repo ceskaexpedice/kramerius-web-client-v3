@@ -16,6 +16,45 @@
         height: 32px;
     }
 
+    .drag-handle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 16px;
+        margin: -4px 0;
+        padding: 0;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--color-text-tertiary);
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
+
+        &:hover {
+            color: var(--color-text-base);
+        }
+
+        &:active {
+            cursor: grabbing;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+    }
+
+    // Collapsed: just the handle, as a small pill the reader can park anywhere.
+    &.collapsed {
+        padding: 8px 4px;
+
+        .drag-handle {
+            margin: 0;
+        }
+    }
+
     // Read aloud is a toggle: highlighted while reading, a second click stops it.
     .active {
         color: var(--color-primary);

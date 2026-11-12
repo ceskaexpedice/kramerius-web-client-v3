@@ -6,6 +6,32 @@ import { TranslateService } from '@ngx-translate/core';
 import { TRANSLATION_LANGUAGES } from '../translation/translation-languages';
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { marked } from 'marked';
+
+/**
+ * The summary prompts of the previous client (kramerius-web-client,
+ * `LanguageService.summaryPromt`), one per summary language.
+ */
+const SUMMARY_PROMPTS: Record<string, string> = {
+  'cs': 'Sumarizuj v odrážkách zadaný text',
+  'en': 'Summarize the entered text in bullet points',
+  'de': 'Fassen Sie den eingegebenen Text in Stichpunkten zusammen',
+  'sk': 'Zhrňte zadaný text do bodov',
+  'sl': 'Povzeti vneseno besedilo v oznake',
+  'pl': 'Podsumuj wprowadzony tekst w punktach',
+  'es': 'Resuma el texto introducido en viñetas',
+  'fr': 'Résumez le texte saisi en points',
+  'it': 'Sintetizza il testo inserito in punti',
+  'ru': 'Суммируйте введенный текст в пунктах',
+  'uk': 'Сумуйте введений текст в пунктах',
+  'pt': 'Resuma o texto inserido em marcadores',
+  'lt': 'Suvesti įvestą tekstą taškuose',
+  'lv': 'Summējiet ievadīto tekstu punktos',
+  'et': 'Summeerige sisestatud tekst punktides',
+  'sv': 'Sammanfatta den inmatade texten i punkter',
+  'hu': 'Összefoglalja a beírt szöveget pontokban',
+  'zh-CN': '用项目符号总结输入的文本',
+};
 
 const AI_PANEL_FONT_SIZE_KEY = 'ai-panel-font-size';
 const DEFAULT_FONT_SIZE = 16;
@@ -144,7 +170,9 @@ export class AiPanelService {
         const instructions = this.buildSummaryInstructions(this.summaryLanguage());
         this.activeSubscription = this.aiApiService.askLLM(text, instructions, this.selectedModel(), 2000).pipe(take(1)).subscribe({
           next: (summary) => {
-            this.styledHtml.set('');
+            // Rendered from Markdown, as in the previous client, so the bullet
+            // points show as a list. `content` keeps the raw text for copying.
+            this.styledHtml.set(marked.parse(summary, { async: false }));
             this.content.set(summary);
             this.isLoading.set(false);
           },
@@ -175,7 +203,13 @@ export class AiPanelService {
     this.currentRegion.set(null);
   }
 
-  showPageText(pagePid: string): void {
+  /**
+   * Shows the full text of the page — or of the selected area — next to the scan.
+   *
+   * The selected area matters when read-aloud replaces a summary of a selection
+   * (see `showReadAlongText`): the transcript must be of the same area.
+   */
+  showPageText(pagePid: string, region?: TextRegion | null): void {
     this.cancelPending();
     this.panelVisible.set(true);
     this.showOriginal.set(true);
@@ -186,15 +220,15 @@ export class AiPanelService {
     this.isLoading.set(true);
     this.error.set(null);
     this.currentPagePid.set(pagePid);
-    this.currentRegion.set(null);
+    this.currentRegion.set(region ?? null);
 
     // Falls back to the plain /ocr/text datastream when the page has no ALTO,
     // which costs only the styling — see `AltoService.fetchPageText`.
-    this.activeSubscription = this.altoService.fetchPageText(pagePid).pipe(take(1)).subscribe({
+    this.activeSubscription = this.fetchText(pagePid, region).pipe(take(1)).subscribe({
       next: ({ text, html }) => {
         this.isLoading.set(false);
         if (!text) {
-          this.error.set('No text found on this page');
+          this.error.set(region ? this.translate.instant('ai.no-text-in-selection') : 'No text found on this page');
           return;
         }
         if (html) {
@@ -208,6 +242,35 @@ export class AiPanelService {
         this.error.set('Failed to load page text');
       }
     });
+  }
+
+  /**
+   * Makes an open panel show the text that read-aloud is speaking.
+   *
+   * Reading always speaks the whole text, so a summary — or a translation into
+   * another language than the voice speaks — on screen while a different text is
+   * heard is confusing. The panel switches to the transcript, or to the
+   * translation when the reader speaks the text in another language
+   * (`translateTo`). A closed panel, a transcript, or a panel already showing
+   * the text being read is left as it is.
+   */
+  showReadAlongText(pagePid: string, region?: TextRegion | null, translateTo?: string): void {
+    const type = this.contentType();
+    if (!this.panelVisible() || (type !== 'summary' && type !== 'translation')) return;
+    const sameArea = this.currentPagePid() === pagePid && this.isSameRegion(this.currentRegion(), region ?? null);
+    if (type === 'translation' && translateTo === this.targetLanguage() && sameArea) return;
+    if (translateTo) {
+      this.targetLanguage.set(translateTo);
+      this.showTranslation(pagePid, translateTo, region);
+    } else {
+      this.showPageText(pagePid, region);
+    }
+  }
+
+  private isSameRegion(a: TextRegion | null, b: TextRegion | null): boolean {
+    if (!a || !b) return a === b;
+    return a.imageWidth === b.imageWidth && a.imageHeight === b.imageHeight
+      && a.box.length === b.box.length && a.box.every((v, i) => v === b.box[i]);
   }
 
   resummarize(language: string): void {
@@ -248,7 +311,11 @@ export class AiPanelService {
     const target = language
       ? `Write the summary in ${language.name} (language code: ${language.code}), regardless of the language of the source text.`
       : 'Keep the summary in the same language as the original text.';
-    return `You are a helpful assistant. Summarize the following text concisely. ${target}`;
+    // The bullet-point prompt of the previous client, in the summary language.
+    // A free-form "concise" summary of a short page came back as long as the
+    // page itself. The model answers in Markdown, which the panel renders.
+    const prompt = SUMMARY_PROMPTS[languageCode] ?? SUMMARY_PROMPTS['en'];
+    return `${prompt}. ${target}`;
   }
 
   /** The UI language when it is one we can ask for, otherwise Czech. */

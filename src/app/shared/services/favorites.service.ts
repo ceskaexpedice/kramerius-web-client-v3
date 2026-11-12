@@ -1,5 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable, take } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
@@ -19,7 +18,6 @@ export interface FavoriteToggleResult {
 export class FavoritesService {
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
-  private router = inject(Router);
   private folderItemsService = inject(FolderItemsService);
   private popupPositioning = inject(PopupPositioningService);
   private breakpointService = inject(BreakpointService);
@@ -52,10 +50,7 @@ export class FavoritesService {
 
       dialogRef.afterClosed().pipe(take(1)).subscribe(result => {
         if (result === 'login') {
-          // Redirect to login with current route as return URL
-          // this.authService.login(currentUrl);
-          const returnUrl = this.router.url;
-          this.router.navigate(['pages/terms'], { queryParams: { returnUrl } });
+          this.authService.startLogin();
         }
       });
       return false;

@@ -186,3 +186,14 @@
     </app-metadata-section>
   </app-fixed-panel>
 }
+
+<!-- "Add to my library" popup for the multivolume title (#207). Positioned
+     fixed to avoid overflow clipping; without it the heart opened nothing. -->
+@if (favoritesHelper.favoritesPopupState.showPopup()) {
+<div class="favorites-popup-wrapper" [class.positioned]="favoritesHelper.favoritesPopupState.popupPositioned()">
+  <app-favorites-popup [itemId]="favoritesHelper.currentItemId()" [itemName]="favoritesHelper.currentItemName()"
+    [showHierarchySelector]="favoritesHelper.showHierarchySelector()" [document]="parent()"
+    (close)="onFavoritesPopupClose()" (success)="onFavoritesPopupClose()">
+  </app-favorites-popup>
+</div>
+}

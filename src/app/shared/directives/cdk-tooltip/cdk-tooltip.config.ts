@@ -111,7 +111,15 @@ export function getTooltipPositions(position: TooltipPosition): ConnectedPositio
     ];
   }
 
-  return positions[position];
+  // Fall back to the opposite side when the preferred one doesn't fit
+  // (e.g. a 'left' tooltip on a toolbar pressed against the viewport edge).
+  const opposite: Record<Exclude<TooltipPosition, 'auto'>, Exclude<TooltipPosition, 'auto'>> = {
+    top: 'bottom',
+    bottom: 'top',
+    left: 'right',
+    right: 'left',
+  };
+  return [...positions[position], ...positions[opposite[position]]];
 }
 
 /**

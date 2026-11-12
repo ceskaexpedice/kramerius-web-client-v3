@@ -81,6 +81,9 @@ export class FilterCategoryComponent implements OnChanges {
   @Input() dateOffset: number = 0;
   /** Fallback date the picker opens on when nothing is selected yet */
   @Input() datePickerDefault: Date | null = null;
+  /** Optional selectable bounds of the date picker (e.g. a periodical volume's first..last issue). */
+  @Input() datePickerMin: Date | null = null;
+  @Input() datePickerMax: Date | null = null;
 
   // Year range inputs
   @Input() yearRangeMin: number = 1400;

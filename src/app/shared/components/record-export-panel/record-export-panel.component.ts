@@ -26,7 +26,6 @@ import {
 } from '../../dialogs/email-export-dialog/email-export-success-dialog.component';
 import { LoginPromptDialogComponent } from '../../dialogs/login-prompt-dialog/login-prompt-dialog.component';
 import { AuthService } from '../../../core/auth/auth.service';
-import { Router } from '@angular/router';
 import { ToastService } from '../../services/toast.service';
 import { ConfigService } from '../../../core/config';
 
@@ -52,7 +51,6 @@ export class RecordExportPanelComponent implements OnInit {
   private userService = inject(UserService);
   private toastService = inject(ToastService);
   private authService = inject(AuthService);
-  private router = inject(Router);
   private configService = inject(ConfigService);
 
   // Tracks the selected CDK member library: EPUB/TXT availability and which
@@ -236,7 +234,7 @@ export class RecordExportPanelComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'login') {
-        this.authService.login(this.router.url);
+        this.authService.startLogin();
       }
     });
   }

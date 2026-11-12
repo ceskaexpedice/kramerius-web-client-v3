@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/auth/auth.guard';
 import { authCallbackGuard } from './core/auth/auth-callback.guard';
+import { logoutReturnGuard } from './core/auth/logout-return.guard';
+import { LOGOUT_RETURN_PATH } from './core/auth/auth.service';
 import { legacyRouteGuard } from './core/guards/legacy-route.guard';
 import { libraryPrefixGuard } from './core/guards/library-prefix.guard';
 import { foldersEnabledGuard, librarySwitchGuard, loginEnabledGuard } from './core/guards/feature.guard';
@@ -106,6 +108,13 @@ export const routes: Routes = [
     path: APP_ROUTES_ENUM.AUTH_CALLBACK,
     loadComponent: () => import('./core/auth/auth-callback/auth-callback.component').then(c => c.AuthCallbackComponent),
     canActivate: [loginEnabledGuard, authCallbackGuard]
+  },
+  {
+    // Keycloak lands here after a confirmed logout; the guard always redirects
+    // to `returnUrl`, so the route never renders anything.
+    path: LOGOUT_RETURN_PATH,
+    canActivate: [logoutReturnGuard],
+    children: []
   },
   {
     path: APP_ROUTES_ENUM.ABOUT,

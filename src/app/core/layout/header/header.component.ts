@@ -359,8 +359,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   openSavedLists() {
+    const savedListsUrl = this.router.serializeUrl(
+      this.router.createUrlTree(this.libraryContext.prependLibraryPrefix([`/${APP_ROUTES_ENUM.SAVED_LISTS}`]))
+    );
+
     if (this.isLoggedIn()) {
-      this.router.navigate(this.libraryContext.prependLibraryPrefix([`/${APP_ROUTES_ENUM.SAVED_LISTS}`]));
+      this.router.navigateByUrl(savedListsUrl);
       return;
     }
 
@@ -375,14 +379,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().pipe(take(1)).subscribe(result => {
       if (result === 'login') {
-        this.goToLogin();
+        // The user was heading to their saved lists, not back to this page.
+        this.authService.startLogin(savedListsUrl);
       }
     });
-  }
-
-  private goToLogin() {
-    const returnUrl = this.router.url;
-    this.router.navigate(['pages/terms'], { queryParams: { returnUrl } });
   }
 
   openAdvancedSearch() {

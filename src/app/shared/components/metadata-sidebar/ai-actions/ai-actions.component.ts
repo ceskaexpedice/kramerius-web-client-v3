@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TtsService } from '../../../services/tts.service';
 import { AiPanelService } from '../../../services/ai-panel.service';
@@ -8,11 +7,15 @@ import { UserService } from '../../../services/user.service';
 import { SettingsService } from '../../../../modules/settings/settings.service';
 import { DocumentInfoService } from '../../../services/document-info.service';
 import { ConfigService } from '../../../../core/config/config.service';
+import { AuthService } from '../../../../core/auth/auth.service';
+import { IIIFViewerService } from '../../../services/iiif-viewer.service';
+import { TextRegion } from '../../../services/alto.service';
+import { CdkTooltipDirective } from '../../../directives/cdk-tooltip';
 
 @Component({
   selector: 'app-ai-actions',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, CdkTooltipDirective],
   templateUrl: './ai-actions.component.html',
   styleUrl: './ai-actions.component.scss'
 })
@@ -22,10 +25,11 @@ export class AiActionsComponent {
   aiPanelService = inject(AiPanelService);
   private detailViewService = inject(DetailViewService);
   userService = inject(UserService);
-  private router = inject(Router);
+  private authService = inject(AuthService);
   private settingsService = inject(SettingsService);
   documentInfoService = inject(DocumentInfoService);
   private configService = inject(ConfigService);
+  private iiifViewerService = inject(IIIFViewerService);
 
   /**
    * Whether the page has any OCR to work with.
@@ -65,11 +69,9 @@ export class AiActionsComponent {
   }
 
   login(): void {
-    // Route through the terms page so the licence/GDPR consent step is not
-    // bypassed, and carry the full router URL (incl. ?page=) so the user comes
-    // back to the page they were on rather than the first page of the document.
-    const returnUrl = this.router.url;
-    this.router.navigate(['pages/terms'], { queryParams: { returnUrl } });
+    // Carries the full router URL (incl. ?page=) so the user comes back to the
+    // page they were on rather than the first page of the document.
+    this.authService.startLogin();
   }
 
   onRead(): void {
@@ -80,7 +82,7 @@ export class AiActionsComponent {
     if (this.ttsService.isReading()) {
       this.ttsService.stop();
     } else {
-      this.ttsService.startReading(pid, this.detailViewService.document?.uuid);
+      this.ttsService.startReading(pid, this.detailViewService.document?.uuid, this.selectedRegion());
     }
   }
 
@@ -88,13 +90,24 @@ export class AiActionsComponent {
     if (!this.userService.isLoggedIn || this.actionsDisabled) return;
     const pid = this.detailViewService.currentPagePid;
     if (!pid) return;
-    this.aiPanelService.showTranslation(pid);
+    this.aiPanelService.showTranslation(pid, undefined, this.selectedRegion());
   }
 
   onSummarize(): void {
     if (!this.userService.isLoggedIn || this.actionsDisabled) return;
     const pid = this.detailViewService.currentPagePid;
     if (!pid) return;
-    this.aiPanelService.showSummary(pid);
+    this.aiPanelService.showSummary(pid, this.selectedRegion());
+  }
+
+  /**
+   * The area selected on the scan, if any.
+   *
+   * With a selection on screen the reader means that area, not the page: the
+   * sidebar actions used to ignore it and translate the whole page, which came
+   * back as other articles the reader never selected.
+   */
+  private selectedRegion(): TextRegion | null {
+    return this.iiifViewerService.getSelectedRegion();
   }
 }

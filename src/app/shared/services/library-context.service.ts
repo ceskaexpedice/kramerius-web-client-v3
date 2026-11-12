@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { EnvironmentService } from './environment.service';
+import { DEV_LIBRARY_ID_KEY, getDevLibraryValue } from '../utils/dev-library-storage';
 
 /** Routes that should never be prefixed with a library code */
 const UNPREFIXED_ROUTES = new Set<string>([
@@ -22,7 +23,7 @@ export class LibraryContextService {
   getActiveLibraryCode(): string | null {
     // Library prefixes only exist when the internal library switch is on.
     if (!this.env.isLibrarySwitchEnabled()) return null;
-    const code = localStorage.getItem('CDK_DEV_KRAMERIUS_ID');
+    const code = getDevLibraryValue(DEV_LIBRARY_ID_KEY);
     // The base library (app.code) is served unprefixed; only a switched-to
     // library gets a URL prefix.
     if (!code || code === this.env.getBaseKrameriusId()) return null;

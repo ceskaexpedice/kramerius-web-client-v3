@@ -114,6 +114,13 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
   // be cancelled; an untracked timer was firing against a recreated overlay.
   private destroyTimeoutId?: ReturnType<typeof setTimeout>;
   private isTooltipVisible = signal(false);
+  /**
+   * The host's native `title`, parked while the custom tooltip is active.
+   * Keeping `title` in the markup is fine for a11y/fallback, but the browser
+   * would render its own tooltip on top of ours — so it is removed for the
+   * duration of a hover/focus and put back afterwards.
+   */
+  private suppressedTitle: string | null = null;
 
   /**
    * Unique ID for accessibility
@@ -155,6 +162,7 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.restoreNativeTitle();
     this.clearTimeouts();
     this.destroyTooltip();
     this.focusMonitor.stopMonitoring(this.elementRef);
@@ -183,8 +191,11 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
    * host out of the DOM (@if/*ngIf). In those cases neither mouseleave nor blur
    * fires reliably, leaving the tooltip stranded on screen. Killing it on click
    * makes that correct everywhere, without each call site having to opt in.
+   * Also on pointerdown, so a tooltip doesn't hang in place while the host is
+   * being dragged (e.g. the selection toolbar's drag handle).
    */
   @HostListener('click')
+  @HostListener('pointerdown')
   onClick(): void {
     this.hideImmediately();
   }
@@ -228,6 +239,10 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
    * Show the tooltip
    */
   show(): void {
+    if (!this.tooltipDisabled && (this.content || this.appCdkTooltipTemplate)) {
+      this.suppressNativeTitle();
+    }
+
     // Clear any pending hide timeout
     if (this.hideTimeoutId) {
       clearTimeout(this.hideTimeoutId);
@@ -270,6 +285,8 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
    * Hide the tooltip
    */
   hide(): void {
+    this.restoreNativeTitle();
+
     // Clear any pending show timeout
     if (this.showTimeoutId) {
       clearTimeout(this.showTimeoutId);
@@ -370,6 +387,32 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
       .withViewportMargin(8);
   }
 
+  /** Park the host's `title` so the browser doesn't show a second, native tooltip. */
+  private suppressNativeTitle(): void {
+    const host = this.elementRef.nativeElement as HTMLElement;
+    const title = host.getAttribute('title');
+    if (title === null) {
+      return;
+    }
+    this.suppressedTitle = title;
+    host.removeAttribute('title');
+  }
+
+  /**
+   * Put the parked `title` back. If something (e.g. an Angular `[title]`
+   * binding) re-set it in the meantime, that newer value wins.
+   */
+  private restoreNativeTitle(): void {
+    if (this.suppressedTitle === null) {
+      return;
+    }
+    const host = this.elementRef.nativeElement as HTMLElement;
+    if (!host.hasAttribute('title')) {
+      host.setAttribute('title', this.suppressedTitle);
+    }
+    this.suppressedTitle = null;
+  }
+
   /**
    * Clear all pending timeouts
    */
@@ -408,6 +451,9 @@ export class CdkTooltipDirective implements OnInit, OnDestroy {
    * dialog) that steals focus, so neither mouseleave nor blur fires reliably.
    */
   hideImmediately(): void {
+    // The native title stays parked until the pointer/focus actually leaves
+    // (hide() / destroy), so it doesn't pop up while the pointer still rests
+    // on the button right after a click or during a drag.
     this.clearTimeouts();
     this.destroyTooltip();
     this.isTooltipVisible.set(false);

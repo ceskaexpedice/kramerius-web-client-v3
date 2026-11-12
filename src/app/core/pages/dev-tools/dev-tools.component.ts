@@ -5,6 +5,7 @@ import { EnvironmentService } from '../../../shared/services/environment.service
 import { UserService } from '../../../shared/services/user.service';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { SelectComponent } from '../../../shared/components/select/select.component';
+import { DEV_LIBRARY_ID_KEY, DEV_LIBRARY_URL_KEY, getDevLibraryValue, setDevLibraryValue, removeDevLibraryValue } from '../../../shared/utils/dev-library-storage';
 
 @Component({
   selector: 'app-dev-tools',
@@ -221,19 +222,16 @@ export class DevToolsComponent implements OnInit {
     return this.presets.find(p => p.url === current) || null;
   });
 
-  private readonly STORAGE_KEY = 'CDK_DEV_BASE_URL';
-  private readonly STORAGE_KEY_ID = 'CDK_DEV_KRAMERIUS_ID';
-
   constructor(
     private environmentService: EnvironmentService,
     private userService: UserService
   ) { }
 
   ngOnInit() {
-    const stored = localStorage.getItem(this.STORAGE_KEY) || '';
+    const stored = getDevLibraryValue(DEV_LIBRARY_URL_KEY) || '';
     this.customBaseUrl.set(stored);
 
-    const storedId = localStorage.getItem(this.STORAGE_KEY_ID) || '';
+    const storedId = getDevLibraryValue(DEV_LIBRARY_ID_KEY) || '';
     this.customKrameriusId.set(storedId);
 
     this.currentBaseUrl = this.environmentService.getKrameriusUrl(false);
@@ -272,15 +270,15 @@ export class DevToolsComponent implements OnInit {
       // Basic validation for URL if provided
       if (urlVal) {
         new URL(urlVal);
-        localStorage.setItem(this.STORAGE_KEY, urlVal);
+        setDevLibraryValue(DEV_LIBRARY_URL_KEY, urlVal);
       } else {
-        localStorage.removeItem(this.STORAGE_KEY);
+        removeDevLibraryValue(DEV_LIBRARY_URL_KEY);
       }
 
       if (idVal) {
-        localStorage.setItem(this.STORAGE_KEY_ID, idVal);
+        setDevLibraryValue(DEV_LIBRARY_ID_KEY, idVal);
       } else {
-        localStorage.removeItem(this.STORAGE_KEY_ID);
+        removeDevLibraryValue(DEV_LIBRARY_ID_KEY);
       }
 
       this.message = 'Configuration saved. Reloading...';
@@ -297,8 +295,8 @@ export class DevToolsComponent implements OnInit {
   }
 
   clear() {
-    localStorage.removeItem(this.STORAGE_KEY);
-    localStorage.removeItem(this.STORAGE_KEY_ID);
+    removeDevLibraryValue(DEV_LIBRARY_URL_KEY);
+    removeDevLibraryValue(DEV_LIBRARY_ID_KEY);
     this.customBaseUrl.set('');
     this.customKrameriusId.set('');
     this.message = 'Override cleared. Reloading...';

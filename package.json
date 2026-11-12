@@ -1,11 +1,12 @@
 {
   "name": "cdk-client",
-  "version": "3.0.37",
+  "version": "3.0.38",
   "scripts": {
     "ng": "ng",
     "prestart": "node scripts/bootstrap_file_environment-local-ts.js && node scripts/collect-build-info.js",
     "start": "ng serve",
-    "prebuild": "node scripts/generate_file_env-json.js && node scripts/collect-build-info.js",
+    "prebuild": "node scripts/check-favorites-wiring.js && node scripts/generate_file_env-json.js && node scripts/collect-build-info.js",
+    "check:favorites": "node scripts/check-favorites-wiring.js",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
@@ -39,6 +40,7 @@
     "file-saver": "^2.0.5",
     "font-awesome": "^4.7.0",
     "highlight.js": "^11.12.0",
+    "marked": "^18.2.0",
     "moment": "^2.31.0",
     "ngx-extended-pdf-viewer": "^28.1.0",
     "ngx-translate-multi-http-loader": "^20.0.0",

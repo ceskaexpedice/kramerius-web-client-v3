@@ -8,12 +8,11 @@ import { SafeHtmlPipe } from '../../../../../shared/pipes/safe-html.pipe';
 import { Metadata } from '../../../../../shared/models/metadata.model';
 import { MatDialog } from '@angular/material/dialog';
 import { LicenseInfoDialogComponent } from '../../../../../shared/dialogs/license-info-dialog/license-info-dialog.component';
-import * as AuthActions from '../../../../../core/auth/store/auth.actions';
+import { AuthService } from '../../../../../core/auth/auth.service';
 import { ModsParserService } from '../../../../../shared/services/mods-parser.service';
 import { ConfigService } from '../../../../../core/config/config.service';
 import { AppTranslationService } from '../../../../../shared/translation/app-translation.service';
 import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
 import { DNNTO_FAQ_ITEMS, DNNTT_FAQ_ITEMS, OTHER_FAQ_ITEMS } from './faq-data';
 import { TranslateService } from '@ngx-translate/core';
 import { escapeHtml } from '../../../../../shared/utils/escape-html';
@@ -36,7 +35,8 @@ interface FaqGroup {
 
 @Component({
   selector: 'app-document-access-denied',
-  imports: [CommonModule, TranslatePipe, Accordion, SafeHtmlPipe],
+  // Accordion removed while the FAQ section is hidden – add it back with the FAQ.
+  imports: [CommonModule, TranslatePipe, SafeHtmlPipe],
   templateUrl: './document-access-denied.html',
   styleUrls: ['./document-access-denied.scss', '../access-denied.scss'],
   standalone: true
@@ -54,7 +54,7 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
   htmlLoading = true;
 
   private router = inject(Router);
-  private store = inject(Store);
+  private authService = inject(AuthService);
   private modsParserService = inject(ModsParserService);
   private cdr = inject(ChangeDetectorRef);
   private translate = inject(TranslateService);
@@ -351,8 +351,7 @@ export class DocumentAccessDenied implements OnInit, OnChanges {
   }
 
   login() {
-    const currentUrl = this.router.url;
-    this.store.dispatch(AuthActions.login({ returnUrl: currentUrl }));
+    this.authService.startLogin();
   }
 
   hasDnntLicense(): boolean {
