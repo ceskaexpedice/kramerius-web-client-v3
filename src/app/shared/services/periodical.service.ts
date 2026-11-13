@@ -424,7 +424,10 @@ export class PeriodicalService extends BaseFilterService {
     //this.initialize();
     this.router.navigate([`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}/${this.uuid}`], {
       queryParams: {
-        query,
+        // null removes the param — a user-initiated search (or clear) takes over
+        // from a ?fulltext term carried in from another page (e.g. saved lists).
+        query: query || null,
+        fulltext: null,
         page: this._page(),
         pageSize: this._pageSize(),
         sortBy: this._sortBy(),

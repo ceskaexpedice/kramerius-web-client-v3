@@ -38,6 +38,7 @@ import {ResultsSortComponent} from '../search-results-page/components/results-so
 import {SkeletonListPipe} from '../../shared/pipes/skeleton-list.pipe';
 import {SolrSortDirections, SolrSortFields} from '../../core/solr/solr-helpers';
 import {SearchDocument} from '../models/search-document';
+import {SelectedTagsComponent} from '../../shared/components/selected-tags/selected-tags.component';
 
 @Component({
   selector: 'app-monograph-volumes-page',
@@ -63,6 +64,7 @@ import {SearchDocument} from '../models/search-document';
     ScrollHideHeaderDirective,
     FixedPanelComponent,
     FavoritesPopupComponent,
+    SelectedTagsComponent,
   ],
   providers: [
     MonographVolumesService,
@@ -87,6 +89,10 @@ export class MonographVolumesPageComponent implements OnInit, OnDestroy {
   volumes = toSignal(this.store.select(MonographVolumesSelectors.selectMonographVolumes));
   loading = toSignal(this.store.select(MonographVolumesSelectors.selectMonographVolumesLoading));
   error = toSignal(this.store.select(MonographVolumesSelectors.selectMonographVolumesError));
+
+  // Active search term + facet filters as removable chips, like search results.
+  // Read once: selectedTags is a getter that builds a new observable per call.
+  selectedTags = toSignal(this.monographVolumesService.selectedTags, { initialValue: [] as string[] });
 
   // Sidebar state
   public showMetadataSidebar = this.uiStateService.metadataSidebarOpen;

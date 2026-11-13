@@ -70,6 +70,8 @@ import { PeriodicalService } from '../../../../shared/services/periodical.servic
         [showHelpButton]="false"
         [showMicrophoneButton]="true"
         [showSubmitButton]="false"
+        [showClearButton]="true"
+        (onClearEvent)="periodicalService.onSearch('')"
         (search)="periodicalService.onSearch($event)"
         [inputTerm]="periodicalService.searchTerm"
         [showHistorySuggestions]="true"

@@ -82,7 +82,22 @@
            paginator at the bottom; the metadata sidebar stays fixed beside it. -->
       <div class="content-with-sidebar">
 
-        <div class="page-content__wrapper" [appScrollHideHeader]="breakpointService.isMobile()">
+        <div class="page-content__wrapper" [appScrollHideHeader]="breakpointService.isMobile()"
+          [class.wrapper--no-top-padding]="selectedTags().length > 0">
+
+          <!-- Active search term / filters as removable chips (as on search results) -->
+          @if (selectedTags().length > 0) {
+            <div class="page-content__sticky-tags">
+              <app-selected-tags [items]="selectedTags()" [operators]="{}"
+                [showClearAll]="selectedTags().length > 1" [showOperators]="false"
+                [translateItems]="true" [textTransform]="'capitalize'"
+                (remove)="monographVolumesService.removeFilter($event)"
+                (removeGroup)="monographVolumesService.resetOperator($event)"
+                (clearAll)="monographVolumesService.clearAllFilters()"
+                clearButtonPosition="left">
+              </app-selected-tags>
+            </div>
+          }
 
           <!-- Error State -->
           @if (error() && !loading()) {

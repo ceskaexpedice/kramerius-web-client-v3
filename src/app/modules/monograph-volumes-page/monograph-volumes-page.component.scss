@@ -87,3 +87,15 @@
     display: block;
   }
 }
+
+// Selected tags row (search term + filters), same as search-results-view.
+.page-content__sticky-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-x3);
+
+  @include mixins.respond(mobile-sm) {
+    gap: var(--spacing-x2);
+  }
+}
