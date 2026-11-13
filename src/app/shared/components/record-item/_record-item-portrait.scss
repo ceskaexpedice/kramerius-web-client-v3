@@ -6,6 +6,12 @@
   .record-item-card__image {
     aspect-ratio: var(--portrait-image-aspect-ratio);
     flex-shrink: 0;
+
+    // Homepage authors / genres (local-config images): fill the frame instead of
+    // letterboxing like document thumbnails do.
+    ::ng-deep .thumbnail-image__img {
+      object-fit: cover;
+    }
   }
 
   .record-item-card__content {
