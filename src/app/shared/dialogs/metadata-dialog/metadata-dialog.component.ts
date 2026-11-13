@@ -41,6 +41,12 @@ export class MetadataDialogComponent implements OnInit {
     content: string = '';
 
     private cache: { [pid: string]: { [format: string]: string } } = {};
+    /**
+     * `pid|format` of requests still on the wire. loadData is reached from the
+     * tab strip and the hierarchy selector, often in the same tick, and the
+     * cache above only fills once a response lands.
+     */
+    private inFlight = new Set<string>();
 
     /**
      * Tabs the current selection's license actually allows — see
@@ -164,12 +170,17 @@ export class MetadataDialogComponent implements OnInit {
             return;
         }
 
+        const pid = this.selectedPid;
+        const format = this.activeTabLabel;
+        const requestKey = `${pid}|${format}`;
+
         this.isLoading = true;
         this.error = null;
         this.content = '';
 
+        if (this.inFlight.has(requestKey)) return;
+
         let request;
-        const format = this.activeTabLabel;
 
         switch (format) {
             case 'mods':
@@ -210,7 +221,13 @@ export class MetadataDialogComponent implements OnInit {
                 return;
         }
 
+        this.inFlight.add(requestKey);
+        // A response may land after the reader moved to another tab or pid; it
+        // is still cached, but must not overwrite what is now on screen.
+        const isCurrent = () => this.selectedPid === pid && this.activeTabLabel === format;
+
         const handleResult = (result: any) => {
+            this.inFlight.delete(requestKey);
             let formattedContent = '';
             if (typeof result === 'object') {
                 if (format === 'solr') {
@@ -227,15 +244,18 @@ export class MetadataDialogComponent implements OnInit {
                 }
             }
 
+            this.cacheData(pid, format, formattedContent);
+            if (!isCurrent()) return;
             this.content = formattedContent;
-            this.cacheData(this.selectedPid, format, formattedContent);
             this.isLoading = false;
             this.cdr.detectChanges();
             this.highlightCode();
         };
 
         const handleError = (err: any) => {
+            this.inFlight.delete(requestKey);
             console.error('Error loading metadata:', err);
+            if (!isCurrent()) return;
             this.error = this.translate.instant('metadata-dialog.missing-resource', {
                 resource: format.toUpperCase(),
                 model: this.selectedModel.toUpperCase()

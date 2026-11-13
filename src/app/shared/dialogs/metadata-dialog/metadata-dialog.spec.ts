@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { of, Subject } from 'rxjs';
 import { ChangeDetectorRef, ElementRef } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MetadataDialogComponent } from './metadata-dialog.component';
@@ -93,6 +94,39 @@ describe('MetadataDialogComponent license gating', () => {
     c.loadData();
 
     expect(api.getAlto).not.toHaveBeenCalled();
+  });
+
+  it('does not repeat a request that is still in flight', () => {
+    // Opening the dialog reaches loadData from both the tab strip and the
+    // hierarchy selector; the second call must reuse the pending request.
+    const c = setup();
+    const api = TestBed.inject(KrameriusApiService) as any;
+    api.getAlto = jasmine.createSpy('getAlto').and.returnValue(new Subject<string>());
+    c.selectedPid = 'uuid:1';
+    c.activeTabLabel = 'alto';
+
+    c.loadData();
+    c.loadData();
+
+    expect(api.getAlto).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not show a late response on a tab the reader already left', () => {
+    const c = setup();
+    const api = TestBed.inject(KrameriusApiService) as any;
+    const alto = new Subject<string>();
+    api.getAlto = jasmine.createSpy('getAlto').and.returnValue(alto);
+    api.getOcr = jasmine.createSpy('getOcr').and.returnValue(of('page text'));
+    c.selectedPid = 'uuid:1';
+
+    c.activeTabLabel = 'alto';
+    c.loadData();
+    c.activeTabLabel = 'ocr';
+    c.loadData();
+    alto.next('<alto/>');
+
+    expect(c.content).toBe('page text');
+    expect(c.isLoading).toBeFalse();
   });
 });
 
