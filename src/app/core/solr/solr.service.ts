@@ -364,30 +364,9 @@ export class SolrService {
   }
 
   private buildFqParams(filters: string[], operators: Record<string, string> = {}): string[] {
-    const grouped = this.groupFiltersByField(filters);
     const fq: string[] = [];
-
-    grouped.forEach((values, field) => {
-      const op = operators[field] || SolrOperators.or;
-      // Don't quote range queries (values starting with [ or {)
-      const escaped = values.map(v => {
-        const trimmed = v.trim();
-        if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-          return trimmed; // Range query - don't quote
-        }
-        return `"${v}"`;
-      });
-      let fqParam = '';
-
-      if (op === SolrOperators.or) {
-        fqParam += `{!tag=${field}}`;
-      }
-
-      fqParam += values.length === 1
-        ? `${field}:${escaped[0]}`
-        : `(${escaped.map(val => `${field}:${val}`).join(` ${op} `)})`;
-
-      fq.push(fqParam);
+    this.groupFiltersByField(filters).forEach((values, field) => {
+      fq.push(this.buildFieldFq(field, values, operators[field] || SolrOperators.or));
     });
     return fq;
   }
@@ -400,25 +379,36 @@ export class SolrService {
     const fq: string[] = [];
     for (const group of filterGroups) {
       if (group.length === 0) continue;
-      const grouped = this.groupFiltersByField(group);
-      grouped.forEach((values, field) => {
-        const op = operators[field] || SolrOperators.or;
-        // Don't quote range queries (values starting with [ or {)
-        const escaped = values.map(v => {
-          const trimmed = v.trim();
-          if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-            return trimmed; // Range query - don't quote
-          }
-          return `"${v}"`;
-        });
-        let fqParam = op === SolrOperators.or ? `{!tag=${field}}` : '';
-        fqParam += values.length === 1
-          ? `${field}:${escaped[0]}`
-          : `(${escaped.map(val => `${field}:${val}`).join(` ${op} `)})`;
-        fq.push(fqParam);
+      this.groupFiltersByField(group).forEach((values, field) => {
+        fq.push(this.buildFieldFq(field, values, operators[field] || SolrOperators.or));
       });
     }
     return fq;
+  }
+
+  /**
+   * Builds one fq clause for a field and its selected values.
+   *
+   * Document type "collection" is special: a document stored in a collection keeps
+   * its own root (monograph, periodical, …), so `root.model:collection` alone only
+   * matches the collection objects themselves — a query over all collections then
+   * finds just collection titles, never their content or fulltext. It is therefore
+   * widened with `in_collections:*`. Without a query the result is unchanged, because
+   * the standalone-collections listing also applies `collection.is_standalone:true`,
+   * which only collection objects carry.
+   */
+  private buildFieldFq(field: string, values: string[], op: string): string {
+    // Don't quote range queries (values starting with [ or {)
+    const clauses = values.map(v => {
+      const trimmed = v.trim();
+      const value = trimmed.startsWith('[') || trimmed.startsWith('{') ? trimmed : `"${v}"`;
+      return `${field}:${value}`;
+    });
+    if (op === SolrOperators.or && field === facetKeysEnum.rootModel && values.includes(DocumentTypeEnum.collection)) {
+      clauses.push('in_collections:*');
+    }
+    const tag = op === SolrOperators.or ? `{!tag=${field}}` : '';
+    return tag + (clauses.length === 1 ? clauses[0] : `(${clauses.join(` ${op} `)})`);
   }
 
   private buildFacetFieldParams(fields: string[], filtersByField: Map<string, string[]>, operators: Record<string, string>): string[] {

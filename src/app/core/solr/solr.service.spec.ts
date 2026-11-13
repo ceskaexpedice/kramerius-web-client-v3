@@ -330,3 +330,32 @@ describe('SolrService.getConvolutePages', () => {
     workReq.flush({ response: { docs: [] } });
   });
 });
+
+describe('SolrService document-type collection fq', () => {
+  let service: SolrService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ imports: [HttpClientTestingModule] });
+    service = TestBed.inject(SolrService);
+  });
+
+  it('expands root.model:collection to documents inside any collection', () => {
+    const fq: string[] = (service as any).buildFqParams(['root.model:collection']);
+    expect(fq).toEqual(['{!tag=root.model}(root.model:"collection" OR in_collections:*)']);
+  });
+
+  it('keeps OR semantics when collection is combined with other document types', () => {
+    const fq: string[] = (service as any).buildFqParams(['root.model:monograph', 'root.model:collection']);
+    expect(fq).toEqual(['{!tag=root.model}(root.model:"monograph" OR root.model:"collection" OR in_collections:*)']);
+  });
+
+  it('applies the same expansion to filter groups', () => {
+    const fq: string[] = (service as any).buildFqParamsFromGroups([['root.model:collection']]);
+    expect(fq).toEqual(['{!tag=root.model}(root.model:"collection" OR in_collections:*)']);
+  });
+
+  it('leaves other document types untouched', () => {
+    const fq: string[] = (service as any).buildFqParams(['root.model:monograph']);
+    expect(fq).toEqual(['{!tag=root.model}root.model:"monograph"']);
+  });
+});
