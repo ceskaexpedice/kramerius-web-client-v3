@@ -9,7 +9,7 @@ import { LocalizedPipe } from '../../../../shared/pipes/localized.pipe';
 import { SolrService } from '../../../../core/solr/solr.service';
 import { searchDocumentToRecordItem, RecordItem } from '../../../../shared/components/record-item/record-item.model';
 import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, startWith } from 'rxjs/operators';
 import { parseSearchDocument } from '../../../models/search-document';
 import { AppTranslationService } from '../../../../shared/translation/app-translation.service';
 import { ConfigService } from '../../../../core/config/config.service';
@@ -25,8 +25,17 @@ import { ConfigService } from '../../../../core/config/config.service';
     LocalizedPipe
   ],
   template: `
-    <section *ngIf="(items$ | async) as items">
-      <div class="section-header" *ngIf="items.length > 0">
+    @let items = items$ | async;
+    <!--
+      While the documents load (items === null) the section is drawn as its real
+      header plus skeleton cards, so it already takes its final height. Rendering
+      nothing until Solr answered collapsed every featured section to 0 px and
+      then pushed everything below it down when the data arrived (CLS ~0.3 on
+      the homepage).
+    -->
+    @if (items === null || items.length > 0) {
+    <section>
+      <div class="section-header">
         <h2>{{ config.title | localized }}</h2>
         <button class="show-all with-icon" *ngIf="config.sectionUrl" (click)="onShowMore()">
           <span class="text">{{ (config.buttonText | localized) || ('btn_show_more' | translate) }}</span>
@@ -34,16 +43,23 @@ import { ConfigService } from '../../../../core/config/config.service';
         </button>
       </div>
 
-      <div class="carousel-wrapper" *ngIf="items.length > 0">
+      <div class="carousel-wrapper">
         <div class="carousel-container">
           <app-carousel [edgeToEdge]="true" [actionsPosition]="'top'">
-            <ng-container *ngFor="let item of items">
-              <app-record-item [showModel]="false" [item]="item" [variant]="config.cardVariant || 'default'" layout="vertical"></app-record-item>
-            </ng-container>
+            @if (items === null) {
+              @for (_ of skeletonItems; track $index) {
+                <app-record-item [showModel]="false" [item]="null" [loading]="true" [variant]="config.cardVariant || 'default'" layout="vertical"></app-record-item>
+              }
+            } @else {
+              @for (item of items; track $index) {
+                <app-record-item [showModel]="false" [item]="item" [variant]="config.cardVariant || 'default'" layout="vertical"></app-record-item>
+              }
+            }
           </app-carousel>
         </div>
       </div>
     </section>
+    }
   `,
   styles: [`
     @use 'sass:math';
@@ -58,7 +74,10 @@ export class FeaturedDocumentsSectionComponent implements OnInit {
   private configService = inject(ConfigService);
   private router = inject(Router);
 
-  items$: Observable<RecordItem[]> = of([]);
+  items$: Observable<RecordItem[] | null> = of([]);
+
+  /** Placeholder cards shown while the documents load (see template). */
+  skeletonItems: unknown[] = [];
 
   private resolveTitle(title: string | LocalizedLabel | undefined): string {
     const lang = this.translationService.currentLanguage().code;
@@ -85,6 +104,8 @@ export class FeaturedDocumentsSectionComponent implements OnInit {
       return;
     }
 
+    // As many skeleton cards as fit the carousel (it never shows more than ~10).
+    this.skeletonItems = Array(Math.min(itemsToProcess.length, 10));
     this.items$ = this.solrService.getDocumentsByPids(pids).pipe(
       map((docs: any[]) => {
         const docMap = new Map(docs.map((d: any) => [d.pid, d]));
@@ -121,7 +142,9 @@ export class FeaturedDocumentsSectionComponent implements OnInit {
       catchError(err => {
         console.error('Error loading featured documents items', err);
         return of(itemsToProcess as RecordItem[]);
-      })
+      }),
+      // null = still loading → the template draws skeleton cards.
+      startWith(null),
     );
   }
 

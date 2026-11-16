@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, Signal } from '@angular/core';
+import { DOCUMENT, inject, Injectable, signal, Signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ENVIRONMENT } from '../../app.config';
 import { Language } from './lang-picker/language';
@@ -16,6 +16,7 @@ export class AppTranslationService {
   private configService = inject(ConfigService);
   private missingHandler = inject(AppMissingTranslationService);
   private httpBackend = inject(HttpBackend);
+  private document = inject(DOCUMENT);
 
   // Get language settings from ConfigService, fallback to ENVIRONMENT
   private get availableLanguageCodes(): string[] {
@@ -43,7 +44,17 @@ export class AppTranslationService {
   constructor() {
     this.translate.setFallbackLang(this.fallbackLanguageCode);
     this.translate.use(this._currentLanguage().code);
+    this.setDocumentLang(this._currentLanguage().code);
     this.preloadFallbackLanguages();
+  }
+
+  /**
+   * Keep <html lang> in sync with the UI language: screen readers pick their
+   * pronunciation from it and browsers use it for hyphenation, spell-checking
+   * and translation prompts. index.html ships the default (cs).
+   */
+  private setDocumentLang(code: string): void {
+    this.document.documentElement.lang = code;
   }
 
   get currentLanguage(): Signal<Language> {
@@ -66,6 +77,7 @@ export class AppTranslationService {
     this._currentLanguage.set(selectedLang);
     localStorage.setItem('language', langCode);
     this.translate.use(langCode);
+    this.setDocumentLang(langCode);
     this.preloadFallbackLanguages();
   }
 
