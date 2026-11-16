@@ -5,7 +5,6 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslatePipe} from '@ngx-translate/core';
 import {AuthService} from '../../../../core/auth/auth.service';
-import {AuthDataDialogComponent} from './auth-data-dialog/auth-data-dialog.component';
 import {VersionService} from '../../../../shared/services/version.service';
 
 @Component({
@@ -37,6 +36,8 @@ export class SettingsAccountSectionComponent {
       ...data,
     };
 
+    // Lazy: the dialog pulls highlight.js; this section is on the eager settings chain.
+    const { AuthDataDialogComponent } = await import('./auth-data-dialog/auth-data-dialog.component');
     this.dialog.open(AuthDataDialogComponent, {
       data: {userJson: JSON.stringify(payload, null, 2)},
       width: 'calc(60vw / var(--ui-zoom, 1))',

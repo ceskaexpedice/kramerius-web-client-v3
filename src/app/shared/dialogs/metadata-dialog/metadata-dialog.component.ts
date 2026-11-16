@@ -16,7 +16,7 @@ import { LicenseActionsConfig } from '../../../core/config/config.interfaces';
 import { visibleMetadataTabs, MetadataTabScope } from './metadata-dialog-tabs';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 
-import hljs from 'highlight.js';
+import hljs from '../../utils/hljs';
 
 @Component({
     selector: 'app-metadata-dialog',

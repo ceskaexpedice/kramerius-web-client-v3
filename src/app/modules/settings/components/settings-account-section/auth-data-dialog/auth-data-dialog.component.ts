@@ -1,7 +1,7 @@
 import { Component, ElementRef, inject, AfterViewInit } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import hljs from 'highlight.js';
+import hljs from '../../../../../shared/utils/hljs';
 
 @Component({
   selector: 'app-auth-data-dialog',
