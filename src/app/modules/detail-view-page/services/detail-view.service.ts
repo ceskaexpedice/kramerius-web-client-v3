@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, effect, computed, untracked } from '@angular/core';
+import { inject, Injectable, signal, effect, computed } from '@angular/core';
 import { getTerminalLicenses } from '../../../core/solr/solr-misc';
 import { Page } from '../../../shared/models/page.model';
 import { Store } from '@ngrx/store';
@@ -27,7 +27,6 @@ import {
 } from '../../periodical/state/periodical-detail/periodical-detail.selectors';
 import { RecordInfoService } from '../../../shared/services/record-info.service';
 import { Metadata } from '../../../shared/models/metadata.model';
-import { SoundRecordGridControl } from '../../../shared/components/toolbar-controls/toolbar-controls.component';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DocumentTypeEnum } from '../../constants/document-type';
 import { loadPeriodical, loadPeriodicalItems } from '../../periodical/state/periodical-detail/periodical-detail.actions';
@@ -43,7 +42,7 @@ import { RecordHandlerService } from '../../../shared/services/record-handler.se
 import { ConfigService } from '../../../core/config/config.service';
 import { LicenseActionsConfig } from '../../../core/config/config.interfaces';
 import { CdkSourceService } from '../../../shared/services/cdk-source.service';
-import { SoundRecordingViewStateService } from '../../../shared/services/sound-recording-view-state.service';
+import { DetailViewStateService } from '../../../shared/services/detail-view-state.service';
 import { parseIssueStartDate } from '../../../shared/utils/periodical-date';
 import { Actions, ofType } from '@ngrx/effects';
 import { reloadPagesForCdkCollectionSuccess } from '../../../shared/state/document-detail/document-detail.actions';
@@ -54,20 +53,21 @@ import { reloadPagesForCdkCollectionSuccess } from '../../../shared/state/docume
 export class DetailViewService {
   private breakpointService = inject(BreakpointService);
 
-  _currentPageIndex = signal<number>(0);
-  _pages = signal<Page[]>([]);
+  // Plain detail state lives in DetailViewStateService so light consumers do
+  // not import this viewer-heavy service; these are the very same signals.
+  private state = inject(DetailViewStateService);
+
+  _currentPageIndex = this.state.currentPageIndex;
+  _pages = this.state.pages;
   _currentArticleIndex = signal<number>(0);
   _articles = signal<Page[]>([]);
   // PID of the page that the current article is displayed on (via foster_parents)
-  _articlePagePid = signal<string | null>(null);
+  _articlePagePid = this.state.articlePagePid;
 
   // Map of page PIDs that have been confirmed accessible (thumbnail loaded successfully)
   _pageAccessMap = signal<Map<string, boolean>>(new Map());
 
-  // Shared with the eagerly loaded music code via a tiny root service, so that
-  // code does not have to import this (viewer-heavy) service. See
-  // SoundRecordingViewStateService.
-  soundRecordingViewMode = inject(SoundRecordingViewStateService).mode;
+  soundRecordingViewMode = this.state.soundRecordingViewMode;
 
   private destroy$ = new Subject<void>();
 
@@ -132,22 +132,8 @@ export class DetailViewService {
       }
     });
 
-    // Initialize sidebar state: open only where it sits beside the content. On
-    // phones and portrait tablets it floats over the grid / page image, so it
-    // starts collapsed behind the toolbar panel toggle.
-    let sidebarOverlays = this.breakpointService.rightSidebarOverlaysContent();
-    this.uiStateService.setMetadataSidebarState(!sidebarOverlays);
-
-    // Crossing the overlay threshold (e.g. rotating a tablet) re-applies the
-    // default; within one band the user's own toggle is left alone.
-    effect(() => {
-      const overlays = this.breakpointService.rightSidebarOverlaysContent();
-      if (overlays === sidebarOverlays) {
-        return;
-      }
-      sidebarOverlays = overlays;
-      untracked(() => this.uiStateService.setMetadataSidebarState(!overlays));
-    });
+    // The metadata sidebar's initial open state (and its breakpoint re-apply)
+    // is set up by DetailViewStateService, injected above.
 
     // Listen to pages changes and update the signal automatically
     this.pages$.pipe(takeUntil(this.destroy$)).subscribe(pages => {

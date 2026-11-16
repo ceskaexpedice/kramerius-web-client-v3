@@ -6,7 +6,7 @@ import { TabsComponent } from '../tabs/tabs.component';
 import { TabItemComponent } from '../tabs/tab-item.component';
 import { MetadataSection } from '../metadata-section/metadata-section';
 import { RecordHandlerService } from '../../services/record-handler.service';
-import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
+import { DetailViewStateService } from '../../services/detail-view-state.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ExportDocumentSectionComponent } from './export-document-section-component/export-document-section-component';
 import { SearchResultsSidebarComponent } from './search-results-sidebar/search-results-sidebar.component';
@@ -36,7 +36,9 @@ export class MetadataSidebarComponent {
   @Output() close = new EventEmitter<void>();
 
   recordHandler = inject(RecordHandlerService);
-  detailService = inject(DetailViewService, { optional: true });
+  // Read-only detail state — not DetailViewService, which would drag the PDF /
+  // IIIF viewer libraries into every route that shows this sidebar.
+  detailState = inject(DetailViewStateService);
   searchService = inject(SearchService);
   uiStateService = inject(UiStateService);
   configService = inject(ConfigService);
@@ -52,9 +54,9 @@ export class MetadataSidebarComponent {
     // First try to emit the close event for custom handling
     if (this.close.observed) {
       this.close.emit();
-    } else if (this.detailService) {
-      // Fall back to DetailViewService if available (for backward compatibility)
-      this.detailService.hideMetadataSidebar();
+    } else {
+      // Default: same as DetailViewService.hideMetadataSidebar().
+      this.uiStateService.setMetadataSidebarState(false);
     }
   }
 }

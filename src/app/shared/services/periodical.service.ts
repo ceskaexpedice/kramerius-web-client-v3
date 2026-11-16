@@ -19,7 +19,6 @@ import {
 } from '../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
 import { loadPeriodical } from '../../modules/periodical/state/periodical-detail/periodical-detail.actions';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DetailViewService } from '../../modules/detail-view-page/services/detail-view.service';
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
 import { loadPeriodicalSearchResults } from '../../modules/periodical/state/periodical-search/periodical-search.actions';
 import {
@@ -113,7 +112,6 @@ export class PeriodicalService extends BaseFilterService {
     private store: Store,
     private localStorage: LocalStorageService,
     private recordHandler: RecordHandlerService,
-    private detailView: DetailViewService,
   ) {
     super();
     console.log('PeriodicalService initialized');

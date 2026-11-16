@@ -14,7 +14,7 @@ import { Store } from '@ngrx/store';
 import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
 import { reloadPagesForCdkCollection } from '../../state/document-detail/document-detail.actions';
 import { selectAvailableYears } from '../../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
-import { distinctUntilChanged, filter, firstValueFrom, map, take } from 'rxjs';
+import { distinctUntilChanged, filter, firstValueFrom, map, skip, take } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { ModelBadgeComponent } from '../model-badge/model-badge.component';
@@ -80,7 +80,13 @@ export class MetadataSection implements OnInit, OnChanges {
   private _articleData = signal<Metadata | null>(null);
   get articleData() { return this._articleData(); }
 
+  // Solr doc of the document shown here — taken from the document-detail store
+  // only when the store holds *this* uuid (see loadMetadata).
   private _solrData = signal<Metadata | null>(null);
+
+  // Bumped on every loadMetadata(); a load that finishes after a newer one
+  // started (fast document switching) must not overwrite the newer data.
+  private metadataLoadSeq = 0;
 
   // Unit count of the root multivolume monograph, fetched for monographunit documents
   // so the badge can show the root "Knihy (n)" instead of the unit "Díl".
@@ -395,6 +401,15 @@ export class MetadataSection implements OnInit, OnChanges {
       this.loadArticle(articleUuid);
     });
 
+    // The document-detail store may receive this uuid only after the first
+    // load (e.g. the periodical page dispatches loadDocumentDetail while the
+    // sidebar is already up). Reload once the store holds our document.
+    // skip(1): the current value is handled by the loadMetadata() above.
+    this.store.select(selectDocumentDetail).pipe(
+      skip(1),
+      takeUntilDestroyed(this.destroyRef),
+      filter(doc => !!doc && !!this.uuid && doc.uuid === this.uuid && this._solrData()?.uuid !== doc.uuid),
+    ).subscribe(() => this.loadMetadata());
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -404,11 +419,18 @@ export class MetadataSection implements OnInit, OnChanges {
   }
 
   async loadMetadata() {
-    // Get Solr data from store to supplement with model, accessibility, and license
-    const solrData = await firstValueFrom(this.store.select(selectDocumentDetail).pipe(take(1)));
-    if (solrData) {
-      this._solrData.set(solrData);
-    }
+    const loadSeq = ++this.metadataLoadSeq;
+
+    // Get Solr data from store to supplement with model, accessibility, and license.
+    // The store keeps the last document any page loaded into it (the periodical
+    // page does so and never clears it), so only use it when it is the document
+    // shown here. Otherwise a collection opened after a periodical took the
+    // periodical's rootPid and rendered the periodical's MODS, and a stale doc
+    // stayed in _solrData when switching documents.
+    const storedDoc = await firstValueFrom(this.store.select(selectDocumentDetail).pipe(take(1)));
+    if (loadSeq !== this.metadataLoadSeq) return;
+    const solrData = storedDoc && storedDoc.uuid === this.uuid ? storedDoc : null;
+    this._solrData.set(solrData);
 
     // Seed the source selector. On CDK the URL (`?source=`) wins, then cdk.leader,
     // then first available. Off-CDK, ensure any stray `source` param is stripped
@@ -455,6 +477,8 @@ export class MetadataSection implements OnInit, OnChanges {
     }
 
     const baseMods = await this.buildMergedMetadata(this.effectiveLibraryCode());
+    // A newer load started meanwhile (another document): drop this result.
+    if (loadSeq !== this.metadataLoadSeq) return;
     this._data.set(baseMods);
     this.cdr.markForCheck();
     this.loadCollectionNames();

@@ -23,7 +23,7 @@ import {
 import {ToastService} from '../../../shared/services/toast.service';
 import { DontShowAgainService, DontShowDialogs } from '../../../shared/services/dont-show-again.service';
 import {UserService} from '../../../shared/services/user.service';
-import { SoundRecordingViewStateService } from '../../../shared/services/sound-recording-view-state.service';
+import { DetailViewStateService } from '../../../shared/services/detail-view-state.service';
 import {APP_ROUTES_ENUM} from '../../../app.routes';
 import {BreakpointService} from '../../../shared/services/breakpoint.service';
 
@@ -40,7 +40,7 @@ export class MusicService {
   private dialog = inject(MatDialog);
   private toastService = inject(ToastService);
   private userService = inject(UserService);
-  private soundRecordingView = inject(SoundRecordingViewStateService);
+  private detailViewState = inject(DetailViewStateService);
   private breakpointService = inject(BreakpointService);
 
   // Store selectors as observables
@@ -188,7 +188,7 @@ export class MusicService {
     // Already on this recording (e.g. browsing its scans in the images tab):
     // navigation would be a no-op, so just switch back to the track list.
     if (this.isOnMusicPageFor(rootPid)) {
-      this.soundRecordingView.mode.set('records');
+      this.detailViewState.soundRecordingViewMode.set('records');
       return;
     }
     this.recordHandler.navigateToMusic(rootPid);

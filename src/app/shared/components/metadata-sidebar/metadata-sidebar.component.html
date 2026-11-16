@@ -8,7 +8,7 @@
       <app-metadata-section [showTitle]="true"
                             [metadata]="metadata"
                             [track]="track"
-        [uuid]="detailService?.document?.uuid || metadata?.uuid || ''"></app-metadata-section>
+        [uuid]="detailState.document()?.uuid || metadata?.uuid || ''"></app-metadata-section>
       }
     </ng-template>
 
@@ -50,15 +50,27 @@
           @case ('export') {
             @if (tools.export && configService.isAnyExportFormatEnabled()) {
             <app-tab-item [id]="tab.id" [label]="tab.label | translate" [icon]="tab.icon" [onlyIcon]="true">
-              <app-export-document-section-component
-                [pagePid]="detailService?.currentPagePid || null"></app-export-document-section-component>
+              <!-- Deferred until the tab is shown: the export section depends on
+                   PdfService / IIIFViewerService (PDF + OpenSeadragon, ~1.3 MB),
+                   which periodical / collection / volume pages must not load. -->
+              @defer (on viewport) {
+                <app-export-document-section-component
+                  [pagePid]="detailState.currentPagePid || null"></app-export-document-section-component>
+              } @placeholder {
+                <div class="metadata-sidebar__deferred"></div>
+              }
             </app-tab-item>
             }
           }
           @case ('ai') {
             @if (tools.ai && configService.isFeatureEnabled('ai')) {
             <app-tab-item [id]="tab.id" [label]="tab.label | translate" [icon]="tab.icon" [onlyIcon]="true">
-              <app-ai-actions></app-ai-actions>
+              <!-- Deferred for the same reason as the export section. -->
+              @defer (on viewport) {
+                <app-ai-actions></app-ai-actions>
+              } @placeholder {
+                <div class="metadata-sidebar__deferred"></div>
+              }
             </app-tab-item>
             }
           }
