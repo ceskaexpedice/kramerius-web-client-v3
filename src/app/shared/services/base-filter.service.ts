@@ -236,10 +236,13 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
     this.queryParamsService.resetOperator(this.route, field);
   }
 
-  // Common method for loading (required by FilterService interface)
-  async load(): Promise<void> {
-    await this.userService.loadLicenses();
-  }
+  // Required by the FilterService interface. Intentionally does not load the
+  // user session: initApp (APP_INITIALIZER) loads it once at startup and
+  // AuthService.fetchUserInfo() reloads it after login. Loading it here fired
+  // an extra /user request per filter service — SearchService is constructed
+  // before APP_INITIALIZER, so its request even went to a relative URL (the
+  // frontend host, answered with index.html) before the API base was known.
+  async load(): Promise<void> {}
 
   changeSortBy(sortBy: SolrSortFields, sortDirection: SolrSortDirections, replaceUrl: boolean = false) {
     this._sortBy.set(sortBy);

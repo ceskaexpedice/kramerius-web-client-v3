@@ -4,7 +4,6 @@ import { Observable, of } from 'rxjs';
 import { FacetPageQuery, FacetPageResult, FilterService } from '../../../shared/services/filter.service';
 import { Store } from '@ngrx/store';
 import {map} from 'rxjs/operators';
-import {UserService} from '../../../shared/services/user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,16 +11,14 @@ import {UserService} from '../../../shared/services/user.service';
 export class PeriodicalFilterService implements FilterService {
   constructor(
     private store: Store,
-    private userService: UserService,
   ) {
 
     this.load();
 
   }
 
-  async load() {
-    await this.userService.loadLicenses();
-  }
+  // The user session is loaded by initApp / after login (see BaseFilterService.load).
+  async load(): Promise<void> {}
 
   getFacets(): Observable<any> {
     // todo implement

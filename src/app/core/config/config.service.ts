@@ -141,8 +141,10 @@ export class ConfigService {
   }
 
   private fetchLocalConfig(name: ConfigFileName): Promise<Response> {
-    const timestamp = Date.now();
-    return fetch(`local-config/${name}.json?t=${timestamp}`);
+    // cache: 'no-cache' = always revalidate with the server (a 304 when it is
+    // unchanged) instead of a `?t=` timestamp, which defeated HTTP caching and
+    // re-downloaded the whole file on every load.
+    return fetch(`local-config/${name}.json`, { cache: 'no-cache' });
   }
 
   /**
@@ -169,9 +171,9 @@ export class ConfigService {
   private async fetchApiConfig(name: ConfigFileName): Promise<Response | null> {
     const base = this.envService.getApiConfigBaseUrl().replace(/\/+$/, '');
     const endpoint = API_CONFIG_ENDPOINTS[name];
-    const timestamp = Date.now();
     try {
-      const response = await fetch(`${base}/ui-config/${endpoint}?t=${timestamp}`);
+      // Revalidate instead of cache-busting (see fetchLocalConfig).
+      const response = await fetch(`${base}/ui-config/${endpoint}`, { cache: 'no-cache' });
       if (!response.ok) return null;
       const text = await response.text();
       if (!text.trim()) return null;
@@ -248,14 +250,15 @@ export class ConfigService {
    */
   private async fetchLibraryConfig(): Promise<AppConfiguration | null> {
     try {
-      const configResponse = await this.resolveConfigFile('config-main');
-      if (!configResponse.ok) return null;
-      const configData = await configResponse.json();
-
-      const [licensesResponse, homeSectionsResponse] = await Promise.all([
+      // All three in parallel: licenses and homepage do not depend on
+      // config-main, so waiting for it first only added a round trip to startup.
+      const [configResponse, licensesResponse, homeSectionsResponse] = await Promise.all([
+        this.resolveConfigFile('config-main'),
         this.resolveConfigFile('config-licenses'),
         this.resolveConfigFile('config-homepage')
       ]);
+      if (!configResponse.ok) return null;
+      const configData = await configResponse.json();
 
       const licensesData = await this.safeParseJson(licensesResponse, 'config-licenses.json');
       const homeSectionsRaw: any = await this.safeParseJson(homeSectionsResponse, 'config-homepage.json');
@@ -851,12 +854,12 @@ export class ConfigService {
 
   /**
    * Fetch HTML content from a relative URL path.
-   * Uses timestamp cache-busting to avoid stale content.
+   * Always revalidated with the server (cache: 'no-cache') so edits show up
+   * immediately, while an unchanged page comes back as a cheap 304.
    */
   async loadHtmlContent(url: string): Promise<string> {
     try {
-      const timestamp = Date.now();
-      const response = await fetch(`${url}?t=${timestamp}`);
+      const response = await fetch(url, { cache: 'no-cache' });
       if (!response.ok) return '';
       const buffer = await response.arrayBuffer();
       const html = new TextDecoder('utf-8').decode(buffer);
