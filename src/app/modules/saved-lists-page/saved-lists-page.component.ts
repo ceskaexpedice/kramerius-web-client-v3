@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject, OnInit, OnDestroy } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { Actions, ofType } from '@ngrx/effects';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
@@ -10,8 +11,8 @@ import * as FoldersActions from './state/folders.actions';
 import { selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderPageSearchResults, selectFolderDetailsLoading, selectFolderSearchResultsLoading, selectFolderPageResultsLoading, selectFolderCombinedTotalCount, selectSortParams, selectUserOwnedFolders, selectFolderBannerState, FolderBannerState, selectFolderNonPageResults, selectFolderArticleResults, selectFolderAttachmentResults } from './state';
 import { DontShowAgainService, DontShowDialogs } from '../../shared/services/dont-show-again.service';
 import { InfoBannerAction } from '../../shared/components/info-banner/info-banner.component';
-import { combineLatest, first, map, Observable, Subject, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { combineLatest, first, map, Observable, Subscription } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { SolrSortFields, SolrSortDirections } from '../../core/solr/solr-helpers';
 import { ViewMode } from '../periodical/models/view-mode.enum';
 import { ToolbarAction, ToolbarActionEvent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
@@ -144,6 +145,7 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
   newListPopupState: PopupState;
   private actions$ = inject(Actions);
   protected breakpointService = inject(BreakpointService);
+  private document = inject(DOCUMENT);
   // Name of the list created from the "New list" popup, so only that create
   // (not one from the favorites popup) navigates to the new folder.
   private pendingListName: string | null = null;
@@ -152,8 +154,6 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
 
   private fqParamsSubscription?: Subscription;
   private searchInputSubscription?: Subscription;
-  private searchQueryInput$ = new Subject<string>();
-  private searchQuerySubscription?: Subscription;
   private facetFiltersContentTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
@@ -234,21 +234,6 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
       this.searchInput.set(params['query'] ?? '');
     });
 
-    // Debounce keystrokes before writing the term to the URL, and replace history
-    // (rather than push) so typing doesn't stack back-button entries.
-    this.searchQuerySubscription = this.searchQueryInput$.pipe(
-      debounceTime(300),
-      map(q => q.trim()),
-      distinctUntilChanged()
-    ).subscribe(term => {
-      this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: { query: term || null, page: 1 },
-        queryParamsHandling: 'merge',
-        replaceUrl: true,
-      });
-    });
-
     // Re-run the folder search whenever the selected filters change. Facet toggles,
     // range/accessibility selections, and the free-text query (?query=...) update
     // the URL; this picks up the change once navigation has committed, so the effect
@@ -326,12 +311,37 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
    * picks up the change and re-runs the folder search.
    */
   onSearchQuery(query: string | number): void {
-    this.searchQueryInput$.next(String(query ?? ''));
+    this.applySearchQuery(String(query ?? ''));
+    // Phones: the search box sits in a full-screen panel over the results, so
+    // close it (and the keyboard) — otherwise the refreshed list stays hidden
+    // and the search looks like it did nothing.
+    if (this.breakpointService.isMobile()) {
+      (this.document.activeElement as HTMLElement | null)?.blur();
+      this.breakpointService.manualToggle.set(false);
+    }
   }
 
   /** Clear the free-text query (removes ?query= from the URL) and reload the folder. */
   onClearSearchQuery(): void {
-    this.searchQueryInput$.next('');
+    this.applySearchQuery('');
+  }
+
+  /**
+   * Write the term to the URL; the queryParams subscription re-runs the folder search.
+   * Compared against the current URL (not the last submitted term), so re-submitting
+   * a term after its tag was removed still searches. History is replaced, not pushed.
+   */
+  private applySearchQuery(raw: string): void {
+    const term = raw.trim();
+    if (term === (this.route.snapshot.queryParamMap.get('query') ?? '')) {
+      return;
+    }
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { query: term || null, page: 1 },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   /** Navigate the paginator — the queryParams subscription refires the folder search. */
@@ -443,7 +453,6 @@ export class SavedListsPageComponent implements OnInit, OnDestroy {
     this.folderChangeSubscription?.unsubscribe();
     this.fqParamsSubscription?.unsubscribe();
     this.searchInputSubscription?.unsubscribe();
-    this.searchQuerySubscription?.unsubscribe();
     clearTimeout(this.facetFiltersContentTimer);
     clearTimeout(this.savedBannerTimer);
   }
