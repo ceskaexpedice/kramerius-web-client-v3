@@ -8,6 +8,7 @@
     "prebuild": "node scripts/check-favorites-wiring.js && node scripts/generate_file_env-json.js && node scripts/collect-build-info.js",
     "check:favorites": "node scripts/check-favorites-wiring.js",
     "build": "ng build",
+    "postbuild": "node scripts/bundle-i18n.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:a11y": "ng test --include='**/*.a11y.spec.ts'",
