@@ -164,7 +164,7 @@ Když `id` **není** Kramerius UUID (např. libovolný řetězec `"25"`, `"genre
         "en": "The Brontë sisters"
       },
       "date": "1816–1855, 1818–1848, 1820–1849",
-      "imageUrl": "local-config/img/authors/bronte.png",
+      "imageUrl": "local-config/img/authors/bronte.webp",
       "externalUrl": "/search?query=&fq=authors.facet:Brontë,%20Charlotte"
     }
   ]
@@ -221,8 +221,8 @@ Platí pro vlastní obrázky zadané přes `imageUrl` (viz varianta B výše). K
 - **Obrázky na šířku (landscape) vypadají v kartě špatně** — rámeček je na výšku, takže se takový obrázek zmenší na úzký pásek doprostřed karty. Pro fotografie na šířku je lepší je předem doříznout na výšku.
 - **Nahrávejte přibližně 2× větší rozměr, než je karta** (proto 320 px, resp. 334 px místo 185 px). Na displejích s vysokou hustotou pixelů (Retina) je pak náhled ostrý. Větší soubory už nemají smysl — jen zpomalí načtení úvodní strany.
 - **Šířka karty se mění podle nastavení přístupnosti.** Při zvětšeném písmu se karta roztáhne, poměr stran obrázku ale zůstává stejný. Není tedy potřeba připravovat víc variant obrázku.
-- **Doporučený formát:** `webp` nebo optimalizované `jpg` pro fotografie, `png` pro obrázky s průhledností nebo ostrou grafikou. Vejděte se ideálně do ~150 kB na obrázek.
-- **Kam soubory dát:** typicky `public/local-config/img/...` a v configu se na ně odkazuje relativní cestou bez `public/` — např. `"imageUrl": "local-config/img/authors/bronte.png"`.
+- **Doporučený formát:** `webp` (i pro obrázky s průhledností), případně optimalizované `jpg` pro fotografie. Náhled karty má po kompresi typicky 5–30 kB — `png` fotografie bývá 10× větší. Převod např. `cwebp -q 82 -m 6 obrazek.png -o obrazek.webp`.
+- **Kam soubory dát:** typicky `public/local-config/img/...` a v configu se na ně odkazuje relativní cestou bez `public/` — např. `"imageUrl": "local-config/img/authors/bronte.webp"`.
 
 ---
 
