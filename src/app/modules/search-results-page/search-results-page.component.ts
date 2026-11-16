@@ -6,7 +6,7 @@ import { AdvancedSearchService } from '../../shared/services/advanced-search.ser
 import { AppResultsViewType } from '../settings/settings.model';
 import { SettingsService } from '../settings/settings.service';
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
-import { AdminModeService } from '../../shared/services';
+import { AdminModeService } from '../../shared/services/admin-mode.service';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map, filter, take } from 'rxjs/operators';
 import { SearchDocument } from '../models/search-document';

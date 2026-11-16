@@ -2,7 +2,7 @@ import { METADATA_PANEL_ID } from '../../shared/components/detail-layout/metadat
 import { Component, computed, inject, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy, signal } from '@angular/core';
 import { FixedPanelService } from '../../shared/components/fixed-panel/fixed-panel.service';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
-import { AdminModeService } from '../../shared/services';
+import { AdminModeService } from '../../shared/services/admin-mode.service';
 import { CollectionsService } from '../../shared/services/collections.service';
 import { SearchDocument } from '../models/search-document';
 import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';

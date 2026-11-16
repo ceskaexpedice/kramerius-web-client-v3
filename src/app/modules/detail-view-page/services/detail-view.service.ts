@@ -43,6 +43,7 @@ import { RecordHandlerService } from '../../../shared/services/record-handler.se
 import { ConfigService } from '../../../core/config/config.service';
 import { LicenseActionsConfig } from '../../../core/config/config.interfaces';
 import { CdkSourceService } from '../../../shared/services/cdk-source.service';
+import { SoundRecordingViewStateService } from '../../../shared/services/sound-recording-view-state.service';
 import { parseIssueStartDate } from '../../../shared/utils/periodical-date';
 import { Actions, ofType } from '@ngrx/effects';
 import { reloadPagesForCdkCollectionSuccess } from '../../../shared/state/document-detail/document-detail.actions';
@@ -63,7 +64,10 @@ export class DetailViewService {
   // Map of page PIDs that have been confirmed accessible (thumbnail loaded successfully)
   _pageAccessMap = signal<Map<string, boolean>>(new Map());
 
-  soundRecordingViewMode = signal<SoundRecordGridControl>('records');
+  // Shared with the eagerly loaded music code via a tiny root service, so that
+  // code does not have to import this (viewer-heavy) service. See
+  // SoundRecordingViewStateService.
+  soundRecordingViewMode = inject(SoundRecordingViewStateService).mode;
 
   private destroy$ = new Subject<void>();
 

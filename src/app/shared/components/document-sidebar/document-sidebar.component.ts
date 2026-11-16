@@ -10,7 +10,7 @@ import { BreakpointService } from '../../services/breakpoint.service';
 import { SheetCloseButtonComponent } from '../sheet-close-button/sheet-close-button.component';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
 import { Metadata } from '../../models/metadata.model';
-import { AdminModeService } from '../../services';
+import { AdminModeService } from '../../services/admin-mode.service';
 import { AutocompleteComponent } from '../autocomplete/autocomplete.component';
 import { IIIFViewerService } from '../../services/iiif-viewer.service';
 import { Observable, Subscription } from 'rxjs';

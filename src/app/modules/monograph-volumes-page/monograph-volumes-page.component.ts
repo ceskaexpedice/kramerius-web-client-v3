@@ -23,7 +23,7 @@ import {ActionToolbarComponent} from "../../shared/components/action-toolbar/act
 import {ToolbarHeaderComponent} from "../../shared/components/toolbar-header/toolbar-header.component";
 import {ToolbarControlsComponent} from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import {AdminSelectionCountComponent} from '../../shared/components/admin-selection-count/admin-selection-count.component';
-import {AdminModeService} from '../../shared/services';
+import { AdminModeService } from '../../shared/services/admin-mode.service';
 import {RecordHandlerService} from '../../shared/services/record-handler.service';
 import {FavoritesPopupHelper} from '../../shared/helpers/favorites-popup.helper';
 import {FavoritesPopupComponent} from '../../shared/components/favorites-popup/favorites-popup.component';

@@ -1,7 +1,7 @@
 import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { AdminModeService } from '../../services';
+import { AdminModeService } from '../../services/admin-mode.service';
 import { AdminActionsService } from '../../services/admin-actions.service';
 
 @Component({

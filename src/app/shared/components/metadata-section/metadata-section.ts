@@ -25,7 +25,6 @@ import { DocumentInfoService } from '../../services/document-info.service';
 import { UserService } from '../../services/user.service';
 import { isDocumentPublic } from '../record-item/record-item.model';
 import { MatDialog } from '@angular/material/dialog';
-import { MetadataDialogComponent } from '../../dialogs/metadata-dialog/metadata-dialog.component';
 import { AuthorsDialogComponent } from '../../dialogs/authors-dialog/authors-dialog.component';
 import { LicenseInfoDialogComponent } from '../../dialogs/license-info-dialog/license-info-dialog.component';
 import { SelectComponent } from '../select/select.component';
@@ -1197,9 +1196,14 @@ export class MetadataSection implements OnInit, OnChanges {
     return this.configService.isLicenseActionAllowed(this._data()?.licences, 'metadata');
   }
 
-  openMetadataDialog() {
+  async openMetadataDialog() {
     if (!this.canShowRawMetadata()) return;
 
+    // Loaded on demand: the dialog statically depends on DetailViewService and
+    // IIIFViewerService (→ ngx-extended-pdf-viewer, OpenSeadragon) plus
+    // highlight.js. metadata-section is rendered by record-item on the
+    // homepage, so a static import put the whole viewer stack on the homepage.
+    const { MetadataDialogComponent } = await import('../../dialogs/metadata-dialog/metadata-dialog.component');
     this.dialog.open(MetadataDialogComponent, {
       data: {
         document: this._solrData() ?? this.data

@@ -9,7 +9,7 @@ import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers
 import { Subscription } from 'rxjs';
 import { DocumentTypeEnum } from '../constants/document-type';
 import { DocumentAccessibilityEnum } from '../constants/document-accessibility';
-import { AdminModeService } from '../../shared/services';
+import { AdminModeService } from '../../shared/services/admin-mode.service';
 import { ViewToggleOption } from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import { FavoritesService } from '../../shared/services/favorites.service';
 import { PopupPositioningService } from '../../shared/services/popup-positioning.service';

@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
-import { AdminModeService } from '../../services';
+import { AdminModeService } from '../../services/admin-mode.service';
 import { SearchService } from '../../services/search.service';
 import { ExportService, ExportFormat } from '../../services/export.service';
 import { SearchDocument } from '../../../modules/models/search-document';

@@ -9,7 +9,7 @@ import { CheckboxComponent } from '../checkbox/checkbox.component';
 import { EnvironmentService } from '../../services/environment.service';
 import { LanguageBadgeComponent } from '../language-badge/language-badge.component';
 import {RecordHandlerService} from '../../services/record-handler.service';
-import { AdminModeService } from '../../services';
+import { AdminModeService } from '../../services/admin-mode.service';
 import { PluralizePipe } from '../../pipes/pluralize.pipe';
 import { TableColumnConfig, ColumnRenderType } from '../../models/display-config.model';
 import { ThumbnailImageComponent } from '../thumbnail-image/thumbnail-image.component';
