@@ -39,7 +39,6 @@
             ],
             "styles": [
               "public/fonts/icon-font/style.css",
-              "node_modules/font-awesome/css/font-awesome.min.css",
               "public/styles/main.scss",
               "src/styles.scss"
             ],

@@ -26,8 +26,10 @@ export enum FacetAccessibilityTypes {
  *   login    → key
  *   terminal → account_balance
  *
- * These are Material Icons ligatures, not glyphs from this app's own icon font —
- * Material Icons is already loaded in index.html. They render as
+ * These are Material Icons ligatures, not glyphs from this app's own icon font.
+ * Material Icons is a self-hosted subset (src/styles.scss): every name used here
+ * must be listed in public/fonts/material-icons/icons.json (see facets.spec.ts),
+ * otherwise it renders as the plain word. They render as
  * `<i class="material-icons">visibility</i>`, i.e. the name is the element's TEXT,
  * which is why `materialIcon` is a separate field from the `icon` CSS class used
  * by the rest of the icons. Templates branch on its presence.

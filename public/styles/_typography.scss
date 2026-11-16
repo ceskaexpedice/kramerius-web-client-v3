@@ -2,8 +2,12 @@
 // Typography - IBM Plex Sans
 // =============================================================================
 
-// Import IBM Plex Sans from Google Fonts
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+// Import IBM Plex Sans from Google Fonts.
+// Only the weights the UI uses (400/500/600/700) plus regular italic: italic is
+// only ever set at normal weight; bold italic in content HTML is synthesised.
+// Angular inlines this stylesheet's @font-face rules into index.html (one per
+// face per unicode-range subset), so every extra face costs ~6 rules there.
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 // Font Family Variables
 $font-family-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
