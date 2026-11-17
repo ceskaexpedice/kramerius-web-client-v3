@@ -32,8 +32,8 @@
       <div class="page-content__filters" [class.action-toolbar--tabs-visible]="!adminModeService.adminMode()" [class.sidebar-open]="exportRecord()">
         <app-action-toolbar>
           <div left>
-            <!-- Map tab switcher -->
-            <ng-container *ngIf="!adminModeService.adminMode()">
+            <!-- Map tab switcher (hidden on phones while the filter panel is open) -->
+            <ng-container *ngIf="!adminModeService.adminMode() && !breakpointService.mobileSidebarOpen()">
               <div class="view-tabs" role="group" [attr.aria-label]="'results-view--label' | translate">
                 <button type="button" class="view-tabs__tab" [class.active]="view() !== ViewOptions.map"
                         [attr.aria-pressed]="view() !== ViewOptions.map" (click)="onTabChanged('all')">
@@ -75,21 +75,25 @@
                   [totalCount]="(mapSearchService.totalCount$ | async) ?? 0">
                 </app-paginator-info>
 
-                <app-toggle-button-group *ngIf="view() !== ViewOptions.map" [options]="viewOptions" [value]="view()" [size]="'md'" (valueChange)="setView($event)" />
+                <!-- Phones with the filter panel open: only the result count stays,
+                     actions unrelated to filtering would confuse. -->
+                @if (!breakpointService.mobileSidebarOpen()) {
+                  <app-toggle-button-group *ngIf="view() !== ViewOptions.map" [options]="viewOptions" [value]="view()" [size]="'md'" (valueChange)="setView($event)" />
 
-                <div class="toolbar-controls-wrapper flex flex--align-center flex--gap-x2">
-                  <app-toolbar-controls [showViewToggle]="false" [showFavorites]="false" [showShare]="false"
-                    [showQuote]="false" [showInfo]="false" [showSelect]="!breakpointService.isMobile()"
-                    [showDownload]="view() !== ViewOptions.map && searchService.totalCount > 0" [themeDefault]="true"
-                    (selectClicked)="adminModeService.enable()"
-                    (downloadClicked)="downloadCsv()">
-                  </app-toolbar-controls>
-                </div>
+                  <div class="toolbar-controls-wrapper flex flex--align-center flex--gap-x2">
+                    <app-toolbar-controls [showViewToggle]="false" [showFavorites]="false" [showShare]="false"
+                      [showQuote]="false" [showInfo]="false" [showSelect]="!breakpointService.isMobile()"
+                      [showDownload]="view() !== ViewOptions.map && searchService.totalCount > 0" [themeDefault]="true"
+                      (selectClicked)="adminModeService.enable()"
+                      (downloadClicked)="downloadCsv()">
+                    </app-toolbar-controls>
+                  </div>
 
-                <app-results-sort
-                  [selectedSort]="searchService.sortBy"
-                  [selectedDirection]="searchService.sortDirection" (sortChange)="onSortChange($event)">
-                </app-results-sort>
+                  <app-results-sort
+                    [selectedSort]="searchService.sortBy"
+                    [selectedDirection]="searchService.sortDirection" (sortChange)="onSortChange($event)">
+                  </app-results-sort>
+                }
               </ng-container>
 
               <app-admin-selection-count></app-admin-selection-count>

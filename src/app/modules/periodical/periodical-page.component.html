@@ -66,7 +66,8 @@
             <div class="flex flex--align-center flex--gap-x2">
 
               <!-- Show normal controls when not in admin mode or not in SearchResults -->
-              @if (!adminModeService.adminMode()) {
+              <!-- Phones with the filter panel open: actions unrelated to filtering would confuse. -->
+              @if (!adminModeService.adminMode() && !breakpointService.mobileSidebarOpen()) {
                 @if (compactToolbar()) {
                   <!-- Phones and small tablets: actions collapse into the "more" menu; view
                        toggle, sort (and the year on tablets) move to the sub-toolbar below -->
@@ -130,7 +131,7 @@
       <!-- Compact sub-toolbar: view toggle (left) + year (centre) + sort (right).
            On phones the toggle is icon-only only when the year sits between it and sort;
            the years view has room for labels. -->
-      @if (compactToolbar() && !adminModeService.adminMode()) {
+      @if (compactToolbar() && !adminModeService.adminMode() && !breakpointService.mobileSidebarOpen()) {
         <div class="mobile-subtoolbar" appFixedPanelEdge="top" [attr.data-scroll-hide-keep]="periodical.selectedYear() ? '' : null">
           @if (periodical.viewMode() !== ViewMode.SearchResults) {
             <app-toolbar-controls [showViewToggle]="true"

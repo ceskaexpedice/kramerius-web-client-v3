@@ -27,8 +27,9 @@
                 <app-toolbar-header [title]="folderDisplayName(folder)" [showBackButton]="false">
                 </app-toolbar-header>
                 <!-- Phones: the filter button (FAB) opens search + filters, so this
-                     slot opens the sheet with the lists instead. -->
-                @if ((isLoggedIn$ | async) && breakpointService.isMobile()) {
+                     slot opens the sheet with the lists instead (hidden while that
+                     filter panel is open). -->
+                @if ((isLoggedIn$ | async) && breakpointService.isMobile() && !breakpointService.mobileSidebarOpen()) {
                   <button class="icon-button transparent" aria-haspopup="dialog"
                           [attr.aria-expanded]="foldersSheetOpen()"
                           [attr.aria-label]="'my-saved-lists' | translate"
@@ -70,17 +71,20 @@
               </div>
               }
 
-              <app-toggle-button-group [options]="viewOptions" [value]="view()" [size]="'md'" (valueChange)="setView($event)" />
+              <!-- Phones with the filter panel open: actions unrelated to filtering would confuse. -->
+              @if (!breakpointService.mobileSidebarOpen()) {
+                <app-toggle-button-group [options]="viewOptions" [value]="view()" [size]="'md'" (valueChange)="setView($event)" />
 
-              <app-toolbar-controls [actions]="getToolbarActions((activeFolder | async) || null)"
-                [mobileMenuMode]="breakpointService.isMobile()"
-                (actionClicked)="onToolbarAction($event)" [themeDefault]="false">
-              </app-toolbar-controls>
+                <app-toolbar-controls [actions]="getToolbarActions((activeFolder | async) || null)"
+                  [mobileMenuMode]="breakpointService.isMobile()"
+                  (actionClicked)="onToolbarAction($event)" [themeDefault]="false">
+                </app-toolbar-controls>
 
-              @if (sortParams | async; as sort) {
-              <app-results-sort [selectedSort]="sort.sortBy" [selectedDirection]="sort.sortDirection"
-                (sortChange)="onSortChange($event)">
-              </app-results-sort>
+                @if (sortParams | async; as sort) {
+                <app-results-sort [selectedSort]="sort.sortBy" [selectedDirection]="sort.sortDirection"
+                  (sortChange)="onSortChange($event)">
+                </app-results-sort>
+                }
               }
 
             </div>
