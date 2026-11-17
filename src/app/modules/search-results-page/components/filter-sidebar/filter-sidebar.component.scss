@@ -224,3 +224,9 @@
 .filter-sidebar.overlay:not(.overlay--paired-close) .filter-content {
   padding-top: 36px;
 }
+
+/* Phones: the pinned "show results" button in the filter panel's footer. */
+.filter-apply-btn {
+  width: 100%;
+  justify-content: center;
+}

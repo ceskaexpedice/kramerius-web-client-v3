@@ -22,6 +22,8 @@
   "show-more": "Zobrazit více",
   "more-tags": "+ {{count}} dalších",
   "show-less": "Zobrazit méně",
+  "show-results": "Zobrazit výsledky",
+  "show-results-count": "Zobrazit výsledky ({{count}})",
   "results": "Výsledky",
   "delete-all": "Smazat vše",
   "display-mode": "Režim vzhledu",

@@ -22,6 +22,8 @@
   "show-more": "Show more",
   "more-tags": "+ {{count}} more",
   "show-less": "Show less",
+  "show-results": "Show results",
+  "show-results-count": "Show results ({{count}})",
   "results": "Results",
   "delete-all": "Delete all",
   "display-mode": "Appearance mode",

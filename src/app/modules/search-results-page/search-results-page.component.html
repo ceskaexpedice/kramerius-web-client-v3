@@ -5,7 +5,9 @@
     <!-- Phones: lift the filter button 12px above the 60px bottom nav bar; when
          the bar scrolls away the button follows it down to the default 12px. -->
     <app-filter-sidebar [isDisabled]="adminModeService.adminMode()" [dimmed]="(noResults$ | async) ?? false"
-      [toggleButtonBottomOffset]="breakpointService.isMobile() && !mobileNavHidden() ? 72 : 0">
+      [toggleButtonBottomOffset]="breakpointService.isMobile() && !mobileNavHidden() ? 72 : 0"
+      [showApplyButton]="true"
+      [resultCount]="view() === ViewOptions.map ? ((mapSearchService.totalCount$ | async) ?? null) : searchService.totalCount">
       <app-search-filters></app-search-filters>
     </app-filter-sidebar>
 

@@ -7,5 +7,7 @@
     <div class="fixed-panel__content" [class.fixed-panel__content--flush]="flush">
       <ng-content></ng-content>
     </div>
+    <!-- Optional pinned footer (e.g. the filter panel's "show results"); collapses when empty. -->
+    <div class="fixed-panel__footer"><ng-content select="[fixedPanelFooter]"></ng-content></div>
   </div>
 </ng-template>

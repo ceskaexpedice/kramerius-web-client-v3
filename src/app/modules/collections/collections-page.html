@@ -3,7 +3,8 @@
 
     <!-- Lift the floating toggle clear of the map-series nav bar when it shows. -->
     <app-filter-sidebar [isDisabled]="adminModeService.adminMode()"
-                        [toggleButtonBottomOffset]="filterToggleBottomOffset()">
+                        [toggleButtonBottomOffset]="filterToggleBottomOffset()"
+                        [showApplyButton]="true" [resultCount]="collectionsService.totalCount">
       <app-collection-filters></app-collection-filters>
     </app-filter-sidebar>
 

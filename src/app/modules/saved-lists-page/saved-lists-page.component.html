@@ -4,7 +4,8 @@
     @if (isLoggedIn$ | async) {
     <!-- Phones: the filter button opens search + filters, as on the search page;
          the lists move to the sheet behind the list name. -->
-    <app-filter-sidebar [mobileTitleKey]="breakpointService.isMobile() ? 'search-and-filter-in-list--title' : 'filters'">
+    <app-filter-sidebar [mobileTitleKey]="breakpointService.isMobile() ? 'search-and-filter-in-list--title' : 'filters'"
+      [showApplyButton]="true" [resultCount]="(resultsCount$ | async) ?? null">
       @if (breakpointService.isMobile()) {
         <ng-container *ngTemplateOutlet="facetFiltersTpl"></ng-container>
       } @else {

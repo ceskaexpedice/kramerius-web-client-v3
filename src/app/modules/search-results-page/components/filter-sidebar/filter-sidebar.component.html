@@ -20,6 +20,17 @@
   [(isOpen)]="breakpointService.manualToggle"
   (closed)="breakpointService.manualToggle.set(false)">
   <ng-container *ngTemplateOutlet="filterContent"></ng-container>
+  @if (showApplyButton) {
+  <div fixedPanelFooter>
+    <button type="button" class="button primary filter-apply-btn" (click)="closeSidebar()">
+      @if (resultCount !== null) {
+        {{ 'show-results-count' | translate:{ count: (resultCount | formatNumber) } }}
+      } @else {
+        {{ 'show-results' | translate }}
+      }
+    </button>
+  </div>
+  }
 </app-fixed-panel>
 }
 
