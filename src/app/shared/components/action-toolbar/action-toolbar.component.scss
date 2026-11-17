@@ -5,6 +5,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  // Keeps the left actions from touching the right controls when the row is tight.
+  gap: var(--spacing-x2);
   background-color: var(--color-bg-base);
   border-bottom: 1px solid var(--color-border-light);
   padding: 0 var(--spacing-x3);

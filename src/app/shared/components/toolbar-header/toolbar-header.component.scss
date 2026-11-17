@@ -3,6 +3,10 @@
 :host {
   display: block;
   width: 100%;
+  // Usually a flex item next to title actions (e.g. the lists' folder button):
+  // let it shrink so the title ellipsizes instead of pushing those actions
+  // over the right-side toolbar controls on phones.
+  min-width: 0;
 }
 
 .toolbar-header {
