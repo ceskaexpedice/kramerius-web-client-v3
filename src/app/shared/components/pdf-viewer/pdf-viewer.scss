@@ -1,3 +1,29 @@
+// The viewer must follow its slot's height live: on mobile the immersive tap
+// hides the header/toolbars and the slot grows. ngx-extended-pdf-viewer can't
+// see a percentage height through the (inline) app-fullscreen host, so it
+// measures once and pins `.zoom` to that many px (`style.height`), re-measuring
+// only on window resize — the viewer then stayed at the old height with an
+// empty strip below. A definite height chain plus an absolutely filled viewer
+// makes the inline px moot; pdf.js's own ResizeObserver then refits the page.
+:host {
+  display: block;
+  height: 100%;
+}
+
+app-fullscreen {
+  display: block;
+  height: 100%;
+}
+
+ngx-extended-pdf-viewer {
+  position: absolute;
+  inset: 0;
+}
+
+:host ::ng-deep ngx-extended-pdf-viewer .zoom {
+  height: 100% !important;
+}
+
 .pdf-viewer-container {
   display: flex;
   flex-direction: column;
