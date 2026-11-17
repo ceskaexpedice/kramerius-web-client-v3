@@ -4,7 +4,10 @@ import { CdkSourceService } from './cdk-source.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { PdfOutlineItem } from '../components/pdf-content-tree/pdf-content-tree.component';
 import { PdfPageThumbnail } from '../components/pdf-pages-grid/pdf-pages-grid.component';
-import { FindState, FindResultMatchesCount, NgxExtendedPdfViewerService, PageViewModeType, ZoomType } from 'ngx-extended-pdf-viewer';
+// Type-only: a value import would put ngx-extended-pdf-viewer (~0.9 MB) into
+// every chunk that uses PdfService. PdfViewer hands over the library service.
+import type { FindResultMatchesCount, NgxExtendedPdfViewerService, PageViewModeType, ZoomType } from 'ngx-extended-pdf-viewer';
+import { FindState } from '../models/pdf-find-state';
 import { AuthService } from '../../core/auth/auth.service';
 
 export interface PdfProperties {
@@ -91,10 +94,22 @@ export class PdfService {
   constructor(
     private env: EnvironmentService,
     private ngZone: NgZone,
-    private ngxExtendedPdfViewerService: NgxExtendedPdfViewerService,
     private authService: AuthService,
     private cdkSource: CdkSourceService
   ) {
+  }
+
+  /**
+   * The library's service, handed over by PdfViewer when it is created (the
+   * component lives in the lazy PDF chunk, so it may import the library).
+   * It must exist before it is used: it picks up the PDF.js application through
+   * an effect in its constructor, so an instance created on first use (e.g. when
+   * "download" is clicked) has no document yet and returns nothing.
+   */
+  private pdfViewerService: NgxExtendedPdfViewerService | null = null;
+
+  attachViewerService(service: NgxExtendedPdfViewerService): void {
+    this.pdfViewerService = service;
   }
 
   set uuid(uuid: string | null) {
@@ -200,8 +215,8 @@ export class PdfService {
     return this.searchQuerySubject.value;
   }
 
-  public updateFindState(result: FindState) {
-    this.findState = result;
+  public updateFindState(result: FindState | number) {
+    this.findState = result as FindState;
     // Map FindState enum to our string type
     if (result === FindState.FOUND) {
       this.pdfFindResult.findState = 'found';
@@ -684,7 +699,7 @@ export class PdfService {
    */
   async downloadCurrentPdf(fallbackName?: string): Promise<boolean> {
     try {
-      const blob = await this.ngxExtendedPdfViewerService.getCurrentDocumentAsBlob();
+      const blob = await this.pdfViewerService?.getCurrentDocumentAsBlob();
       if (!blob) {
         return false;
       }
@@ -710,7 +725,7 @@ export class PdfService {
     const currentPage = pageNumber || this.getCurrentPage();
 
     try {
-      const text = await this.ngxExtendedPdfViewerService.getPageAsText(currentPage);
+      const text = await this.pdfViewerService?.getPageAsText(currentPage);
       return text;
     } catch (error) {
       console.error(`Error extracting text from page ${currentPage}:`, error);

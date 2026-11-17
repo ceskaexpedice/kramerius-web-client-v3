@@ -252,12 +252,12 @@
           } @else {
             @let articleMetadata = articleMetadata$ | async;
             @if (articleMetadata?.pdf) {
-              <app-pdf-viewer [metadata]="articleMetadata" [id]="'pdf-' + articleMetadata.uuid"></app-pdf-viewer>
+              <app-pdf-viewer-lazy [metadata]="articleMetadata" [id]="'pdf-' + articleMetadata.uuid"></app-pdf-viewer-lazy>
             } @else {
 
               <!-- Non-PDF article OR no article: render document/page viewer -->
               @if (detailViewService.isPdf) {
-                <app-pdf-viewer [metadata]="document"></app-pdf-viewer>
+                <app-pdf-viewer-lazy [metadata]="document"></app-pdf-viewer-lazy>
               } @else if (detailViewService.isEpub || document.epub) {
                 <app-epub-viewer [metadata]="document"></app-epub-viewer>
               } @else if (document.model === DocumentTypeEnum.soundrecording && detailViewService.soundRecordingViewMode() === 'records') {

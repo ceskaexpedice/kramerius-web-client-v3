@@ -7,7 +7,7 @@ import { SheetCloseButtonComponent } from '../sheet-close-button/sheet-close-but
 import {PageNavigatorComponent} from '../page-navigator/page-navigator.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {AsyncPipe} from '@angular/common';
-import {FindState} from 'ngx-extended-pdf-viewer';
+import { FindState } from '../../models/pdf-find-state';
 import {SearchNavigationComponent} from '../search-navigation/search-navigation.component';
 
 @Component({

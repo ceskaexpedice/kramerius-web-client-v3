@@ -42,6 +42,7 @@ import { Store } from '@ngrx/store';
 import { AuthService } from '../../../core/auth/auth.service';
 import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
 import { CdkSourceService } from '../../services/cdk-source.service';
+import { IiifInfoPrefetchService } from '../../services/iiif-info-prefetch.service';
 import { UserService } from '../../services/user.service';
 import { ConfigService } from '../../../core/config/config.service';
 import { InfoBannerAction, InfoBannerComponent } from '../info-banner/info-banner.component';
@@ -79,6 +80,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   @ViewChild('viewerContainer', { static: false }) viewerContainer!: ElementRef;
 
   public iiifViewerService = inject(IIIFViewerService);
+  private iiifInfoPrefetch = inject(IiifInfoPrefetchService);
   private detailViewService = inject(DetailViewService);
   private recordHandlerService = inject(RecordHandlerService);
   private exportService = inject(ExportService);
@@ -1139,16 +1141,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   /** GET + normalise one page's info.json through the API proxy. */
   private fetchInfoJson(pid: string): Observable<any> {
-    const authHeaders = this.iiifViewerService.getAuthHeaders();
-    let headers = new HttpHeaders();
-    if (authHeaders['Authorization']) {
-      headers = headers.set('Authorization', authHeaders['Authorization']);
-    }
     const infoUrl = this.iiifViewerService.getIIIFInfoUrl(pid);
-    return this.http.get(infoUrl, {
-      headers,
-      context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
-    }).pipe(
+    // Uses the request DetailViewService started alongside the access check
+    // when there is one for this URL (see IiifInfoPrefetchService).
+    return this.iiifInfoPrefetch.get(infoUrl).pipe(
       map((infoJson: any) => {
         this.processInfoJson(infoJson, infoUrl);
         return infoJson;

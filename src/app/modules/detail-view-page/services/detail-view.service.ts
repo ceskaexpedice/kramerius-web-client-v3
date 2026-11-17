@@ -32,6 +32,7 @@ import { DocumentTypeEnum } from '../../constants/document-type';
 import { loadPeriodical, loadPeriodicalItems } from '../../periodical/state/periodical-detail/periodical-detail.actions';
 import { SolrSortDirections, SolrSortFields } from '../../../core/solr/solr-helpers';
 import { IIIFViewerService } from '../../../shared/services/iiif-viewer.service';
+import { IiifInfoPrefetchService } from '../../../shared/services/iiif-info-prefetch.service';
 import { DocumentInfoService } from '../../../shared/services/document-info.service';
 import { BreakpointService } from '../../../shared/services/breakpoint.service';
 import { UiStateService } from '../../../shared/services/ui-state.service';
@@ -76,6 +77,7 @@ export class DetailViewService {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private iiifViewerService = inject(IIIFViewerService);
+  private iiifInfoPrefetch = inject(IiifInfoPrefetchService);
   private documentInfoService = inject(DocumentInfoService);
   private uiStateService = inject(UiStateService);
   private pdfService = inject(PdfService);
@@ -910,6 +912,9 @@ export class DetailViewService {
     } else if (currentPage && currentPage.model === DocumentTypeEnum.page) {
       // Page-based document - load page info
       this.documentInfoService.loadPageInfo(currentPage.pid);
+      // The IIIF viewer needs this page's info.json once access is confirmed;
+      // request it now instead of after the access check.
+      this.iiifInfoPrefetch.prefetch(currentPage.pid, (this.document?.cdkCollections?.length ?? 0) > 0);
     } else if (this.document?.uuid) {
       // PDF or document without pages - load document info using document UUID
       this.documentInfoService.loadPageInfo(this.document.uuid);

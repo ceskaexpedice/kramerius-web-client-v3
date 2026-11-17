@@ -1,5 +1,5 @@
 import { Component, inject, Input, OnDestroy, OnInit, ViewChild, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
-import { NgxExtendedPdfViewerComponent, NgxExtendedPdfViewerModule, OutlineLoadedEvent } from 'ngx-extended-pdf-viewer';
+import { NgxExtendedPdfViewerComponent, NgxExtendedPdfViewerModule, NgxExtendedPdfViewerService, OutlineLoadedEvent } from 'ngx-extended-pdf-viewer';
 import { Metadata } from '../../models/metadata.model';
 import { PdfService } from '../../services/pdf.service';
 import { Subscription } from 'rxjs';
@@ -34,6 +34,10 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   private currentPageSubscription: Subscription | null = null;
 
   constructor() {
+    // PdfService must not import the library (it would pull it into every chunk
+    // using PdfService), so it gets the service from here — the instance this
+    // viewer works with, created now so it is wired up before download/text use.
+    this.pdfService.attachViewerService(inject(NgxExtendedPdfViewerService));
   }
 
   ngOnChanges(changes: SimpleChanges): void {

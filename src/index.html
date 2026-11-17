@@ -11,6 +11,11 @@
        bars and body pad themselves with env(safe-area-inset-*). -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="icon" type="image/x-icon" href="/img/favicon/favicon.png">
+  <!-- Bootstrap's first request (EnvironmentService.load → fetch('/assets/env.json')).
+       Starting it here runs it alongside the JS download instead of after it.
+       `crossorigin` gives the same credentials mode as fetch()'s default, so the
+       preloaded response is reused. -->
+  <link rel="preload" href="/assets/env.json" as="fetch" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 

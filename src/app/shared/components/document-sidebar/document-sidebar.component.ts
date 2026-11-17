@@ -22,7 +22,7 @@ import { InputComponent } from '../input/input.component';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {FormsModule} from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FindState } from 'ngx-extended-pdf-viewer';
+import { FindState } from '../../models/pdf-find-state';
 import { SearchDebounceService } from '../../services/search-debounce.service';
 import { AiPanelService } from '../../services/ai-panel.service';
 import { ConfigService } from '../../../core/config';
