@@ -294,6 +294,7 @@ Když se celý blok `export` vynechá, použijí se výchozí hodnoty z tabulky 
   "defaultMode": "book",
   "availableModes": ["book", "single"],
   "rememberLastMode": true,
+  "imageLoaderLimit": 6,
   "controls": {},
   "selectionControls": {}
 }
@@ -304,6 +305,7 @@ Když se celý blok `export` vynechá, použijí se výchozí hodnoty z tabulky 
 | `defaultMode` | ano | Výchozí režim — `"book"` (dvě strany vedle sebe) nebo `"single"` (jedna strana). | `book` |
 | `availableModes` | ano | Povolené režimy. Když obsahuje jen jednu hodnotu, přepínač režimu se skryje. | `["book", "single"]` |
 | `rememberLastMode` | ne | Zda si pamatovat poslední volbu uživatele mezi návštěvami. | `true` |
+| `imageLoaderLimit` | ne | Maximální počet dlaždic IIIF, které prohlížeč stahuje **současně**. `0` = bez omezení (všechny dlaždice viditelné oblasti se vyžádají naráz). Kladné celé číslo omezí počet paralelních požadavků — žádná dlaždice se nevynechá, jen se požadavky rozloží v čase. Hodí se, když je backend / CDK proxy přetížený nárazem požadavků (doporučeno např. `6`). Chybějící, záporná nebo nečíselná hodnota = `0`. | `0` |
 
 ### `viewer.controls` — tlačítka na liště prohlížeče
 

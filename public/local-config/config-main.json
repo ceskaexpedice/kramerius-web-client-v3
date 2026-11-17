@@ -74,6 +74,7 @@
       "single"
     ],
     "rememberLastMode": true,
+    "imageLoaderLimit": 6,
     "controls": {
       "zoomIn": true,
       "zoomOut": true,

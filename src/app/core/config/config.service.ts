@@ -565,6 +565,15 @@ export class ConfigService {
   }
 
   /**
+   * Max parallel IIIF tile requests in the viewer. Missing, non-numeric or
+   * negative values fall back to 0 = unlimited (OpenSeadragon default).
+   */
+  get viewerImageLoaderLimit(): number {
+    const limit = this.viewer.imageLoaderLimit;
+    return typeof limit === 'number' && Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : 0;
+  }
+
+  /**
    * Check if a viewer control is enabled
    */
   isViewerControlEnabled(control: keyof ViewerControlsConfig): boolean {

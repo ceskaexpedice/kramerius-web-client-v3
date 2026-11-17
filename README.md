@@ -133,6 +133,22 @@ Env proměnné (Docker):
 
 Podrobnosti viz [`docs/guide.md`](docs/guide.md#načítání-konfigurace-z-api-volitelné).
 
+## Výkon prohlížeče: paralelní načítání dlaždic
+
+Prohlížeč IIIF ve výchozím stavu stahuje všechny dlaždice viditelné stránky
+naráz (bez omezení). Pokud je backend / CDK proxy nárazem požadavků přetížený,
+lze počet současně stahovaných dlaždic omezit v `config-main.json`:
+
+```json
+"viewer": {
+  "imageLoaderLimit": 6
+}
+```
+
+Když hodnota není zadaná (nebo je `0`), počet paralelních požadavků se
+neomezuje. Podrobnosti viz
+[`docs/config/config-main.md` → `viewer`](docs/config/config-main.md#viewer--prohlížeč-dokumentů).
+
 ## Build & Run s Dockerem
 
 ### Build image

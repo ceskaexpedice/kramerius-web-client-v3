@@ -762,14 +762,16 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       // until those tiles land and the page then appears all at once.
       // The thumbnail background covers the gap until the first tiles arrive.
       immediateRender: false,
-      // OpenSeadragon's default is 0 (unlimited), which fires every tile of the
+      // Configurable via config-main.json → viewer.imageLoaderLimit; missing
+      // = 0 (unlimited, OpenSeadragon's default), which fires every tile of the
       // visible grid at once. Each one pays the CDK proxy's per-request
       // overhead, so the burst is what makes page loads feel slow — capping
-      // concurrency spreads it out without dropping any tile. This is the knob
-      // to reach for when proxy load is the problem: prefer it over coarsening
-      // minPixelRatio below, which pays for fewer requests with image quality.
-      // The request count itself is set by the tile size (see enlargeTiles).
-      imageLoaderLimit: 6,
+      // concurrency (e.g. 6) spreads it out without dropping any tile. This is
+      // the knob to reach for when proxy load is the problem: prefer it over
+      // coarsening minPixelRatio below, which pays for fewer requests with
+      // image quality. The request count itself is set by the tile size (see
+      // enlargeTiles).
+      imageLoaderLimit: this.configService.viewerImageLoaderLimit,
       // Caps the pyramid level OSD targets: highestLevel is clamped by
       // log2(zeroRatio / minPixelRatio), so raising this picks a coarser level.
       // Kept at OpenSeadragon's default. It was raised to 1.0 to cut proxy
