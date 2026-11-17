@@ -18,13 +18,43 @@
  *    coordinates before it reaches `updateZoom`.
  */
 
-/** Set on `#viewerContainer` while two fingers are down; see pdf-viewer.scss. */
-export const PDF_PINCHING_CLASS = 'cdk-pdf-pinching';
+/**
+ * Set on `#viewerContainer` while pdf.js rescales (two fingers down, or a zoom
+ * button): turns its smooth scrolling off; see pdf-viewer.scss.
+ */
+export const PDF_INSTANT_SCROLL_CLASS = 'cdk-pdf-instant-scroll';
 
-/** The bits of PDFViewerApplication this fix touches (untyped in the library). */
-interface PinchZoomApp {
+/** The bits of PDFViewerApplication used here (untyped in the library). */
+export interface PdfJsZoomApp {
   updateZoom: (steps: number | null, scaleFactor?: number | null, origin?: [number, number] | null) => void;
-  appConfig?: { viewerContainer?: HTMLElement };
+  pdfViewer?: {
+    /** The element pdf.js scrolls (#viewerContainer). */
+    container: HTMLElement;
+    currentScale: number;
+    currentScaleValue: string | number;
+    pagesCount: number;
+    updateScale: (options: { scaleFactor: number; origin?: [number, number]; drawingDelay?: number }) => void;
+  };
+}
+
+/**
+ * Runs a synchronous pdf.js rescale with smooth scrolling off: pdf.js writes the
+ * scroll position several times while rescaling and must not get animations.
+ */
+export function withInstantScroll(container: HTMLElement | null, rescale: () => void): void {
+  if (!container || container.classList.contains(PDF_INSTANT_SCROLL_CLASS)) {
+    rescale();
+    return;
+  }
+  container.classList.add(PDF_INSTANT_SCROLL_CLASS);
+  // Flush styles now: scroll writes use the last computed scroll-behavior, so
+  // without this the class only takes effect after the rescale.
+  void getComputedStyle(container).scrollBehavior;
+  try {
+    rescale();
+  } finally {
+    container.classList.remove(PDF_INSTANT_SCROLL_CLASS);
+  }
 }
 
 /** screen − client offset of the current two-finger gesture, else null. */
@@ -40,7 +70,7 @@ function trackTouches(event: TouchEvent): void {
   } else {
     pinchOffset = null;
   }
-  document.getElementById('viewerContainer')?.classList.toggle(PDF_PINCHING_CLASS, twoFingers);
+  document.getElementById('viewerContainer')?.classList.toggle(PDF_INSTANT_SCROLL_CLASS, twoFingers);
 }
 
 function listenToTouches(): void {
@@ -55,7 +85,7 @@ function listenToTouches(): void {
 }
 
 export function applyPdfPinchZoomFix(app: unknown): void {
-  const pinchApp = app as PinchZoomApp | null;
+  const pinchApp = app as PdfJsZoomApp | null;
   if (!pinchApp || typeof pinchApp.updateZoom !== 'function' || patchedApps.has(pinchApp)) return;
   patchedApps.add(pinchApp);
   listenToTouches();

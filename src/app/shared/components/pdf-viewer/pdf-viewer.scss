@@ -51,8 +51,8 @@ ngx-extended-pdf-viewer {
 
     // pdf.js writes and re-reads the scroll position several times per pinch
     // step; smooth scrolling turns those writes into competing animations and
-    // the page jumps. Class set during two-finger gestures (pdf-pinch-zoom-fix.ts).
-    &.cdk-pdf-pinching {
+    // the page jumps. Class set while pdf.js rescales (pdf-pinch-zoom-fix.ts).
+    &.cdk-pdf-instant-scroll {
       scroll-behavior: auto !important;
     }
     top: 32px !important;

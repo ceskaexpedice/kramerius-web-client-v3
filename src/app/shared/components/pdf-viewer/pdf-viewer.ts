@@ -42,7 +42,11 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
 
     // pdf.js pinch-zoom drifts away from the fingers on phones; see pdf-pinch-zoom-fix.ts.
     const pdfNotifications = inject(PDFNotificationService);
-    effect(() => applyPdfPinchZoomFix(pdfNotifications.onPDFJSInitSignal()));
+    effect(() => {
+      const app = pdfNotifications.onPDFJSInitSignal();
+      applyPdfPinchZoomFix(app);
+      this.pdfService.attachPdfJsApp(app ?? null);
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -210,10 +214,12 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     // Determine zoom direction based on wheel delta
     // deltaY > 0 means scrolling down (zoom out)
     // deltaY < 0 means scrolling up (zoom in)
+    // Keep the point under the mouse in place.
+    const origin: [number, number] = [event.clientX, event.clientY];
     if (event.deltaY < 0) {
-      this.pdfService.zoomIn();
+      this.pdfService.zoomIn(origin);
     } else if (event.deltaY > 0) {
-      this.pdfService.zoomOut();
+      this.pdfService.zoomOut(origin);
     }
   }
 
