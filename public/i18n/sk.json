@@ -470,6 +470,7 @@
   "selection-move--title": "Presunúť lištu",
   "selection-collapse--arialabel": "Zbaliť lištu",
   "selection-expand--arialabel": "Rozbaliť lištu",
+  "selection-auto-collapsed--hint": "Lišta sa zbalila. Kliknutím ju rozbalíte",
   "increase-font-size--arialabel": "Zväčšiť veľkosť písma",
   "decrease-font-size--arialabel": "Zmenšiť veľkosť písma",
   "thumbnail--alt": "Náhľad",

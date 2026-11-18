@@ -598,3 +598,53 @@ describe('IIIFViewer holdPage', () => {
   });
 
 });
+
+describe('IIIFViewer selection toolbar auto-collapse', () => {
+  function makeComponent() {
+    const component = Object.create(IIIFViewer.prototype) as IIIFViewer;
+    const panel = { showTranslation: jasmine.createSpy('showTranslation'), showSummary: jasmine.createSpy('showSummary') };
+    (component as any).aiPanelService = panel;
+    (component as any).iiifViewerService = { getSelectedRegion: () => ({ x: 0, y: 0, w: 1, h: 1 }) };
+    (component as any).imagePid = 'uuid:page';
+    (component as any).cdr = { detectChanges: () => {} };
+    (component as any).updateControlsPosition = () => {};
+    component.selectionControlsCollapsed = false;
+    component.selectionControlsAutoCollapsed = false;
+    return { component, panel };
+  }
+
+  it('collapses the toolbar after translating the selection', () => {
+    const { component, panel } = makeComponent();
+    component.onSelectionTranslate();
+    expect(panel.showTranslation).toHaveBeenCalled();
+    expect(component.selectionControlsAutoCollapsed).toBeTrue();
+  });
+
+  it('collapses the toolbar after summarising the selection', () => {
+    const { component } = makeComponent();
+    component.onSelectionSummarize();
+    expect(component.selectionControlsAutoCollapsed).toBeTrue();
+  });
+
+  it('leaves the toolbar alone when there is no selection to act on', () => {
+    const { component } = makeComponent();
+    (component as any).iiifViewerService = { getSelectedRegion: () => null };
+    component.onSelectionTranslate();
+    expect(component.selectionControlsAutoCollapsed).toBeFalse();
+  });
+
+  it('does not stack on a toolbar the reader already collapsed', () => {
+    const { component } = makeComponent();
+    component.selectionControlsCollapsed = true;
+    component.onSelectionTranslate();
+    expect(component.selectionControlsAutoCollapsed).toBeFalse();
+  });
+
+  it('hands control back to the reader once they expand it', () => {
+    const { component } = makeComponent();
+    component.onSelectionTranslate();
+    component.onSelectionControlsCollapsedChange(false);
+    expect(component.selectionControlsAutoCollapsed).toBeFalse();
+    expect(component.selectionControlsCollapsed).toBeFalse();
+  });
+});

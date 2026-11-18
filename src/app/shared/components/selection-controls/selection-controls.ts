@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ConfigService } from '../../../core/config';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DetailViewService } from '../../../modules/detail-view-page/services/detail-view.service';
 import { UserService } from '../../services/user.service';
 import { TtsService } from '../../services/tts.service';
@@ -13,7 +14,7 @@ import { CdkTooltipDirective } from '../../directives/cdk-tooltip';
     templateUrl: './selection-controls.html',
     styleUrl: './selection-controls.scss'
 })
-export class SelectionControls {
+export class SelectionControls implements OnChanges, OnDestroy {
     @Output() text = new EventEmitter<void>();
     @Output() export = new EventEmitter<void>();
     @Output() share = new EventEmitter<void>();
@@ -25,6 +26,13 @@ export class SelectionControls {
     /** Collapsed: only the drag handle is shown. */
     @Input() collapsed = false;
     @Output() collapsedChange = new EventEmitter<boolean>();
+    /**
+     * Collapsed by the viewer (not the reader) after an action that opens a
+     * panel, so the toolbar stops covering the scan the reader now compares
+     * with it. The handle then pulses and briefly says so, so the reader knows
+     * where the toolbar went and how to get it back.
+     */
+    @Input() autoCollapsed = false;
     /** Incremental pointer movement (px) while the toolbar is dragged by its handle. */
     @Output() dragBy = new EventEmitter<{ dx: number; dy: number }>();
 
@@ -37,7 +45,14 @@ export class SelectionControls {
     /** Set when a press turned into a drag, so the click that follows it is ignored. */
     private suppressNextClick = false;
 
+    /** How long the "toolbar collapsed" hint stays up after an auto-collapse. */
+    private static readonly AUTO_COLLAPSE_HINT_MS = 4000;
+    @ViewChild('handleTooltip', { read: CdkTooltipDirective }) private handleTooltip?: CdkTooltipDirective;
+    private hintTimer: ReturnType<typeof setTimeout> | null = null;
+
     private configService = inject(ConfigService);
+    private liveAnnouncer = inject(LiveAnnouncer);
+    private translateService = inject(TranslateService);
     private detailViewService = inject(DetailViewService, { optional: true });
     private userService = inject(UserService);
     ttsService = inject(TtsService);
@@ -77,6 +92,47 @@ export class SelectionControls {
             && this.configService.isSelectionControlEnabled('ai')
             && this.userService.isLoggedIn
             && this.detailViewService.isActionAllowed('text');
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        const change = changes['autoCollapsed'];
+        if (!change || change.firstChange && !change.currentValue) return;
+        if (this.autoCollapsed) {
+            this.announceAutoCollapse();
+        } else {
+            this.clearHint();
+            this.handleTooltip?.hideTooltip();
+        }
+    }
+
+    ngOnDestroy() {
+        this.clearHint();
+    }
+
+    /** Tooltip on the handle; while auto-collapsed it explains what happened. */
+    get handleHint(): string {
+        const t = (key: string) => this.translateService.instant(key);
+        if (this.autoCollapsed) return t('selection-auto-collapsed--hint');
+        const action = t(this.collapsed ? 'selection-expand--arialabel' : 'selection-collapse--arialabel');
+        return `${action}. ${t('selection-move--title')}`;
+    }
+
+    private announceAutoCollapse() {
+        this.liveAnnouncer.announce(this.translateService.instant('selection-auto-collapsed--hint'), 'polite');
+        // The tooltip needs the collapsed handle rendered first.
+        setTimeout(() => this.handleTooltip?.showTooltip());
+        this.clearHint();
+        this.hintTimer = setTimeout(() => {
+            this.hintTimer = null;
+            this.handleTooltip?.hideTooltip();
+        }, SelectionControls.AUTO_COLLAPSE_HINT_MS);
+    }
+
+    private clearHint() {
+        if (this.hintTimer) {
+            clearTimeout(this.hintTimer);
+            this.hintTimer = null;
+        }
     }
 
     onHandleClick() {

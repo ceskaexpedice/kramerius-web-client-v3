@@ -473,6 +473,7 @@
   "selection-move--title": "Leiste verschieben",
   "selection-collapse--arialabel": "Leiste einklappen",
   "selection-expand--arialabel": "Leiste ausklappen",
+  "selection-auto-collapsed--hint": "Leiste eingeklappt. Zum Ausklappen klicken",
   "increase-font-size--arialabel": "Schriftgröße erhöhen",
   "decrease-font-size--arialabel": "Schriftgröße verringern",
   "thumbnail--alt": "Vorschaubild",

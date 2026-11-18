@@ -478,6 +478,7 @@
   "selection-move--title": "Move toolbar",
   "selection-collapse--arialabel": "Collapse toolbar",
   "selection-expand--arialabel": "Expand toolbar",
+  "selection-auto-collapsed--hint": "Toolbar collapsed. Click to expand",
   "increase-font-size--arialabel": "Increase font size",
   "decrease-font-size--arialabel": "Decrease font size",
   "thumbnail--alt": "Thumbnail",
