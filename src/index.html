@@ -16,7 +16,9 @@
        `crossorigin` gives the same credentials mode as fetch()'s default, so the
        preloaded response is reused. -->
   <link rel="preload" href="/assets/env.json" as="fetch" crossorigin>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <!-- The Google Fonts CSS (@import in _typography.scss) is inlined into this
+       file at build time, so only the font files themselves come from
+       fonts.gstatic.com; a preconnect to fonts.googleapis.com is never used. -->
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <!--
