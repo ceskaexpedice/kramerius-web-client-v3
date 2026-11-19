@@ -12,7 +12,7 @@ import {Actions, ofType} from '@ngrx/effects';
 import {SavedListsService} from '../../../modules/saved-lists-page/services/saved-lists.service';
 import {FoldersService} from '../../../modules/saved-lists-page/services/folders.service';
 import {FormsModule} from '@angular/forms';
-import {DontShowAgainService} from '../../services';
+import { DontShowAgainService } from '../../services/dont-show-again.service';
 import {DontShowDialogs} from '../../services/dont-show-again.service';
 import {FolderItemsService} from '../../../modules/saved-lists-page/services/folder-items.service';
 import {LocalStorageService} from '../../services/local-storage.service';

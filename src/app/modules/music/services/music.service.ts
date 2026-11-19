@@ -21,10 +21,9 @@ import {
   PlaybackStopResult,
 } from '../../../shared/dialogs/playback-stop-dialog/playback-stop-dialog.component';
 import {ToastService} from '../../../shared/services/toast.service';
-import {DontShowAgainService} from '../../../shared/services';
-import {DontShowDialogs} from '../../../shared/services/dont-show-again.service';
+import { DontShowAgainService, DontShowDialogs } from '../../../shared/services/dont-show-again.service';
 import {UserService} from '../../../shared/services/user.service';
-import {DetailViewService} from '../../detail-view-page/services/detail-view.service';
+import { DetailViewStateService } from '../../../shared/services/detail-view-state.service';
 import {APP_ROUTES_ENUM} from '../../../app.routes';
 import {BreakpointService} from '../../../shared/services/breakpoint.service';
 
@@ -41,7 +40,7 @@ export class MusicService {
   private dialog = inject(MatDialog);
   private toastService = inject(ToastService);
   private userService = inject(UserService);
-  private detailViewService = inject(DetailViewService);
+  private detailViewState = inject(DetailViewStateService);
   private breakpointService = inject(BreakpointService);
 
   // Store selectors as observables
@@ -189,7 +188,7 @@ export class MusicService {
     // Already on this recording (e.g. browsing its scans in the images tab):
     // navigation would be a no-op, so just switch back to the track list.
     if (this.isOnMusicPageFor(rootPid)) {
-      this.detailViewService.setSoundRecordingViewView('records');
+      this.detailViewState.soundRecordingViewMode.set('records');
       return;
     }
     this.recordHandler.navigateToMusic(rootPid);

@@ -133,12 +133,28 @@ Env proměnné (Docker):
 
 Podrobnosti viz [`docs/guide.md`](docs/guide.md#načítání-konfigurace-z-api-volitelné).
 
+## Výkon prohlížeče: paralelní načítání dlaždic
+
+Prohlížeč IIIF ve výchozím stavu stahuje všechny dlaždice viditelné stránky
+naráz (bez omezení). Pokud je backend / CDK proxy nárazem požadavků přetížený,
+lze počet současně stahovaných dlaždic omezit v `config-main.json`:
+
+```json
+"viewer": {
+  "imageLoaderLimit": 6
+}
+```
+
+Když hodnota není zadaná (nebo je `0`), počet paralelních požadavků se
+neomezuje. Podrobnosti viz
+[`docs/config/config-main.md` → `viewer`](docs/config/config-main.md#viewer--prohlížeč-dokumentů).
+
 ## Build & Run s Dockerem
 
 ### Build image
 
 ```shell
-docker build -t trinera/cdk-client:3.0.38 .
+docker build -t trinera/cdk-client:3.0.39 .
 ```
 
 ### Build & push (multiplatformní) image na Docker Hub
@@ -146,7 +162,7 @@ docker build -t trinera/cdk-client:3.0.38 .
 ```shell
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t trinera/cdk-client:3.0.38 \
+  -t trinera/cdk-client:3.0.39 \
   --push .
 ```
 
@@ -154,7 +170,7 @@ docker buildx build \
 
 ```shell
 docker run -p 1234:80 \
-  trinera/cdk-client:3.0.38
+  trinera/cdk-client:3.0.39
 ```
 
 Otevřít v prohlížeči:
@@ -171,7 +187,7 @@ adresáře:
 docker run -p 1234:80 \
   -e APP_DEV_MODE=true \
   -v ./public/local-config:/usr/share/nginx/local-config:ro \
-  trinera/cdk-client:3.0.38
+  trinera/cdk-client:3.0.39
 ```
 
 ## Spuštění pomocí Docker Compose
@@ -181,7 +197,7 @@ Vytvořte soubor `docker-compose.yml`:
 ```yaml
 services:
   cdk-client:
-    image: trinera/cdk-client:3.0.38
+    image: trinera/cdk-client:3.0.39
     ports:
       - "1234:80"
     environment:

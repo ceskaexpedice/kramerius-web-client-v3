@@ -4,6 +4,7 @@ import { BreakpointService } from '../../../../shared/services/breakpoint.servic
 import { TranslatePipe } from '@ngx-translate/core';
 import { FixedPanelComponent } from '../../../../shared/components/fixed-panel/fixed-panel.component';
 import { FixedPanelService } from '../../../../shared/components/fixed-panel/fixed-panel.service';
+import { FormatNumberPipe } from '../../../../shared/pipes/format-number.pipe';
 
 @Component({
   selector: 'app-filter-sidebar',
@@ -12,6 +13,7 @@ import { FixedPanelService } from '../../../../shared/components/fixed-panel/fix
     NgTemplateOutlet,
     TranslatePipe,
     FixedPanelComponent,
+    FormatNumberPipe,
   ],
   templateUrl: './filter-sidebar.component.html',
   styleUrl: './filter-sidebar.component.scss'
@@ -45,6 +47,14 @@ export class FilterSidebarComponent implements OnInit, OnDestroy {
    * caption only costs phone height (GitHub issue #177).
    */
   @Input() hideMobileTitle = false;
+  /**
+   * Phones: pins a "show results" button under the filter panel. Filters apply
+   * at once, but without it the only way back to the results was the X, which
+   * users did not read as a confirmation. Off for non-filter panels.
+   */
+  @Input() showApplyButton = false;
+  /** Result count shown on the apply button; null leaves it out. */
+  @Input() resultCount: number | null = null;
   /**
    * Extra bottom offset (px) for the fixed toggle button, so it can be lifted
    * clear of a peeking slide-up panel that would otherwise overlap it.

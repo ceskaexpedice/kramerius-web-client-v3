@@ -3,7 +3,8 @@
 
     <!-- Lift the floating toggle clear of the map-series nav bar when it shows. -->
     <app-filter-sidebar [isDisabled]="adminModeService.adminMode()"
-                        [toggleButtonBottomOffset]="filterToggleBottomOffset()">
+                        [toggleButtonBottomOffset]="filterToggleBottomOffset()"
+                        [showApplyButton]="true" [resultCount]="collectionsService.totalCount">
       <app-collection-filters></app-collection-filters>
     </app-filter-sidebar>
 
@@ -51,8 +52,9 @@
 
           <div right class="flex flex--align-center collection-toolbar-right">
 
-            <!-- Sheet index view, offered only for collections that are map series. -->
-            @if (isMapSeries) {
+            <!-- Sheet index view, offered only for collections that are map series.
+                 Phones with the filter panel open: actions unrelated to filtering would confuse. -->
+            @if (isMapSeries && !breakpointService.mobileSidebarOpen()) {
               <div class="view-tabs">
                 <button class="view-tabs__tab active" type="button" aria-current="page">
                   <i class="icon-grid-6" aria-hidden="true"></i>
@@ -71,21 +73,24 @@
               <ng-container *ngIf="!adminModeService.adminMode()">
                 <!-- Phones: actions collapse into the "more" menu (as on the
                      periodical and monograph pages) so they don't overlap the title. -->
-                <app-toolbar-controls [showViewToggle]="false" [showFavorites]="true" [showShare]="true"
-                  [favoritesActive]="(metadata?.uuid ? (favoritesHelper.getFavoritedStatus(metadata.uuid) | async) : false) ?? false"
-                  (favoritesClicked)="onFavoritesClicked($event, metadata || null)"
-                  [mobileMenuMode]="breakpointService.isMobile()"
-                  [showQuote]="true" [showInfo]="breakpointService.isMobile()" [showSelect]="true"
-                  (infoClicked)="onInfoClicked()"
-                  (shareClicked)="recordHandler.openShareDialog(metadata || null)"
-                  (quoteClicked)="recordHandler.openCitationDialog(metadata || null)"
-                  (selectClicked)="adminModeService.toggle()">
-                </app-toolbar-controls>
+                <!-- Phones with the filter panel open: actions unrelated to filtering would confuse. -->
+                @if (!breakpointService.mobileSidebarOpen()) {
+                  <app-toolbar-controls [showViewToggle]="false" [showFavorites]="true" [showShare]="true"
+                    [favoritesActive]="(metadata?.uuid ? (favoritesHelper.getFavoritedStatus(metadata.uuid) | async) : false) ?? false"
+                    (favoritesClicked)="onFavoritesClicked($event, metadata || null)"
+                    [mobileMenuMode]="breakpointService.isMobile()"
+                    [showQuote]="true" [showInfo]="breakpointService.isMobile()" [showSelect]="true"
+                    (infoClicked)="onInfoClicked()"
+                    (shareClicked)="recordHandler.openShareDialog(metadata || null)"
+                    (quoteClicked)="recordHandler.openCitationDialog(metadata || null)"
+                    (selectClicked)="adminModeService.toggle()">
+                  </app-toolbar-controls>
 
-                <app-results-sort [selectedSort]="collectionsService.sortBy"
-                  [selectedDirection]="collectionsService.sortDirection"
-                  (sortChange)="onSortChange($event)">
-                </app-results-sort>
+                  <app-results-sort [selectedSort]="collectionsService.sortBy"
+                    [selectedDirection]="collectionsService.sortDirection"
+                    (sortChange)="onSortChange($event)">
+                  </app-results-sort>
+                }
               </ng-container>
 
               <app-admin-selection-count></app-admin-selection-count>
@@ -128,14 +133,16 @@
 
             @if (getLocalizedDescription(metadata).length > 0) {
               <div class="collection-description-wrapper">
-                <div #descriptionElement class="collection--notes" [class.expanded]="isDescriptionExpanded"
+                <div #descriptionElement class="collection--notes" [class.expanded]="isDescriptionExpanded()"
                      [innerHTML]="getLocalizedDescription(metadata) | safeHtml">
                 </div>
-                <button *ngIf="isDescriptionTruncated" class="button link primary with-icon show-more-btn p-left-0"
+                @if (isDescriptionTruncated()) {
+                <button class="button link primary with-icon show-more-btn p-left-0"
                         (click)="toggleDescription()">
-                  {{ isDescriptionExpanded ? ('show-less' | translate) : ('show-more' | translate) }}
-                  <i [ngClass]="isDescriptionExpanded ? 'icon-arrow-up-1' : 'icon-arrow-down-1'"></i>
+                  {{ isDescriptionExpanded() ? ('show-less' | translate) : ('show-more' | translate) }}
+                  <i [ngClass]="isDescriptionExpanded() ? 'icon-arrow-up-1' : 'icon-arrow-down-1'"></i>
                 </button>
+                }
               </div>
             }
 

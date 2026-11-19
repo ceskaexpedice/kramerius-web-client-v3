@@ -135,7 +135,7 @@ Display author cards with a portrait image and date range.
       "id": "1",
       "title": "Karel Čapek",
       "date": "1890–1938",
-      "imageUrl": "local-config/img/authors/capek_karel.png",
+      "imageUrl": "local-config/img/authors/capek_karel.webp",
       "externalUrl": "/search?query=&fq=authors.facet:%C4%8Capek,%20Karel"
     }
   ]

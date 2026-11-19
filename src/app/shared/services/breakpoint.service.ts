@@ -189,6 +189,12 @@ export class BreakpointService {
     return responsiveVisible || this.manualToggle();
   });
 
+  /**
+   * Phones: the left sidebar is open as a fixed panel. On the filter pages it is
+   * the filter panel, so their toolbars drop actions unrelated to filtering.
+   */
+  mobileSidebarOpen = computed(() => this.isMobile() && this.manualToggle());
+
   // Toggle sidebar for mobile/tablet
   toggleSidebar() {
     this.manualToggle.update(value => !value);

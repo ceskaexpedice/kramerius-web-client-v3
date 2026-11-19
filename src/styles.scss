@@ -279,6 +279,21 @@ body.header-hidden .scroll-hide-chrome {
  * ligature name is the element's text content, hence the font-feature settings —
  * without them a browser that fails to load the font renders the literal word.
  */
+/*
+ * Self-hosted subset of Material Icons with only the icons the app uses
+ * (~1 kB instead of the full ~128 kB font from Google Fonts). The list lives in
+ * public/fonts/material-icons/icons.json — add an icon there and regenerate
+ * with scripts/subset-material-icons.py, or it renders as its ligature name.
+ * `block`: show nothing (not the ligature word) while the tiny font loads.
+ */
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/material-icons/material-icons-subset.woff2') format('woff2');
+}
+
 .material-icons {
   font-family: 'Material Icons', sans-serif;
   font-weight: normal;

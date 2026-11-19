@@ -69,6 +69,16 @@ $top-toolbar-height: 56px;
     min-width: 0;
   }
 
+  // Reserve the toolbar's row while its content is not projected yet. Pages
+  // render app-action-toolbar only once the document loads, so the slot used to
+  // start at 0 px and push the viewer down by the toolbar height (CLS ~0.44 on
+  // detail). Same height as .action-toolbar: min-height + 1px bottom border.
+  // Only while empty and not hidden: once the toolbar is there its own height
+  // drives the row, so the immersive show/hide animation stays smooth.
+  &--action-toolbar:not(.detail-layout--action-toolbar--hidden) &--action-toolbar-inner:not(:has(app-action-toolbar)) {
+    min-height: calc(var(--toolbar-height) + 1px);
+  }
+
   &--main-content {
     flex: 1;
     display: flex;
@@ -81,6 +91,13 @@ $top-toolbar-height: 56px;
     &--with-right-sidebar {
       flex-direction: row;
       gap: 0;
+
+      // Keep the docked sidebar at the right edge even before the main content
+      // (viewer) is projected; otherwise it renders first at the left and jumps
+      // right once the viewer appears (CLS ~0.23 on detail, desktop).
+      > .detail-layout--sidebar-right {
+        margin-left: auto;
+      }
 
       // An open docked sidebar sits flush against the right edge.
       &:has(.detail-layout--sidebar-right:not(.collapsed):not(.overlay)) {

@@ -1,6 +1,10 @@
 @font-face {
   font-family: 'cdk-icons';
-  src:  url('./icon-font.woff?f0lu1f') format('woff'),
+  /* woff2 (105 kB) first; woff (134 kB) / ttf only for browsers without woff2.
+     icon-font.woff2 is generated from icon-font.woff — re-create it after an
+     IcoMoon export (fontTools: TTFont(woff).flavor = 'woff2'). */
+  src:  url('./icon-font.woff2?f0lu1f') format('woff2'),
+    url('./icon-font.woff?f0lu1f') format('woff'),
     url('./icon-font.ttf?f0lu1f') format('truetype');
   font-weight: normal;
   font-style: normal;

@@ -451,3 +451,35 @@ describe('ConfigService HTML content sanitisation', () => {
     expect(await service.loadHtmlContent('/missing.html')).toBe('');
   });
 });
+
+describe('ConfigService viewer image loader limit', () => {
+  function serviceWith(imageLoaderLimit: unknown): ConfigService {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [ConfigService, { provide: EnvironmentService, useValue: {} }],
+    });
+    const service = TestBed.inject(ConfigService);
+    const viewer = { ...service.getConfig().viewer, imageLoaderLimit };
+    if (imageLoaderLimit === undefined) delete (viewer as any).imageLoaderLimit;
+    (service as any).config$.next({ ...service.getConfig(), viewer });
+    return service;
+  }
+
+  it('defaults to 0 (unlimited) when not configured', () => {
+    expect(serviceWith(undefined).viewerImageLoaderLimit).toBe(0);
+  });
+
+  it('returns the configured positive limit', () => {
+    expect(serviceWith(6).viewerImageLoaderLimit).toBe(6);
+  });
+
+  it('floors fractional values', () => {
+    expect(serviceWith(4.7).viewerImageLoaderLimit).toBe(4);
+  });
+
+  it('falls back to 0 for negative or non-numeric values', () => {
+    expect(serviceWith(-3).viewerImageLoaderLimit).toBe(0);
+    expect(serviceWith('6').viewerImageLoaderLimit).toBe(0);
+    expect(serviceWith(null).viewerImageLoaderLimit).toBe(0);
+  });
+});

@@ -75,7 +75,7 @@ export class PeriodicalDetailEffects {
         this.store.select(selectPeriodicalFacetOperators),
         this.store.select(selectRouterQueryParams)
       ),
-      switchMap(([{ data }, params, facetOperators, routerQueryParams]) => {
+      switchMap(([{ data, pages }, params, facetOperators, routerQueryParams]) => {
 
         // When a search query is active the periodical-search effect loads the
         // (page-level) facets and is the authoritative source. Loading the
@@ -95,8 +95,11 @@ export class PeriodicalDetailEffects {
 
         // Backward compatibility: Handle old /periodical/ URLs that point to monographs
         if (data.model === DocumentTypeEnum.monograph) {
-          // Check if this monograph has monograph units (multi-volume monograph)
-          return this.solr.getChildrenByModel(data.uuid, 'rels_ext_index.sort asc', null).pipe(
+          // Check if this monograph has monograph units (multi-volume monograph).
+          // The detail load already fetched the children (`pages`); re-querying
+          // them here cost a second, unscoped 40+ kB Solr request on every
+          // monograph detail open.
+          return of(pages ?? []).pipe(
             tap((children) => {
               const hasMonographUnits = children?.some((child: any) => child.model === DocumentTypeEnum.monographunit);
 

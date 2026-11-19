@@ -55,6 +55,16 @@
         }
     }
 
+    // Collapsed by the viewer after an action: the pill pulses a couple of
+    // times so the reader sees where the toolbar went.
+    &.auto-collapsed {
+        animation: selection-controls-collapsed-pulse 0.9s ease-out 2;
+
+        .drag-handle {
+            color: var(--color-primary);
+        }
+    }
+
     // Read aloud is a toggle: highlighted while reading, a second click stops it.
     .active {
         color: var(--color-primary);
@@ -70,5 +80,16 @@
             background-color: var(--color-error);
             opacity: 0.85;
         }
+    }
+}
+
+@keyframes selection-controls-collapsed-pulse {
+    0% { box-shadow: 0 2px 16px 2px rgba(0, 0, 0, 0.08), 0 0 0 0 var(--color-primary); }
+    100% { box-shadow: 0 2px 16px 2px rgba(0, 0, 0, 0.08), 0 0 0 10px transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .selection-controls.auto-collapsed {
+        animation: none;
     }
 }

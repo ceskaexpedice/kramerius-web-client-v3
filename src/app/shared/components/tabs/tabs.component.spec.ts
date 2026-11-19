@@ -71,3 +71,51 @@ describe('TabsComponent (WAI-ARIA tabs)', () => {
     expect(tabs()[1].querySelector('.sr-only')?.textContent).toContain('12');
   });
 });
+
+@Component({
+  imports: [TabsComponent, TabItemComponent],
+  template: `
+    <app-tabs (tabChanged)="onChanged($event)" [initialTab]="active">
+      <app-tab-item id="a" label="Alpha">A</app-tab-item>
+      <app-tab-item id="b" label="Beta">B</app-tab-item>
+    </app-tabs>
+  `,
+})
+class BoundHostComponent {
+  active = 'a';
+  emitted: string[] = [];
+  onChanged(id: string) {
+    this.emitted.push(id);
+    // Parents mirror the selection back into [initialTab] (metadata dialog,
+    // metadata sidebar) — that must not count as a second change.
+    this.active = id;
+  }
+}
+
+describe('TabsComponent with a mirrored [initialTab]', () => {
+  it('emits tabChanged once per selection, not again when the parent echoes it back', () => {
+    const fixture = TestBed.configureTestingModule({ imports: [BoundHostComponent] }).createComponent(BoundHostComponent);
+    fixture.detectChanges();
+    const host = fixture.componentInstance;
+    host.emitted = [];
+
+    const tabs = Array.from(fixture.nativeElement.querySelectorAll('[role=tab]')) as HTMLButtonElement[];
+    tabs[1].click();
+    fixture.detectChanges();
+    fixture.detectChanges();
+
+    expect(host.emitted).toEqual(['b']);
+  });
+
+  it('still follows a parent-driven change to another tab', () => {
+    const fixture = TestBed.configureTestingModule({ imports: [BoundHostComponent] }).createComponent(BoundHostComponent);
+    fixture.detectChanges();
+    const host = fixture.componentInstance;
+    host.emitted = [];
+
+    host.active = 'b';
+    fixture.detectChanges();
+
+    expect(host.emitted).toEqual(['b']);
+  });
+});

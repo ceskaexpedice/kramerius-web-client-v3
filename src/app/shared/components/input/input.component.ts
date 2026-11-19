@@ -183,6 +183,32 @@ export class InputComponent implements OnInit, AfterViewInit, OnDestroy {
     this.onBlurEvent.emit();
   }
 
+  /**
+   * Enter on a plain (non-autocomplete) input. `keydown` rather than `keyup`:
+   * mobile virtual keyboards (iOS QuickType, Android IMEs) don't reliably deliver
+   * a `keyup` for the Return/"Search" key, so `keyup.enter` silently never fired
+   * there. Presses that only commit an IME composition are ignored, and the value
+   * is read from the element itself so text committed by that same key press is
+   * included even before ngModel catches up.
+   * The autocomplete branch keeps `keyup.enter`: mat-autocomplete selects the
+   * active option on `keydown`, and the search must see the selected value.
+   */
+  onEnterKeydown(event: Event) {
+    const e = event as KeyboardEvent;
+    if (e.isComposing || e.keyCode === 229 || e.repeat) {
+      return;
+    }
+    // A single-line input outside a <form> has no default Enter action, but an
+    // (enter) handler may close a popup and move focus to a button during this
+    // keydown — without this, the rest of the key press could activate that button.
+    e.preventDefault();
+    const domValue = this.inputElement?.nativeElement?.value;
+    if (this.type !== 'number' && domValue !== undefined && domValue !== String(this.value ?? '')) {
+      this.onInputChange(domValue);
+    }
+    this.onEnter();
+  }
+
   onEnter() {
     this.enter.emit(this.value);
 

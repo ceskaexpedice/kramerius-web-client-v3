@@ -117,3 +117,34 @@ describe('getAccessIcon', () => {
     expect(getAccessIcon('login', false).iconClass).toBe('accessibility-private');
   });
 });
+
+/**
+ * Material Icons is self-hosted as a subset containing only the icons listed in
+ * public/fonts/material-icons/icons.json (scripts/subset-material-icons.py). An
+ * icon missing from the subset renders as its ligature name ("key_off") instead
+ * of the symbol, so every name the code can produce must be in that list.
+ */
+describe('Material Icons subset', () => {
+  async function subsetIcons(): Promise<string[]> {
+    const res = await fetch('/fonts/material-icons/icons.json');
+    expect(res.ok).withContext('icons.json must be served').toBeTrue();
+    return res.json();
+  }
+
+  it('contains every accessibility icon the facets can render', async () => {
+    const icons = await subsetIcons();
+    const used = new Set<string>(Object.values(FacetIcons).map(e => e.materialIcon));
+    for (const type of ['open', 'login', 'terminal', 'inaccessible']) {
+      for (const accessible of [true, false]) {
+        used.add(getAccessIcon(type, accessible).materialIcon);
+      }
+    }
+    for (const name of used) {
+      expect(icons).withContext(`"${name}" missing from icons.json`).toContain(name);
+    }
+  });
+
+  it('contains search_off (empty state of the collections list, <mat-icon>)', async () => {
+    expect(await subsetIcons()).toContain('search_off');
+  });
+});

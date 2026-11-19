@@ -111,3 +111,62 @@ describe('InputComponent virtual keyboard hints', () => {
     expect(input.getAttribute('enterkeyhint')).toBe('search');
   });
 });
+
+/**
+ * Regression (testing 13.11.): search in a saved list did nothing when the
+ * phone keyboard's "Search" key was pressed — mobile keyboards don't reliably
+ * send a `keyup` for Return, which is what `(enter)` listened to.
+ */
+@Component({
+  standalone: true,
+  imports: [InputComponent],
+  template: `<app-input [type]="'text'" (enter)="entered.push($event)"></app-input>`,
+})
+class EnterHostComponent {
+  entered: (string | number)[] = [];
+}
+
+describe('InputComponent enter', () => {
+  async function render() {
+    await TestBed.configureTestingModule({
+      imports: [EnterHostComponent, TranslateModule.forRoot()],
+      providers: [AppMissingTranslationService],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(EnterHostComponent);
+    fixture.detectChanges();
+    const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+    return { fixture, input };
+  }
+
+  function press(input: HTMLInputElement, type: 'keydown' | 'keyup', init: KeyboardEventInit = {}) {
+    input.dispatchEvent(new KeyboardEvent(type, { key: 'Enter', bubbles: true, ...init }));
+  }
+
+  it('emits on keydown Enter with the current DOM value, without needing keyup', async () => {
+    const { fixture, input } = await render();
+    input.value = '1978'; // value not yet synced through ngModel
+    press(input, 'keydown');
+    expect(fixture.componentInstance.entered).toEqual(['1978']);
+  });
+
+  it('does not emit a second time on the following keyup', async () => {
+    const { fixture, input } = await render();
+    input.value = 'x';
+    press(input, 'keydown');
+    press(input, 'keyup');
+    expect(fixture.componentInstance.entered.length).toBe(1);
+  });
+
+  it('prevents the default action so the key press cannot activate a newly focused button', async () => {
+    const { input } = await render();
+    const ev = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+    input.dispatchEvent(ev);
+    expect(ev.defaultPrevented).toBeTrue();
+  });
+
+  it('ignores Enter that only commits an IME composition', async () => {
+    const { fixture, input } = await render();
+    press(input, 'keydown', { isComposing: true });
+    expect(fixture.componentInstance.entered).toEqual([]);
+  });
+});

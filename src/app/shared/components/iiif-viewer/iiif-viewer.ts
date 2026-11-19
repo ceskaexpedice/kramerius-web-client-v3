@@ -42,13 +42,14 @@ import { Store } from '@ngrx/store';
 import { AuthService } from '../../../core/auth/auth.service';
 import { selectDocumentDetail } from '../../state/document-detail/document-detail.selectors';
 import { CdkSourceService } from '../../services/cdk-source.service';
+import { IiifInfoPrefetchService } from '../../services/iiif-info-prefetch.service';
 import { UserService } from '../../services/user.service';
 import { ConfigService } from '../../../core/config/config.service';
 import { InfoBannerAction, InfoBannerComponent } from '../info-banner/info-banner.component';
 import { alternativeSources, FallbackReason, fallbackNoticeText } from './iiif-fallback-notice';
 
 /** Tile edge OpenSeadragon requests from the IIIF server; see enlargeTiles. */
-const IIIF_TILE_SIZE = 512;
+const IIIF_TILE_SIZE = 256;
 
 @Component({
   selector: 'app-iiif-viewer',
@@ -79,6 +80,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   @ViewChild('viewerContainer', { static: false }) viewerContainer!: ElementRef;
 
   public iiifViewerService = inject(IIIFViewerService);
+  private iiifInfoPrefetch = inject(IiifInfoPrefetchService);
   private detailViewService = inject(DetailViewService);
   private recordHandlerService = inject(RecordHandlerService);
   private exportService = inject(ExportService);
@@ -218,6 +220,13 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   /** Kept across selections: once the reader collapses the toolbar it stays collapsed. */
   public selectionControlsCollapsed = false;
   /**
+   * Collapsed by the viewer after an action that opens a panel (text,
+   * translation, summary, reading aloud): the reader now compares the scan with
+   * the panel and the toolbar would only cover it. Unlike the reader's own
+   * collapse it holds for the current selection only.
+   */
+  public selectionControlsAutoCollapsed = false;
+  /**
    * Set once the reader drags the toolbar. From then on it stays where they put
    * it (only clamped to the viewer) instead of tracking the selection's edge,
    * so it can be moved off text it would otherwise cover. Reset with the selection.
@@ -332,6 +341,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       this.iiifViewerService.selectedArea$.subscribe(rect => {
         console.log('rect', rect)
         this.ngZone.run(() => {
+          this.selectionControlsAutoCollapsed = false;
           if (rect) {
             this.showSelectionControls = true;
             this.updateSelectionControlsPosition(rect);
@@ -716,6 +726,47 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     };
   }
 
+  /**
+   * Make OpenSeadragon request tiles from one pyramid level only.
+   *
+   * OSD walks every level whose render ratio is >= minPixelRatio, from the
+   * finest down, and requests tiles on each until one level fully covers the
+   * view. So once the view crosses a level boundary it fetches the target level
+   * *and* the levels below it (e.g. 15 + 54 tiles on a 1448×2180 page instead
+   * of 54), and a zoom-out animation keeps fetching the finer level it leaves.
+   *
+   * Each item's tile-candidate filter (_compareTiles, the only place OSD picks
+   * tiles to load) is narrowed to the level OSD would draw at the *target* zoom.
+   * Tiles already loaded on other levels are still drawn — only new requests
+   * are limited — so zooming never blanks the page.
+   */
+  private pinTileLevel(): void {
+    const viewer = this.viewer;
+    if (!viewer) return;
+    for (let i = 0; i < viewer.world.getItemCount(); i++) {
+      const item: any = viewer.world.getItemAt(i);
+      const source: any = item?.source;
+      if (!source) continue;
+
+      if (!item.loadLevelFilterInstalled) {
+        const compareTiles = item._compareTiles;
+        item._compareTiles = function (best: any, tile: any, maxTiles: number) {
+          return tile.level === this.loadLevel ? compareTiles.call(this, best, tile, maxTiles) : best;
+        };
+        item.loadLevelFilterInstalled = true;
+      }
+
+      // Finest level OSD would draw at the target zoom — the same test it uses.
+      const scale = item.getBounds(false).width;
+      let target = source.minLevel ?? 0;
+      for (let level = source.maxLevel; level > target; level--) {
+        const ratio = viewer.viewport.deltaPixelsFromPointsNoRotate(source.getPixelRatio(level), false).x * scale;
+        if (ratio >= item.minPixelRatio) { target = level; break; }
+      }
+      item.loadLevel = target;
+    }
+  }
+
   /** Lowest pyramid level at least `width` pixels wide, or the finest level if none is. */
   private levelMatchingWidth(source: OpenSeadragon.TileSource, width: number): number {
     for (let level = source.minLevel; level <= source.maxLevel; level++) {
@@ -759,25 +810,28 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       // true pins every tile's priority to the target level, so nothing shows
       // until those tiles land and the page then appears all at once.
       // The thumbnail background covers the gap until the first tiles arrive.
+      // With the level pinned (pinTileLevel) only one level is ever requested,
+      // so this no longer adds lower-level requests either way.
       immediateRender: false,
-      // OpenSeadragon's default is 0 (unlimited), which fires every tile of the
+      // Configurable via config-main.json → viewer.imageLoaderLimit; missing
+      // = 0 (unlimited, OpenSeadragon's default), which fires every tile of the
       // visible grid at once. Each one pays the CDK proxy's per-request
       // overhead, so the burst is what makes page loads feel slow — capping
-      // concurrency spreads it out without dropping any tile. This is the knob
-      // to reach for when proxy load is the problem: prefer it over coarsening
-      // minPixelRatio below, which pays for fewer requests with image quality.
-      // The request count itself is set by the tile size (see enlargeTiles).
-      imageLoaderLimit: 6,
-      // Caps the pyramid level OSD targets: highestLevel is clamped by
-      // log2(zeroRatio / minPixelRatio), so raising this picks a coarser level.
-      // Kept at OpenSeadragon's default. It was raised to 1.0 to cut proxy
-      // round-trips, but that drops the finest pyramid level the viewport can
-      // actually use, which is what made pages look soft at typical laptop
-      // resolutions (issue #183) — zooming only partly recovers it. To cut
-      // requests, enlarge tiles (enlargeTiles) and bound concurrency with
-      // imageLoaderLimit above; neither costs quality. Note that tiles are fetched via AJAX and are HTTP-cached, so
-      // measuring this needs a page not yet visited in the session.
-      minPixelRatio: 0.5,
+      // concurrency (e.g. 6) spreads it out without dropping any tile. This is
+      // the knob to reach for when proxy load is the problem: prefer it over
+      // coarsening minPixelRatio below, which pays for fewer requests with
+      // image quality. The request count itself is set by the tile size (see
+      // enlargeTiles).
+      imageLoaderLimit: this.configService.viewerImageLoaderLimit,
+      // Caps the pyramid level OSD targets: a level is used only while one of
+      // its pixels covers >= minPixelRatio screen pixels. Levels step by 2×, so
+      // with the default 0.5 a view just 1 px wider than a level jumps to the
+      // next one — 4× the pixels (e.g. 15 → 54 tiles on a 1448×2180 page).
+      // 0.65 keeps the coarser level until it would be upscaled by 1.3×, which
+      // looks only slightly softer. 1.0 (upscaling up to 2×) made pages
+      // visibly soft (issue #183). Tiles are fetched via AJAX and are
+      // HTTP-cached, so measuring this needs a page not yet visited.
+      minPixelRatio: 0.65,
       gestureSettingsMouse: {
         clickToZoom: false,
         dblClickToZoom: true,
@@ -801,6 +855,13 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     });
     this.viewer.addHandler('zoom', () => this.updatePanConstraint());
     this.viewer.addHandler('resize', () => this.updatePanConstraint());
+
+    // Request a single pyramid level (see pinTileLevel).
+    const pin = () => this.pinTileLevel();
+    this.viewer.world.addHandler('add-item', pin);
+    this.viewer.addHandler('open', pin);
+    this.viewer.addHandler('zoom', pin);
+    this.viewer.addHandler('resize', pin);
 
     // Hand the new viewer to the watermark overlay, which projects its image
     // coordinates through this viewport.
@@ -1139,16 +1200,10 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   /** GET + normalise one page's info.json through the API proxy. */
   private fetchInfoJson(pid: string): Observable<any> {
-    const authHeaders = this.iiifViewerService.getAuthHeaders();
-    let headers = new HttpHeaders();
-    if (authHeaders['Authorization']) {
-      headers = headers.set('Authorization', authHeaders['Authorization']);
-    }
     const infoUrl = this.iiifViewerService.getIIIFInfoUrl(pid);
-    return this.http.get(infoUrl, {
-      headers,
-      context: new HttpContext().set(SKIP_ERROR_INTERCEPTOR, true)
-    }).pipe(
+    // Uses the request DetailViewService started alongside the access check
+    // when there is one for this URL (see IiifInfoPrefetchService).
+    return this.iiifInfoPrefetch.get(infoUrl).pipe(
       map((infoJson: any) => {
         this.processInfoJson(infoJson, infoUrl);
         return infoJson;
@@ -1295,6 +1350,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
     if (this.selectionControlsPinned && this.selectionRect) {
       this.clampPinnedControls(containerWidth, containerHeight, controlsWidth, controlsHeight);
+      this.cdr.markForCheck();
       return;
     }
 
@@ -1316,10 +1372,15 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       if (this.selectionRect.top === top && this.selectionRect.left === left) return;
       this.selectionRect.top = top;
       this.selectionRect.left = left;
-      return;
+    } else {
+      this.selectionRect = { top, left };
     }
-
-    this.selectionRect = { top, left };
+    // The app runs without zone.js, so the ngZone.run() around the OSD event
+    // handlers that call this schedules nothing: without this the new spot is
+    // only rendered when something else happens to trigger change detection
+    // (e.g. a toolbar collapsed just as the AI panel narrows the viewer stayed
+    // where the wide viewer had put it, off-screen).
+    this.cdr.markForCheck();
   }
 
   /** Keeps a dragged toolbar inside the viewer (after a drag, resize or collapse). */
@@ -1347,6 +1408,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
   onSelectionControlsCollapsedChange(collapsed: boolean) {
     this.selectionControlsCollapsed = collapsed;
+    this.selectionControlsAutoCollapsed = false;
     // The toolbar's height changes; re-clamp once the new size is rendered.
     this.cdr.detectChanges();
     this.updateControlsPosition();
@@ -1392,6 +1454,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
             return;
           }
           this.aiPanelService.showText(extractedText, this.imagePid || undefined);
+          this.autoCollapseSelectionControls();
         },
         error: (error) => {
           console.error('Error fetching ALTO XML:', error);
@@ -1454,18 +1517,29 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     const region = this.iiifViewerService.getSelectedRegion();
     if (!region || !this.imagePid) return;
     this.ttsService.startReading(this.imagePid, this.detailViewService.document?.uuid, region);
+    this.autoCollapseSelectionControls();
   }
 
   onSelectionTranslate() {
     const region = this.iiifViewerService.getSelectedRegion();
     if (!region || !this.imagePid) return;
     this.aiPanelService.showTranslation(this.imagePid, undefined, region);
+    this.autoCollapseSelectionControls();
   }
 
   onSelectionSummarize() {
     const region = this.iiifViewerService.getSelectedRegion();
     if (!region || !this.imagePid) return;
     this.aiPanelService.showSummary(this.imagePid, region);
+    this.autoCollapseSelectionControls();
+  }
+
+  private autoCollapseSelectionControls() {
+    if (this.selectionControlsCollapsed || this.selectionControlsAutoCollapsed) return;
+    this.selectionControlsAutoCollapsed = true;
+    // The toolbar's height changes; re-clamp once the new size is rendered.
+    this.cdr.detectChanges();
+    this.updateControlsPosition();
   }
 
   /**

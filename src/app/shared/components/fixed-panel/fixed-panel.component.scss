@@ -12,7 +12,7 @@
   top: var(--fixed-panel-top, 0px);
   bottom: var(--fixed-panel-bottom, 0px);
   display: grid;
-  grid-template-rows: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
   background: var(--color-bg-base);
   z-index: $fixed-panel;
   animation: fixed-panel-enter 150ms ease-out;
@@ -51,6 +51,27 @@
   // so drop the outer gap (but still clear the home indicator).
   &--flush {
     padding: 0 0 var(--fixed-panel-safe-bottom);
+  }
+}
+
+// Pinned footer below the scrolling content; it clears the home indicator
+// instead of the content then.
+.fixed-panel__footer {
+  padding: var(--spacing-x3);
+  padding-bottom: max(var(--spacing-x3), var(--fixed-panel-safe-bottom));
+  border-top: 1px solid var(--color-border-light);
+  background: var(--color-bg-base);
+
+  &:empty {
+    display: none;
+  }
+}
+
+.fixed-panel:has(> .fixed-panel__footer:not(:empty)) > .fixed-panel__content {
+  padding-bottom: var(--spacing-x3);
+
+  &.fixed-panel__content--flush {
+    padding-bottom: 0;
   }
 }
 

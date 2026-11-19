@@ -125,6 +125,11 @@ export interface ViewerConfig {
   defaultMode: ViewerMode;
   availableModes: ViewerMode[];
   rememberLastMode: boolean;
+  /**
+   * Max number of IIIF tiles the viewer loads in parallel (OpenSeadragon
+   * `imageLoaderLimit`). 0 or missing = unlimited (OpenSeadragon default).
+   */
+  imageLoaderLimit?: number;
   controls?: ViewerControlsConfig;
   selectionControls?: SelectionControlsConfig;
 }

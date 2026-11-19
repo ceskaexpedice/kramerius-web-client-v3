@@ -1,7 +1,7 @@
 import { Component, inject, OnDestroy, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SearchService } from '../../../services/search.service';
-import { DetailViewService } from '../../../../modules/detail-view-page/services/detail-view.service';
+import { DetailViewStateService } from '../../../services/detail-view-state.service';
 import { RecordHandlerService } from '../../../services/record-handler.service';
 import { SearchDocument } from '../../../../modules/models/search-document';
 import { Observable, Subscription, combineLatest, of } from 'rxjs';
@@ -29,7 +29,7 @@ import {AppResultsViewType} from '../../../../modules/settings/settings.model';
 })
 export class SearchResultsSidebarComponent implements OnInit, OnDestroy {
     public searchService = inject(SearchService);
-    public detailService = inject(DetailViewService, { optional: true });
+    public detailState = inject(DetailViewStateService);
     public recordHandler = inject(RecordHandlerService);
 
     @Input() currentDocument: SearchDocument | Metadata | null = null;
@@ -141,7 +141,7 @@ export class SearchResultsSidebarComponent implements OnInit, OnDestroy {
     }
 
     public getCurrentItemIndex(): number {
-        const currentDoc = this.currentDocument || this.detailService?.document;
+        const currentDoc = this.currentDocument || this.detailState.document();
         // SearchDocument uses 'pid', Metadata uses 'uuid'
         const currentPid = (currentDoc as any)?.pid || (currentDoc as any)?.uuid;
         if (!currentPid) return -1;

@@ -6,7 +6,7 @@ import { DetailViewService } from './services/detail-view.service';
 import { RecordHandlerService } from '../../shared/services/record-handler.service';
 import { DocumentTypeEnum } from '../constants/document-type';
 import { DocumentAccessibilityEnum } from '../constants/document-accessibility';
-import { AdminModeService } from '../../shared/services';
+import { AdminModeService } from '../../shared/services/admin-mode.service';
 import { Observable, Subscription } from 'rxjs';
 import { map, shareReplay, distinctUntilChanged, skip, filter } from 'rxjs/operators';
 import { PdfService } from '../../shared/services/pdf.service';

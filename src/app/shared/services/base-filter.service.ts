@@ -86,7 +86,9 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
         // Derive the search term reactively from the URL query param so the tag
         // updates when the term is removed (e.g. via removeSearchTerm), even after
         // a page reload. Using a static snapshot here left the tag visible.
-        const term: string = params['query'] || '';
+        // ?fulltext is the term carried in from another page (e.g. saved lists);
+        // monograph/periodical pages search by it when ?query is absent.
+        const term: string = params['query'] || params['fulltext'] || '';
 
         // Add search term if present
         if (term && term.trim().length > 0) {
@@ -179,8 +181,9 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
     const currentParams = this.route.snapshot.queryParams;
     const newParams = { ...currentParams };
 
-    // 1. Clear Search Term
+    // 1. Clear Search Term (incl. a ?fulltext term carried in from another page)
     newParams['query'] = null;
+    newParams['fulltext'] = null;
 
     // 2. Clear Standard Filters
     delete newParams['fq'];
@@ -233,10 +236,13 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
     this.queryParamsService.resetOperator(this.route, field);
   }
 
-  // Common method for loading (required by FilterService interface)
-  async load(): Promise<void> {
-    await this.userService.loadLicenses();
-  }
+  // Required by the FilterService interface. Intentionally does not load the
+  // user session: initApp (APP_INITIALIZER) loads it once at startup and
+  // AuthService.fetchUserInfo() reloads it after login. Loading it here fired
+  // an extra /user request per filter service — SearchService is constructed
+  // before APP_INITIALIZER, so its request even went to a relative URL (the
+  // frontend host, answered with index.html) before the API base was known.
+  async load(): Promise<void> {}
 
   changeSortBy(sortBy: SolrSortFields, sortDirection: SolrSortDirections, replaceUrl: boolean = false) {
     this._sortBy.set(sortBy);

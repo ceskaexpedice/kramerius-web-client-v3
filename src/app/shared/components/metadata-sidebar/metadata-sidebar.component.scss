@@ -91,3 +91,8 @@
     display: none;
   }
 }
+
+// Placeholder for @defer'd tab content: needs a box for the viewport trigger.
+.metadata-sidebar__deferred {
+  min-height: 1px;
+}

@@ -4,7 +4,11 @@ import { CdkSourceService } from './cdk-source.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { PdfOutlineItem } from '../components/pdf-content-tree/pdf-content-tree.component';
 import { PdfPageThumbnail } from '../components/pdf-pages-grid/pdf-pages-grid.component';
-import { FindState, FindResultMatchesCount, NgxExtendedPdfViewerService, PageViewModeType, ZoomType } from 'ngx-extended-pdf-viewer';
+// Type-only: a value import would put ngx-extended-pdf-viewer (~0.9 MB) into
+// every chunk that uses PdfService. PdfViewer hands over the library service.
+import type { FindResultMatchesCount, NgxExtendedPdfViewerService, PageViewModeType, ZoomType } from 'ngx-extended-pdf-viewer';
+import { FindState } from '../models/pdf-find-state';
+import { PdfJsZoomApp, withInstantScroll } from '../components/pdf-viewer/pdf-pinch-zoom-fix';
 import { AuthService } from '../../core/auth/auth.service';
 
 export interface PdfProperties {
@@ -91,10 +95,29 @@ export class PdfService {
   constructor(
     private env: EnvironmentService,
     private ngZone: NgZone,
-    private ngxExtendedPdfViewerService: NgxExtendedPdfViewerService,
     private authService: AuthService,
     private cdkSource: CdkSourceService
   ) {
+  }
+
+  /**
+   * The library's service, handed over by PdfViewer when it is created (the
+   * component lives in the lazy PDF chunk, so it may import the library).
+   * It must exist before it is used: it picks up the PDF.js application through
+   * an effect in its constructor, so an instance created on first use (e.g. when
+   * "download" is clicked) has no document yet and returns nothing.
+   */
+  private pdfViewerService: NgxExtendedPdfViewerService | null = null;
+
+  attachViewerService(service: NgxExtendedPdfViewerService): void {
+    this.pdfViewerService = service;
+  }
+
+  /** pdf.js application of the current viewer; zoom buttons drive it directly. */
+  private pdfJsApp: PdfJsZoomApp | null = null;
+
+  attachPdfJsApp(app: unknown): void {
+    this.pdfJsApp = (app as PdfJsZoomApp | null) ?? null;
   }
 
   set uuid(uuid: string | null) {
@@ -200,8 +223,8 @@ export class PdfService {
     return this.searchQuerySubject.value;
   }
 
-  public updateFindState(result: FindState) {
-    this.findState = result;
+  public updateFindState(result: FindState | number) {
+    this.findState = result as FindState;
     // Map FindState enum to our string type
     if (result === FindState.FOUND) {
       this.pdfFindResult.findState = 'found';
@@ -562,37 +585,42 @@ export class PdfService {
     this.propertiesSubject.next(this.pdfProperties);
   }
 
-  private getCurrentScaleFactor(): number {
-    // Try to get the scale factor from the viewer element
-    const viewerElement = document.getElementById('viewer');
-    if (viewerElement) {
-      const scaleFactor = getComputedStyle(viewerElement).getPropertyValue('--scale-factor');
-      if (scaleFactor) {
-        const scale = parseFloat(scaleFactor);
-        if (!isNaN(scale) && scale > 0) {
-          return scale;
-        }
-      }
-    }
-    // Default to 1.0 if we can't get the scale factor
-    return 1.0;
+  /** Zoom step of the buttons / wheel: 5 percentage points. */
+  private static readonly ZOOM_STEP = 0.05;
+
+  /** @param origin viewport point to keep in place (e.g. the mouse); defaults to the viewer centre. */
+  zoomIn(origin?: [number, number]): void {
+    this.zoomBy(PdfService.ZOOM_STEP, origin);
   }
 
-  zoomIn(): void {
-    // check if zoom is a number, if not calculate it from current scale
-    if (typeof this.pdfProperties.zoom !== 'number') {
-      const currentScale = this.getCurrentScaleFactor();
-      this.pdfProperties.zoom = Math.round(currentScale * 100);
-    }
-    this.pdfProperties.zoom += 5;
+  zoomOut(origin?: [number, number]): void {
+    this.zoomBy(-PdfService.ZOOM_STEP, origin);
   }
 
-  zoomOut(): void {
-    if (typeof this.pdfProperties.zoom !== 'number') {
-      const currentScale = this.getCurrentScaleFactor();
-      this.pdfProperties.zoom = Math.round(currentScale * 100);
+  /**
+   * Zooms pdf.js directly instead of through the viewer's `[(zoom)]` binding:
+   * - ngx-extended-pdf-viewer drops `[zoom]` changes for 500 ms after every
+   *   rescale (its pinch guard) and never applies them later, so quick clicks
+   *   were lost and the binding ended up out of sync with the page;
+   * - with a numeric zoom pdf.js keeps the top-left corner in place, so the
+   *   text being read slid away; passing an origin keeps the centre instead.
+   * pdf.js then reports the new scale back through the binding as usual.
+   */
+  private zoomBy(delta: number, origin?: [number, number]): void {
+    const viewer = this.pdfJsApp?.pdfViewer;
+    if (!viewer?.pagesCount) return;
+    const current = viewer.currentScale;
+    // Whole percentages, as before (100 % = scale 1).
+    const target = Math.max(PdfService.ZOOM_STEP, Math.round((current + delta) * 100) / 100);
+    if (target === current) return;
+    const container = viewer.container;
+    if (!origin) {
+      const rect = container.getBoundingClientRect();
+      origin = [rect.left + rect.width / 2, rect.top + rect.height / 2];
     }
-    this.pdfProperties.zoom -= 5;
+    withInstantScroll(container, () =>
+      viewer.updateScale({ scaleFactor: target / current, origin, drawingDelay: -1 })
+    );
   }
 
   setRotation(rotation: 0 | 90 | 180 | 270): void {
@@ -655,11 +683,22 @@ export class PdfService {
   }
 
   fitToScreen() {
-    this.pdfProperties.zoom = 'page-fit';
+    this.setPresetZoom('page-fit');
   }
 
   fitToWidth() {
-    this.pdfProperties.zoom = 'page-width';
+    this.setPresetZoom('page-width');
+  }
+
+  /** Same reason as zoomBy(): straight to pdf.js, the binding may be ignoring changes. */
+  private setPresetZoom(preset: 'page-fit' | 'page-width'): void {
+    const viewer = this.pdfJsApp?.pdfViewer;
+    if (!viewer?.pagesCount) {
+      this.pdfProperties.zoom = preset;
+      return;
+    }
+    const container = viewer.container;
+    withInstantScroll(container, () => (viewer.currentScaleValue = preset));
   }
 
   /**
@@ -684,7 +723,7 @@ export class PdfService {
    */
   async downloadCurrentPdf(fallbackName?: string): Promise<boolean> {
     try {
-      const blob = await this.ngxExtendedPdfViewerService.getCurrentDocumentAsBlob();
+      const blob = await this.pdfViewerService?.getCurrentDocumentAsBlob();
       if (!blob) {
         return false;
       }
@@ -710,7 +749,7 @@ export class PdfService {
     const currentPage = pageNumber || this.getCurrentPage();
 
     try {
-      const text = await this.ngxExtendedPdfViewerService.getPageAsText(currentPage);
+      const text = await this.pdfViewerService?.getPageAsText(currentPage);
       return text;
     } catch (error) {
       console.error(`Error extracting text from page ${currentPage}:`, error);

@@ -70,6 +70,8 @@ import { PeriodicalService } from '../../../../shared/services/periodical.servic
         [showHelpButton]="false"
         [showMicrophoneButton]="true"
         [showSubmitButton]="false"
+        [showClearButton]="true"
+        (onClearEvent)="periodicalService.onSearch('')"
         (search)="periodicalService.onSearch($event)"
         [inputTerm]="periodicalService.searchTerm"
         [showHistorySuggestions]="true"
@@ -215,6 +217,20 @@ export class PeriodicalFiltersComponent extends BaseFiltersComponent {
 
   get periodicalYearTo(): number {
     return this.clampYear(this.customSearchService.getYearTo() ?? this.periodicalYearMax);
+  }
+
+  // The applied year range here is the periodical's (clamped) span, not the
+  // global default. BaseFiltersComponent compares slider output against these
+  // to decide whether "Submit" is enabled; the slider echoes its inputs back
+  // (rangeChange on init / input change, during change detection), so
+  // comparing against the global default flipped hasYearRangeChanged mid-check
+  // (NG0100) and left Submit enabled although nothing was changed.
+  override get yearRangeFrom(): number {
+    return this.periodicalYearFrom;
+  }
+
+  override get yearRangeTo(): number {
+    return this.periodicalYearTo;
   }
 
   private clampYear(year: number): number {

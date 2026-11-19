@@ -8,7 +8,7 @@ import { RecordItemComponent } from './record-item.component';
 import { RecordItem } from './record-item.model';
 import { FavoritesService } from '../../services/favorites.service';
 import { FolderItemsService } from '../../../modules/saved-lists-page/services/folder-items.service';
-import { AdminModeService } from '../../services';
+import { AdminModeService } from '../../services/admin-mode.service';
 import { EnvironmentService } from '../../services/environment.service';
 import { PopupPositioningService } from '../../services/popup-positioning.service';
 import { SavedListsService } from '../../../modules/saved-lists-page/services/saved-lists.service';

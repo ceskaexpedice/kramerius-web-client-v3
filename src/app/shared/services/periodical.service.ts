@@ -19,7 +19,6 @@ import {
 } from '../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
 import { loadPeriodical } from '../../modules/periodical/state/periodical-detail/periodical-detail.actions';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DetailViewService } from '../../modules/detail-view-page/services/detail-view.service';
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
 import { loadPeriodicalSearchResults } from '../../modules/periodical/state/periodical-search/periodical-search.actions';
 import {
@@ -113,7 +112,6 @@ export class PeriodicalService extends BaseFilterService {
     private store: Store,
     private localStorage: LocalStorageService,
     private recordHandler: RecordHandlerService,
-    private detailView: DetailViewService,
   ) {
     super();
     console.log('PeriodicalService initialized');
@@ -424,7 +422,10 @@ export class PeriodicalService extends BaseFilterService {
     //this.initialize();
     this.router.navigate([`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}/${this.uuid}`], {
       queryParams: {
-        query,
+        // null removes the param — a user-initiated search (or clear) takes over
+        // from a ?fulltext term carried in from another page (e.g. saved lists).
+        query: query || null,
+        fulltext: null,
         page: this._page(),
         pageSize: this._pageSize(),
         sortBy: this._sortBy(),

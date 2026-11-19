@@ -141,7 +141,9 @@ export class QueryParamsService {
     this.router.navigate([], {
       relativeTo: route,
       queryParams: {
-        query: null
+        query: null,
+        // ?fulltext is a fallback search term on monograph/periodical pages
+        fulltext: null
       },
       queryParamsHandling: 'merge'
     });

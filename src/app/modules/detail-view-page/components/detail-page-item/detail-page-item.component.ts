@@ -3,7 +3,7 @@ import { EnvironmentService } from '../../../../shared/services/environment.serv
 import { CdkSourceService } from '../../../../shared/services/cdk-source.service';
 import {LowerCasePipe, NgClass, NgIf} from '@angular/common';
 import { CheckboxComponent } from '../../../../shared/components/checkbox/checkbox.component';
-import { AdminModeService } from '../../../../shared/services';
+import { AdminModeService } from '../../../../shared/services/admin-mode.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ThumbnailImageComponent } from '../../../../shared/components/thumbnail-image/thumbnail-image.component';
 

@@ -56,7 +56,7 @@
           [placeholder]="placeholder | translate"
           [(ngModel)]="value"
           (ngModelChange)="onInputChange($event)"
-          (keyup.enter)="onEnter()"
+          (keydown.enter)="onEnterKeydown($event)"
           (focus)="onFocus()"
           (blur)="onBlur()"
           [attr.aria-label]="ariaLabel || (placeholder | translate) || null"

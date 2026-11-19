@@ -31,6 +31,8 @@ import { MonographVolumesService } from '../../../../shared/services/monograph-v
         [showHelpButton]="false"
         [showMicrophoneButton]="true"
         [showSubmitButton]="false"
+        [showClearButton]="true"
+        (onClearEvent)="monographVolumesService.onSearch('')"
         (search)="monographVolumesService.onSearch($event)"
         [inputTerm]="monographVolumesService.searchTerm"
         [showHistorySuggestions]="true"

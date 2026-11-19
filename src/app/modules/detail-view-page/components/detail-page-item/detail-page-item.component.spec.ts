@@ -4,7 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DetailPageItemComponent } from './detail-page-item.component';
 import { EnvironmentService } from '../../../../shared/services/environment.service';
 import { CdkSourceService } from '../../../../shared/services/cdk-source.service';
-import { AdminModeService } from '../../../../shared/services';
+import { AdminModeService } from '../../../../shared/services/admin-mode.service';
 
 /**
  * The item was switched to OnPush because a 1000-page grid made it the hottest

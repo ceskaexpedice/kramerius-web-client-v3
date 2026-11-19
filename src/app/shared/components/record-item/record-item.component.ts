@@ -8,7 +8,7 @@ import { SolrService } from '../../../core/solr/solr.service';
 import { AccessibilityBadgeComponent } from '../accessibility-badge/accessibility-badge.component';
 import { FavoritesPopupComponent } from '../favorites-popup/favorites-popup.component';
 import { PopupPositioningService, PopupState } from '../../services/popup-positioning.service';
-import { AdminModeService } from '../../services';
+import { AdminModeService } from '../../services/admin-mode.service';
 import { CheckboxComponent } from '../checkbox/checkbox.component';
 import { Observable, EMPTY, take, shareReplay } from 'rxjs';
 import { SavedListsService } from '../../../modules/saved-lists-page/services/saved-lists.service';

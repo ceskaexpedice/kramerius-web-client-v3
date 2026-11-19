@@ -115,9 +115,12 @@
     -webkit-line-clamp: unset;
   }
 
+  // Lifted for a moment by CollectionsPage.updateDescriptionTruncation() to
+  // measure the full description height.
   &.check-height {
     display: block;
     -webkit-line-clamp: unset;
+    line-clamp: unset;
   }
 }
 

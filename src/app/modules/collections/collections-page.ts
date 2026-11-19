@@ -1,8 +1,8 @@
 import { METADATA_PANEL_ID } from '../../shared/components/detail-layout/metadata-panel-id';
-import { Component, computed, inject, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy, signal, afterNextRender, Injector, DOCUMENT } from '@angular/core';
 import { FixedPanelService } from '../../shared/components/fixed-panel/fixed-panel.service';
 import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
-import { AdminModeService } from '../../shared/services';
+import { AdminModeService } from '../../shared/services/admin-mode.service';
 import { CollectionsService } from '../../shared/services/collections.service';
 import { SearchDocument } from '../models/search-document';
 import { RecordItem, searchDocumentToRecordItem } from '../../shared/components/record-item/record-item.model';
@@ -47,10 +47,32 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
   /** "Add to my library" popup for the collection itself (#207). */
   public favoritesHelper = new FavoritesPopupHelper(inject(FavoritesService), inject(PopupPositioningService), this.router);
 
-  @ViewChild('descriptionElement') descriptionElement?: ElementRef<HTMLElement>;
+  private injector = inject(Injector);
+  private document = inject(DOCUMENT);
 
-  isDescriptionExpanded = false;
-  isDescriptionTruncated = false;
+  /**
+   * The clamped collection description. It only exists while the collection has
+   * a description (it sits inside @if blocks), so the resize observer is
+   * (re)attached whenever Angular hands us a new element.
+   */
+  @ViewChild('descriptionElement') set descriptionElement(ref: ElementRef<HTMLElement> | undefined) {
+    this.descriptionResizeObserver?.disconnect();
+    this.descriptionEl = ref?.nativeElement;
+    if (this.descriptionEl && typeof ResizeObserver !== 'undefined') {
+      // Re-measure whenever the box changes size: first layout, viewport /
+      // orientation changes, sidebar toggles, late-loading fonts that change
+      // the line height.
+      this.descriptionResizeObserver = new ResizeObserver(() => this.updateDescriptionTruncation());
+      this.descriptionResizeObserver.observe(this.descriptionEl);
+    }
+    // Not during change detection (this setter runs inside it).
+    afterNextRender(() => this.updateDescriptionTruncation(), { injector: this.injector });
+  }
+  private descriptionEl?: HTMLElement;
+  private descriptionResizeObserver?: ResizeObserver;
+
+  readonly isDescriptionExpanded = signal(false);
+  readonly isDescriptionTruncated = signal(false);
   rightSidebarVisible = this.uiStateService.metadataSidebarOpen;
   /** The bottom view switch slides away with the header while the list scrolls down. */
   readonly mobileNavHidden = computed(() => this.breakpointService.isMobile() && (!this.uiStateService.headerVisible() || this.fixedPanel.anyOpen()));
@@ -64,12 +86,13 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(detail => {
         if (detail) {
-          // Wait for DOM to update with new content
-          setTimeout(() => {
-            if (this.descriptionElement) {
-              this.checkIfTruncated(this.descriptionElement.nativeElement);
-            }
-          }, 100);
+          // A new collection starts collapsed. Measure once its description is
+          // actually rendered (the element may be reused with new content and
+          // the same clamped height, which the resize observer would not see),
+          // and again once web fonts settle, since they change line wrapping.
+          this.isDescriptionExpanded.set(false);
+          afterNextRender(() => this.updateDescriptionTruncation(), { injector: this.injector });
+          this.document.fonts?.ready.then(() => this.updateDescriptionTruncation());
         }
       });
   }
@@ -78,6 +101,7 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.descriptionResizeObserver?.disconnect();
     this.favoritesHelper.cleanup();
     this.destroy$.next();
     this.destroy$.complete();
@@ -91,27 +115,34 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
     this.favoritesHelper.onFavoritesPopupClose();
   }
 
-  checkIfTruncated(element: HTMLElement) {
-    // Get clamped height
-    const clampedHeight = element.clientHeight;
-
-    // Add a class to temporarily remove line-clamp
-    element.classList.add('check-height');
-
-    // Force reflow to apply the class
-    element.offsetHeight;
-
-    // Measure full height
-    const fullHeight = element.scrollHeight;
-
-    // Remove temporary class
-    element.classList.remove('check-height');
-
-    this.isDescriptionTruncated = fullHeight > clampedHeight;
+  /**
+   * Whether the clamped description hides text: compares the clamped height
+   * with the height after briefly lifting the clamp (`check-height`). With
+   * `line-clamp` the hidden lines do not count towards scrollHeight, so the
+   * clamped element alone cannot tell. The class is added and removed in the
+   * same task, so the resize observer sees no change and is not re-triggered.
+   * Skipped while expanded: the clamp is off then, so both heights match and
+   * the "show less" button would disappear.
+   */
+  private updateDescriptionTruncation(): void {
+    const el = this.descriptionEl;
+    if (!el) {
+      this.isDescriptionTruncated.set(false);
+      return;
+    }
+    if (this.isDescriptionExpanded()) {
+      return;
+    }
+    const clampedHeight = el.clientHeight;
+    el.classList.add('check-height');
+    const fullHeight = el.scrollHeight;
+    el.classList.remove('check-height');
+    // 1px tolerance for sub-pixel rounding.
+    this.isDescriptionTruncated.set(fullHeight > clampedHeight + 1);
   }
 
   toggleDescription() {
-    this.isDescriptionExpanded = !this.isDescriptionExpanded;
+    this.isDescriptionExpanded.update(expanded => !expanded);
   }
 
   toRecordItem(doc: SearchDocument): RecordItem {

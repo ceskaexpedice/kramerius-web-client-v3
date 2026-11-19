@@ -16,6 +16,8 @@ const NO_CACHE_PATTERNS = [
   '/session',           // Session-related endpoints
   '/locks/',            // Exclusive-reader locks - every refresh must reach the server
   '/info',              // Runtime access of an item (`items/{pid}/info`) - changes with login and held locks
+  '/ocr/',              // ALTO and OCR text - every consumer sends its own X-Kramerius-Intent, and a
+                        // cache hit would hide all but the first from the core's access log
 ] as const;
 
 interface CacheEntry {

@@ -760,7 +760,7 @@
             "de": "Alois Jirásek"
           },
           "date": "1851–1930",
-          "imageUrl": "local-config/img/authors/jirasek_alois.png",
+          "imageUrl": "local-config/img/authors/jirasek_alois.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Jir%C3%A1sek,%20Alois&licenses.facet_operator=OR"
         },
         {
@@ -773,7 +773,7 @@
             "de": "Božena Němcová"
           },
           "date": "1820–1862",
-          "imageUrl": "local-config/img/authors/nemcova_bozena.png",
+          "imageUrl": "local-config/img/authors/nemcova_bozena.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:N%C4%9Bmcov%C3%A1,%20Bo%C5%BEena&licenses.facet_operator=OR"
         },
         {
@@ -786,7 +786,7 @@
             "de": "František Palacký"
           },
           "date": "1798–1876",
-          "imageUrl": "local-config/img/authors/palacky_frantisek.png",
+          "imageUrl": "local-config/img/authors/palacky_frantisek.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=authors.facet:Palack%C3%BD,%20Franti%C5%A1ek&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR"
         },
         {
@@ -799,7 +799,7 @@
             "de": "Jan Neruda"
           },
           "date": "1834–1891",
-          "imageUrl": "local-config/img/authors/neruda_jan.png",
+          "imageUrl": "local-config/img/authors/neruda_jan.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Neruda,%20Jan&licenses.facet_operator=OR"
         },
         {
@@ -812,7 +812,7 @@
             "de": "Jaroslav Hašek"
           },
           "date": "1883–1923",
-          "imageUrl": "local-config/img/authors/hasek_jaroslav.png",
+          "imageUrl": "local-config/img/authors/hasek_jaroslav.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Ha%C5%A1ek,%20Jaroslav&licenses.facet_operator=OR"
         },
         {
@@ -825,7 +825,7 @@
             "de": "Jaroslav Seifert"
           },
           "date": "1901–1986",
-          "imageUrl": "local-config/img/authors/seifert_jaroslav.png",
+          "imageUrl": "local-config/img/authors/seifert_jaroslav.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-accessibility:available,custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Seifert,%20Jaroslav&licenses.facet_operator=OR"
         },
         {
@@ -838,7 +838,7 @@
             "de": "Jaroslav Vrchlický"
           },
           "date": "1853–1912",
-          "imageUrl": "local-config/img/authors/vrchlicky_jaroslav.png",
+          "imageUrl": "local-config/img/authors/vrchlicky_jaroslav.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Vrchlick%C3%BD,%20Jaroslav&licenses.facet_operator=OR"
         },
         {
@@ -851,7 +851,7 @@
             "de": "Josef Čapek"
           },
           "date": "1887–1945",
-          "imageUrl": "local-config/img/authors/capek_josef.png",
+          "imageUrl": "local-config/img/authors/capek_josef.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:%C4%8Capek,%20Josef&licenses.facet_operator=OR"
         },
         {
@@ -864,7 +864,7 @@
             "de": "Julius Zeyer"
           },
           "date": "1841–1901",
-          "imageUrl": "local-config/img/authors/zeyer_julius.png",
+          "imageUrl": "local-config/img/authors/zeyer_julius.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Zeyer,%20Julius&licenses.facet_operator=OR"
         },
         {
@@ -877,7 +877,7 @@
             "de": "Karel Čapek"
           },
           "date": "1890–1938",
-          "imageUrl": "local-config/img/authors/capek_karel.png",
+          "imageUrl": "local-config/img/authors/capek_karel.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:%C4%8Capek,%20Karel&licenses.facet_operator=OR"
         },
         {
@@ -890,7 +890,7 @@
             "de": "Karel Havlíček Borovský"
           },
           "date": "1821–1856",
-          "imageUrl": "local-config/img/authors/borovsky_karel havlicek.png",
+          "imageUrl": "local-config/img/authors/borovsky_karel havlicek.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Havl%C3%AD%C4%8Dek%20Borovsk%C3%BD,%20Karel&licenses.facet_operator=OR"
         },
         {
@@ -903,7 +903,7 @@
             "de": "Karel Hynek Mácha"
           },
           "date": "1810–1836",
-          "imageUrl": "local-config/img/authors/macha_karel hynek.png",
+          "imageUrl": "local-config/img/authors/macha_karel hynek.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:M%C3%A1cha,%20Karel%20Hynek&licenses.facet_operator=OR"
         },
         {
@@ -916,7 +916,7 @@
             "de": "Karel Poláček"
           },
           "date": "1892–1945",
-          "imageUrl": "local-config/img/authors/polacek_karel.png",
+          "imageUrl": "local-config/img/authors/polacek_karel.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Pol%C3%A1%C4%8Dek,%20Karel&licenses.facet_operator=OR"
         },
         {
@@ -929,7 +929,7 @@
             "de": "Karolina Světlá"
           },
           "date": "1830–1899",
-          "imageUrl": "local-config/img/authors/svetla_karolina.png",
+          "imageUrl": "local-config/img/authors/svetla_karolina.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Sv%C4%9Btl%C3%A1,%20Karolina&licenses.facet_operator=OR"
         },
         {
@@ -942,7 +942,7 @@
             "de": "Magdalena Dobromila Rettigová"
           },
           "date": "1785–1845",
-          "imageUrl": "local-config/img/authors/rettigova_magdalena dobromila.png",
+          "imageUrl": "local-config/img/authors/rettigova_magdalena dobromila.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Rettigov%C3%A1,%20Magdalena%20Dobromila&licenses.facet_operator=OR"
         },
         {
@@ -955,7 +955,7 @@
             "de": "Svatopluk Čech"
           },
           "date": "1846–1908",
-          "imageUrl": "local-config/img/authors/cech_svatopluk.png",
+          "imageUrl": "local-config/img/authors/cech_svatopluk.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:%C4%8Cech,%20Svatopluk&licenses.facet_operator=OR"
         },
         {
@@ -968,7 +968,7 @@
             "de": "Vladislav Vančura"
           },
           "date": "1891–1942",
-          "imageUrl": "local-config/img/authors/vancura_vladislav.png",
+          "imageUrl": "local-config/img/authors/vancura_vladislav.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Van%C4%8Dura,%20Vladislav&licenses.facet_operator=OR"
         }
       ]
@@ -994,7 +994,7 @@
             "de": "Agatha Christie"
           },
           "date": "1890–1976",
-          "imageUrl": "local-config/img/authors/christie.png",
+          "imageUrl": "local-config/img/authors/christie.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Christie,%20Agatha&licenses.facet_operator=OR"
         },
         {
@@ -1007,7 +1007,7 @@
             "de": "Alexandre Dumas (der Ältere)"
           },
           "date": "1802–1870",
-          "imageUrl": "local-config/img/authors/dumas.png",
+          "imageUrl": "local-config/img/authors/dumas.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Dumas,%20Alexandre&licenses.facet_operator=OR"
         },
         {
@@ -1020,7 +1020,7 @@
             "de": "Arthur Conan Doyle"
           },
           "date": "1859–1930",
-          "imageUrl": "local-config/img/authors/doyle.png",
+          "imageUrl": "local-config/img/authors/doyle.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Doyle,%20Arthur%20Conan&licenses.facet_operator=OR"
         },
         {
@@ -1033,7 +1033,7 @@
             "de": "Charles Dickens"
           },
           "date": "1812–1870",
-          "imageUrl": "local-config/img/authors/dickens.png",
+          "imageUrl": "local-config/img/authors/dickens.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Dickens,%20Charles&licenses.facet_operator=OR"
         },
         {
@@ -1046,7 +1046,7 @@
             "de": "Fjodor Michailowitsch Dostojewski"
           },
           "date": "1821–1881",
-          "imageUrl": "local-config/img/authors/dostojevskij.png",
+          "imageUrl": "local-config/img/authors/dostojevskij.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Dostojevskij,%20Fedor%20Michajlovi%C4%8D&licenses.facet_operator=OR"
         },
         {
@@ -1059,7 +1059,7 @@
             "de": "Henryk Sienkiewicz"
           },
           "date": "1846–1916",
-          "imageUrl": "local-config/img/authors/sienkiewicz.png",
+          "imageUrl": "local-config/img/authors/sienkiewicz.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Sienkiewicz,%20Henryk&licenses.facet_operator=OR"
         },
         {
@@ -1072,7 +1072,7 @@
             "de": "Honoré de Balzac"
           },
           "date": "1799–1850",
-          "imageUrl": "local-config/img/authors/balzac.png",
+          "imageUrl": "local-config/img/authors/balzac.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Balzac,%20Honor%C3%A9%20de&licenses.facet_operator=OR"
         },
         {
@@ -1085,7 +1085,7 @@
             "de": "Jack London"
           },
           "date": "1876–1916",
-          "imageUrl": "local-config/img/authors/london.png",
+          "imageUrl": "local-config/img/authors/london.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:London,%20Jack&licenses.facet_operator=OR"
         },
         {
@@ -1098,7 +1098,7 @@
             "de": "Jane Austen"
           },
           "date": "1775–1817",
-          "imageUrl": "local-config/img/authors/austen.png",
+          "imageUrl": "local-config/img/authors/austen.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Austen,%20Jane&licenses.facet_operator=OR"
         },
         {
@@ -1111,7 +1111,7 @@
             "de": "Jules Verne"
           },
           "date": "1828–1905",
-          "imageUrl": "local-config/img/authors/verne.png",
+          "imageUrl": "local-config/img/authors/verne.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Verne,%20Jules&licenses.facet_operator=OR"
         },
         {
@@ -1124,7 +1124,7 @@
             "de": "Karl May"
           },
           "date": "1842–1912",
-          "imageUrl": "local-config/img/authors/may.png",
+          "imageUrl": "local-config/img/authors/may.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:May,%20Karl&licenses.facet_operator=OR"
         },
         {
@@ -1137,7 +1137,7 @@
             "de": "Louisa May Alcott"
           },
           "date": "1832–1888",
-          "imageUrl": "local-config/img/authors/alcott.png",
+          "imageUrl": "local-config/img/authors/alcott.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Alcott,%20Louisa%20May&licenses.facet_operator=OR"
         },
         {
@@ -1150,7 +1150,7 @@
             "de": "Mark Twain"
           },
           "date": "1835–1910",
-          "imageUrl": "local-config/img/authors/twain.png",
+          "imageUrl": "local-config/img/authors/twain.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Twain,%20Mark&licenses.facet_operator=OR"
         },
         {
@@ -1163,7 +1163,7 @@
             "de": "Mary Shelley"
           },
           "date": "1797–1851",
-          "imageUrl": "local-config/img/authors/shelley.png",
+          "imageUrl": "local-config/img/authors/shelley.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Shelley,%20Mary%20Wollstonecraft&licenses.facet_operator=OR"
         },
         {
@@ -1176,7 +1176,7 @@
             "de": "Miguel de Cervantes"
           },
           "date": "1547–1616",
-          "imageUrl": "local-config/img/authors/cervantes.png",
+          "imageUrl": "local-config/img/authors/cervantes.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Cervantes%20Saavedra,%20Miguel%20de&licenses.facet_operator=OR"
         },
         {
@@ -1189,7 +1189,7 @@
             "de": "Robert Louis Stevenson"
           },
           "date": "1850–1894",
-          "imageUrl": "local-config/img/authors/stevenson.png",
+          "imageUrl": "local-config/img/authors/stevenson.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Stevenson,%20Robert%20Louis&licenses.facet_operator=OR"
         },
         {
@@ -1202,7 +1202,7 @@
             "de": "Rudyard Kipling"
           },
           "date": "1865–1936",
-          "imageUrl": "local-config/img/authors/kipling.png",
+          "imageUrl": "local-config/img/authors/kipling.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Kipling,%20Rudyard&licenses.facet_operator=OR"
         },
         {
@@ -1215,7 +1215,7 @@
             "de": "Die Brontë-Schwestern"
           },
           "date": "1816–1855, 1818–1848, 1820–1849",
-          "imageUrl": "local-config/img/authors/bronte.png",
+          "imageUrl": "local-config/img/authors/bronte.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Bront%C3%AB,%20Charlotte&fq=authors.facet:Bront%C3%AB,%20Emily&fq=authors.facet:Bront%C3%AB,%20Anne&licenses.facet_operator=OR"
         },
         {
@@ -1228,7 +1228,7 @@
             "de": "Victor Hugo"
           },
           "date": "1802–1885",
-          "imageUrl": "local-config/img/authors/hugo.png",
+          "imageUrl": "local-config/img/authors/hugo.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Hugo,%20Victor&licenses.facet_operator=OR"
         },
         {
@@ -1241,7 +1241,7 @@
             "de": "William Shakespeare"
           },
           "date": "1564–1616",
-          "imageUrl": "local-config/img/authors/shakespeare.png",
+          "imageUrl": "local-config/img/authors/shakespeare.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&customSearch=custom-where-to-search.model:titles,custom-root-model:monograph&authors.facet_operator=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&fq=authors.facet:Shakespeare,%20William&licenses.facet_operator=OR"
         }
       ]
@@ -1266,7 +1266,7 @@
             "pl": "Relacje z podróży i przewodniki",
             "de": "Reiseberichte und Reiseführer"
           },
-          "imageUrl": "local-config/img/genres/cestopisy.png",
+          "imageUrl": "local-config/img/genres/cestopisy.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Cestopisy%22%20OR%20keywords.facet:%22Cestopisy%20ji%C5%BEn%C3%AD%20Evropa%22%20OR%20keywords.facet:%22Cesty%20kolem%20sv%C4%9Bta%22%20OR%20keywords.facet:%22Cestovatel%C3%A9%22%20OR%20keywords.facet:%22Cestovatelky%22%20OR%20genres.facet:%22Cestopisy%22%20OR%20genres.facet:%22Cestopisn%C3%A9%20pr%C3%B3zy%22%20OR%20genres.facet:%22Cestopisn%C3%A9%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22Cestopisn%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Cestovn%C3%AD%20den%C3%ADky%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
         },
         {
@@ -1278,7 +1278,7 @@
             "pl": "Literatura przygodowa",
             "de": "Abenteuerliteratur"
           },
-          "imageUrl": "local-config/img/genres/dobr_literatura.png",
+          "imageUrl": "local-config/img/genres/dobr_literatura.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Dobrodru%C5%BEn%C3%A9%20cesty%22%20OR%20keywords.facet:%22Dobrodru%C5%BEn%C3%A1%20literatura%22%20OR%20keywords.facet:%22Dobrodru%C5%BEn%C3%BD%20rom%C3%A1n%22%20OR%20keywords.facet:%22Dobrodruzi%22%20OR%20keywords.facet:%22Dobrodru%C5%BEn%C3%A9%20cesty%22%20OR%20genres.facet:%22Dobrodru%C5%BEn%C3%A9%20pov%C3%ADdky%22%20OR%20genres.facet:%22Dobrodru%C5%BEn%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Dobrodru%C5%BEn%C3%A9%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22Americk%C3%A9%20dobrodru%C5%BEn%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Anglick%C3%A9%20dobrodru%C5%BEn%C3%A9%20rom%C3%A1ny%22%20OR%20keywords.facet:%22Mayovky%20n%C4%9Bmeck%C3%A1%20dobrodru%C5%BEn%C3%A1%20literatura%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
         },
         {
@@ -1290,7 +1290,7 @@
             "pl": "Kryminały",
             "de": "Kriminalromane"
           },
-          "imageUrl": "local-config/img/genres/detektivky.png",
+          "imageUrl": "local-config/img/genres/detektivky.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Detektivn%C3%AD%20pov%C3%ADdka%22%20OR%20keywords.facet:%22Detektivn%C3%AD%20literatura%22%20OR%20keywords.facet:%22Detektivn%C3%AD%20pr%C3%B3za%22%20OR%20keywords.facet:%22Detektivn%C3%AD%20rom%C3%A1n%22%20OR%20keywords.facet:%22Detektivn%C3%AD%20rom%C3%A1ny%22%20OR%20genres.facet:%22Detektivn%C3%AD%20rom%C3%A1ny%22%20OR%20genres.facet:%22Detektivn%C3%AD%20pov%C3%ADdky%22%20OR%20genres.facet:%22Detektivn%C3%AD%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22Detektivn%C3%AD%20novely%22%20OR%20genres.facet:%22Detektivn%C3%AD%20dramata%22%20OR%20keywords.facet:%22Krimin%C3%A1ln%C3%AD%20p%C5%99%C3%ADpady%22%20OR%20genres.facet:%22Krimin%C3%A1ln%C3%AD%20p%C5%99%C3%ADb%C4%9Bhy%22)&advOp=OR&fq=licenses.facet:dnnto&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
         },
         {
@@ -1302,7 +1302,7 @@
             "pl": "Literatura dziecięca",
             "de": "Kinderliteratur"
           },
-          "imageUrl": "local-config/img/genres/det_literatura.png",
+          "imageUrl": "local-config/img/genres/det_literatura.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22D%C4%9Btsk%C3%A9%20hry%22%20OR%20keywords.facet:%22D%C4%9Btsk%C3%A1%20%C4%8Detba%22%20OR%20keywords.facet:%22Literatura%20pro%20d%C4%9Bti%20a%20ml%C3%A1de%C5%BE%22%20OR%20keywords.facet:%22D%C4%9Btsk%C3%A1%20literatura%22%20OR%20genres.facet:%22Publikace%20pro%20d%C4%9Bti%22%20OR%20genres.facet:%22Publikace%20pro%20ml%C3%A1de%C5%BE%22%20OR%20genres.facet:%22P%C5%99%C3%ADb%C4%9Bhy%20pro%20d%C4%9Bti%22%20OR%20genres.facet:%22%C4%8Casopisy%20pro%20d%C4%9Bti%22%20OR%20genres.facet:%22%C4%8Cesk%C3%A1%20literatura%20pro%20d%C4%9Bti%22%20OR%20genres.facet:%22Anglick%C3%A1%20literatura%20pro%20d%C4%9Bti%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:periodical,custom-root-model:monograph"
         },
         {
@@ -1314,7 +1314,7 @@
             "pl": "Powieści historyczne",
             "de": "Historische Romane"
           },
-          "imageUrl": "local-config/img/genres/histor_romany.png",
+          "imageUrl": "local-config/img/genres/histor_romany.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Historick%C3%A9%20rom%C3%A1ny%20ma%C4%8Farsk%C3%A1%20literatura%22%20OR%20keywords.facet:%22%C4%8Cesk%C3%A1%20literatura%20historick%C3%A9%20rom%C3%A1ny%22%20OR%20keywords.facet:%22Historick%C3%A1%20pr%C3%B3za%22%20OR%20genres.facet:%22Historick%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Historick%C3%A1%20dramata%22%20OR%20genres.facet:%22Historick%C3%A9%20pr%C3%B3zy%22%20OR%20genres.facet:%22Historick%C3%A9%20pov%C3%ADdky%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
         },
         {
@@ -1326,7 +1326,7 @@
             "pl": "Horror",
             "de": "Horror"
           },
-          "imageUrl": "local-config/img/genres/horor.png",
+          "imageUrl": "local-config/img/genres/horor.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Horor%20(literatura)%22%20OR%20keywords.facet:%22Filmov%C3%A9%20horory%22%20OR%20keywords.facet:%22Horror%20films%22%20OR%20keywords.facet:%22Horror%20literature%22%20OR%20genres.facet:%22Horory%22%20OR%20genres.facet:%22Horory%20(rom%C3%A1ny)%22%20OR%20genres.facet:%22Horory%20(p%C5%99%C3%ADb%C4%9Bhy)%22%20OR%20genres.facet:%22Horory%20(pov%C3%ADdky)%22)&advOp=OR&fq=licenses.facet:dnnto&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
         },
         {
@@ -1338,7 +1338,7 @@
             "pl": "Literatura humorystyczna",
             "de": "Humoristische Literatur"
           },
-          "imageUrl": "local-config/img/genres/humor_literatura.png",
+          "imageUrl": "local-config/img/genres/humor_literatura.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Humor%22%20OR%20keywords.facet:%22Humoristick%C3%A1%20literatura%22%20OR%20keywords.facet:%22Satira%22%20OR%20keywords.facet:%22Humoristick%C3%A9%20%C4%8Dasopisy%22%20OR%20genres.facet:%22Humoristick%C3%A9%20pov%C3%ADdky%22%20OR%20genres.facet:%22Humoristick%C3%A9%20pr%C3%B3zy%22%20OR%20genres.facet:%22Humoristick%C3%A1%20poezie%22%20OR%20genres.facet:%22Horory%20(pov%C3%ADdky)%22%20OR%20genres.facet:%22Anekdoty%22%20OR%20genres.facet:%22Aforismy%22)&advOp=OR&fq=licenses.facet:public&fq=licenses.facet:dnnto&licenses.facet_operator=OR&customSearch=custom-root-model:monograph,custom-root-model:periodical,custom-where-to-search.model:titles"
         },
         {
@@ -1350,7 +1350,7 @@
             "pl": "Komiksy",
             "de": "Comics"
           },
-          "imageUrl": "local-config/img/genres/komiks.png",
+          "imageUrl": "local-config/img/genres/komiks.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=created&sortDirection=desc&advSearch=(keywords.facet:%22Komiksy%22%20OR%20keywords.facet:%22Komiks%22%20OR%20keywords.facet:%22Komiksy.%20Komiksov%C3%A9%20adaptace%22%20OR%20genres.facet:%22Komiksy%22%20OR%20genres.facet:%22Komiksov%C3%A9%20adaptace%22%20OR%20genres.facet:%22Nau%C4%8Dn%C3%A9%20komiksy%22%20OR%20genres.facet:%22Sci-fi%20komiksy%22%20OR%20genres.facet:%22V%C3%A1le%C4%8Dn%C3%A9%20komiksy%22%20OR%20genres.facet:%22Historick%C3%A9%20komiksy%22%20OR%20genres.facet:%22Thrillery%20(komiksy)%22%20OR%20genres.facet:%22Informa%C4%8Dn%C3%AD%20komiksy%22%20OR%20genres.facet:%22Westernov%C3%A9%20komiksy%22%20OR%20genres.facet:%22Humoristick%C3%A9%20komiksy%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20komiksy%22%20OR%20genres.facet:%22Ak%C4%8Dn%C3%AD%20a%20dobrodru%C5%BEn%C3%A9%20komiksy%22%20OR%20genres.facet:%22Komiksov%C3%A9%20adaptace%22%20OR%20-genres.facet:%22Publikace%20pro%20d%C4%9Bti%22%20OR%20-genres.facet:%22Children%27s%20literature%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
         },
         {
@@ -1362,7 +1362,7 @@
             "pl": "Literatura faktu",
             "de": "Sachliteratur"
           },
-          "imageUrl": "local-config/img/genres/literatura_faktu.png",
+          "imageUrl": "local-config/img/genres/literatura_faktu.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=score&sortDirection=desc&advSearch=(keywords.facet:%22Literatura%20faktu%22%20OR%20keywords.facet:%22Anglick%C3%A1%20literatura%20literatura%20faktu%22%20OR%20keywords.facet:%22Non-fiction%22%20OR%20genres.facet:%22Literatura%20faktu%22%20OR%20genres.facet:%22Rozhovory%22%20OR%20genres.facet:%22Biografie%22%20OR%20genres.facet:%22Autobiografie%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20vzpom%C3%ADnky%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20pr%C3%B3zy%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20pov%C3%ADdky%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20vzpom%C3%ADnky%22%20OR%20genres.facet:%22Vzpom%C3%ADnky%22%20OR%20genres.facet:%22Vlastn%C3%AD%20vzpom%C3%ADnky%22%20OR%20genres.facet:%22Autobiografick%C3%A9%20vzpom%C3%ADnky%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
         },
         {
@@ -1374,7 +1374,7 @@
             "pl": "Science fiction i fantasy",
             "de": "Science-Fiction und Fantasy"
           },
-          "imageUrl": "local-config/img/genres/scifi_fantasy.png",
+          "imageUrl": "local-config/img/genres/scifi_fantasy.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=score&sortDirection=desc&advSearch=(keywords.facet:%22Science%20fiction%22%20OR%20keywords.facet:%22Sci-fi%22%20OR%20keywords.facet:%22Fantasy%22%20OR%20keywords.facet:%22V%C4%9Bdecko-fantastick%C3%A1%20literatura%22%20OR%20keywords.facet:%22V%C4%9Bdecko-fantastick%C3%A1%20pov%C3%ADdka%22%20OR%20keywords.facet:%22V%C4%9Bdecko-fantastick%C3%A1%20pr%C3%B3za%22%20OR%20keywords.facet:%22Polsk%C3%A1%20literatura%20v%C4%9Bdecko-fantastick%C3%A1%20literatura%22%20OR%20genres.facet:%22Fantasy%20rom%C3%A1ny%22%20OR%20genres.facet:%22Fantasy%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22Fantasy%22%20OR%20genres.facet:%22Fantasy%20rom%C3%A1ny%22%20OR%20genres.facet:%22V%C4%9Bdecko-fantastick%C3%A9%20p%C5%99%C3%ADb%C4%9Bhy%22%20OR%20genres.facet:%22V%C4%9Bdecko-fantastick%C3%A9%20pov%C3%ADdky%22%20OR%20genres.facet:%22V%C4%9Bdecko-fantastick%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22V%C4%9Bdecko-fantastick%C3%A9%20pr%C3%B3zy%22%20OR%20genres.facet:%22Americk%C3%A9%20v%C4%9Bdecko-fantastick%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Francouzsk%C3%A9%20v%C4%9Bdecko-fantastick%C3%A9%20rom%C3%A1ny%22%20OR%20genres.facet:%22Science%20fiction%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
         },
         {
@@ -1386,7 +1386,7 @@
             "pl": "Literatura popularnonaukowa",
             "de": "Populärwissenschaftliche Literatur"
           },
-          "imageUrl": "local-config/img/genres/popularne_naucna.png",
+          "imageUrl": "local-config/img/genres/popularne_naucna.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=score&sortDirection=desc&advSearch=(keywords.facet:%22Popul%C3%A1rn%C4%9B-nau%C4%8Dn%C3%A1%20literatura%22%20OR%20keywords.facet:%22Popul%C3%A1rn%C4%9B-nau%C4%8Dn%C3%A9%20filmy%22%20OR%20keywords.facet:%22Popularizace%20v%C4%9Bdy%22%20OR%20keywords.facet:%22Popularizace%20hudby%22%20OR%20keywords.facet:%22Popul%C3%A1rn%C3%AD%20literatura%22%20OR%20genres.facet:%22Popul%C3%A1rn%C4%9B-nau%C4%8Dn%C3%A9%20publikace%22%20OR%20genres.facet:%22Popul%C3%A1rn%C3%AD%20pr%C3%A1ce%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
         },
         {
@@ -1398,7 +1398,7 @@
             "pl": "Poezja",
             "de": "Lyrik"
           },
-          "imageUrl": "local-config/img/genres/poezie.png",
+          "imageUrl": "local-config/img/genres/poezie.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=score&sortDirection=desc&advSearch=(keywords.facet:%22Poezie%22%20OR%20keywords.facet:%22%C4%8Cesk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Rusk%C3%A1%20poezie%22%20OR%20keywords.facet:%22%C4%8C%C3%ADnsk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Lidov%C3%A1%20poezie%22%20OR%20keywords.facet:%22N%C4%9Bmeck%C3%A1%20poezie%22%20OR%20keywords.facet:%22Sv%C4%9Btov%C3%A1%20poezie%22%20OR%20keywords.facet:%22Anglick%C3%A1%20poezie%22%20OR%20keywords.facet:%22Milostn%C3%A1%20poezie%22%20OR%20keywords.facet:%22Ukrajinsk%C3%A1%20poezie%22%20OR%20keywords.facet:%22K%C5%99es%C5%A5ansk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Francouzsk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Latinsky%20psan%C3%A1%20poezie%22%20OR%20keywords.facet:%22Experiment%C3%A1ln%C3%AD%20poezie%22%20OR%20keywords.facet:%22Latinsk%C3%A1%20starov%C4%9Bk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Latinsk%C3%A1%20st%C5%99edov%C4%9Bk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Stol.%2020.,%20l%C3%A9ta%2090.%20%C4%8Desk%C3%A1%20poezie%22%20OR%20genres.facet:%22Poezie%22%20OR%20genres.facet:%22Poezie%20v%20pr%C3%B3ze%22%20OR%20genres.facet:%22Epick%C3%A1%20poezie%22%20OR%20genres.facet:%22Lyrick%C3%A1%20poezie%22%20OR%20genres.facet:%22Slovensk%C3%A1%20poezie%22%20OR%20genres.facet:%22N%C3%A1bo%C5%BEensk%C3%A1%20poezie%22%20OR%20genres.facet:%22Humoristick%C3%A1%20poezie%22%20OR%20genres.facet:%22N%C4%9Bmecky%20psan%C3%A1%20poezie%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
         },
         {
@@ -1410,7 +1410,7 @@
             "pl": "Podręczniki",
             "de": "Lehrbücher"
           },
-          "imageUrl": "local-config/img/genres/ucebnice.png",
+          "imageUrl": "local-config/img/genres/ucebnice.webp",
           "externalUrl": "/search?query=&page=1&pageSize=60&sortBy=date.max&sortDirection=desc&advSearch=(keywords.facet:%22U%C4%8Debnice%22%20OR%20keywords.facet:%22U%C4%8Debnice%20%C5%A1koln%C3%AD%22%20OR%20keywords.facet:%22U%C4%8Debnice%20z%C3%A1kladn%C3%ADch%20%C5%A1kol%22%20OR%20keywords.facet:%22U%C4%8Debnice%20(hudebn%C3%AD%20kompozice)%22%20OR%20keywords.facet:%22U%C4%8Debnice%20st%C5%99edn%C3%ADch%20%C5%A1kol%22%20OR%20keywords.facet:%22U%C4%8Debnice%20(hra%20na%20varhany)%22%20OR%20keywords.facet:%22U%C4%8Debnice%20(kontrapunkt)%22%20OR%20keywords.facet:%22U%C4%8Debnice%20S%C5%A0%22%20OR%20keywords.facet:%22U%C4%8Debnice%20jako%20t%C3%A9ma%22%20OR%20keywords.facet:%22U%C4%8Debnice%20pro%20fl%C3%A9tnu%22%20OR%20keywords.facet:%22Latina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22Jazyky%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22N%C4%9Bm%C4%8Dina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22Slovn%C3%ADky,%20u%C4%8Debnice%20jazykov%C3%A9,%20encyklopedie%20informatika%20l%C3%A9ka%C5%99sk%C3%A1%22%20OR%20keywords.facet:%22Ital%C5%A1tina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22Francouz%C5%A1tina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22Stol.%2020.,%20l%C3%A9ta%2090.%20%C4%8Desk%C3%A1%20poezie%22%20OR%20keywords.facet:%22Angli%C4%8Dtina%20-%20latina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22Latina%20-%20ma%C4%8Far%C5%A1tina%20-%20u%C4%8Debnice%22%20OR%20keywords.facet:%22U%C4%8Debn%C3%AD%20osnovy.%20Vyu%C4%8Dovac%C3%AD%20p%C5%99edm%C4%9Bty.%20U%C4%8Debnice%22%20OR%20genres.facet:%22U%C4%8Debnice%20vysok%C3%BDch%20%C5%A1kol%22%20OR%20genres.facet:%22U%C4%8Debnice%20st%C5%99edn%C3%ADch%20%C5%A1kol%22%20OR%20genres.facet:%22N%C3%A1bo%C5%BEensk%C3%A1%20poezie%22%20OR%20genres.facet:%22U%C4%8Debnice%22%20OR%20genres.facet:%22U%C4%8Debnice%20z%C3%A1kladn%C3%ADch%20%C5%A1kol%22%20OR%20genres.facet:%22U%C4%8Debnice%20vy%C5%A1%C5%A1%C3%ADch%20odborn%C3%BDch%20%C5%A1kol%22%20OR%20genres.facet:%22U%C4%8Debnice%20hudebn%C3%ADch%20%C5%A1kol%22%20OR%20genres.facet:%22U%C4%8Debnice%20u%C4%8D%C5%88ovsk%C3%BDch%20%C5%A1kol%22%20OR%20genres.facet:%22U%C4%8Debnice%20archivn%C3%AD%22)&advOp=OR&fq=licenses.facet:dnnto&fq=licenses.facet:public&licenses.facet_operator=OR&customSearch=custom-root-model:monograph"
         }
       ]

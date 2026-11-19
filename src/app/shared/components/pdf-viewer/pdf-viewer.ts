@@ -1,5 +1,6 @@
-import { Component, inject, Input, OnDestroy, OnInit, ViewChild, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
-import { NgxExtendedPdfViewerComponent, NgxExtendedPdfViewerModule, OutlineLoadedEvent } from 'ngx-extended-pdf-viewer';
+import { Component, effect, inject, Input, OnDestroy, OnInit, ViewChild, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
+import { NgxExtendedPdfViewerComponent, NgxExtendedPdfViewerModule, NgxExtendedPdfViewerService, OutlineLoadedEvent, PDFNotificationService } from 'ngx-extended-pdf-viewer';
+import { applyPdfPinchZoomFix } from './pdf-pinch-zoom-fix';
 import { Metadata } from '../../models/metadata.model';
 import { PdfService } from '../../services/pdf.service';
 import { Subscription } from 'rxjs';
@@ -34,6 +35,18 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   private currentPageSubscription: Subscription | null = null;
 
   constructor() {
+    // PdfService must not import the library (it would pull it into every chunk
+    // using PdfService), so it gets the service from here — the instance this
+    // viewer works with, created now so it is wired up before download/text use.
+    this.pdfService.attachViewerService(inject(NgxExtendedPdfViewerService));
+
+    // pdf.js pinch-zoom drifts away from the fingers on phones; see pdf-pinch-zoom-fix.ts.
+    const pdfNotifications = inject(PDFNotificationService);
+    effect(() => {
+      const app = pdfNotifications.onPDFJSInitSignal();
+      applyPdfPinchZoomFix(app);
+      this.pdfService.attachPdfJsApp(app ?? null);
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -201,10 +214,12 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     // Determine zoom direction based on wheel delta
     // deltaY > 0 means scrolling down (zoom out)
     // deltaY < 0 means scrolling up (zoom in)
+    // Keep the point under the mouse in place.
+    const origin: [number, number] = [event.clientX, event.clientY];
     if (event.deltaY < 0) {
-      this.pdfService.zoomIn();
+      this.pdfService.zoomIn(origin);
     } else if (event.deltaY > 0) {
-      this.pdfService.zoomOut();
+      this.pdfService.zoomOut(origin);
     }
   }
 

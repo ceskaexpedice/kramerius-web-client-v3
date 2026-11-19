@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { TranslateModule } from '@ngx-translate/core';
 import { SelectionControls } from './selection-controls';
 import { ConfigService } from '../../../core/config';
@@ -106,5 +107,62 @@ describe('SelectionControls AI actions', () => {
     expect(changed).not.toHaveBeenCalled();
     handle.click();
     expect(changed).toHaveBeenCalledWith(true);
+  });
+});
+
+describe('SelectionControls auto-collapse', () => {
+  function setup() {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [SelectionControls, TranslateModule.forRoot()],
+      providers: [
+        { provide: ConfigService, useValue: { isFeatureEnabled: () => true, isSelectionControlEnabled: () => true } },
+        { provide: DetailViewService, useValue: { isActionAllowed: () => true } },
+        { provide: UserService, useValue: { isLoggedIn: true } },
+        { provide: TtsService, useValue: { isReading: () => false } },
+      ],
+    });
+    const fixture = TestBed.createComponent(SelectionControls);
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  it('marks the pill and explains the collapse on the handle', () => {
+    const fixture = setup();
+    const announcer = TestBed.inject(LiveAnnouncer);
+    const announce = spyOn(announcer, 'announce').and.returnValue(Promise.resolve());
+
+    fixture.componentRef.setInput('collapsed', true);
+    fixture.componentRef.setInput('autoCollapsed', true);
+    fixture.detectChanges();
+
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('.selection-controls.auto-collapsed')).not.toBeNull();
+    expect(el.querySelectorAll('button').length).toBe(1);
+    expect(fixture.componentInstance.handleHint).toContain('selection-auto-collapsed--hint');
+    expect(announce).toHaveBeenCalledWith('selection-auto-collapsed--hint', 'polite');
+  });
+
+  it('expands on a handle click and drops the auto-collapse hint', () => {
+    const fixture = setup();
+    spyOn(TestBed.inject(LiveAnnouncer), 'announce').and.returnValue(Promise.resolve());
+    const c = fixture.componentInstance;
+    fixture.componentRef.setInput('collapsed', true);
+    fixture.componentRef.setInput('autoCollapsed', true);
+    fixture.detectChanges();
+    const changed = spyOn(c.collapsedChange, 'emit');
+
+    (fixture.nativeElement.querySelector('.drag-handle') as HTMLButtonElement).click();
+
+    expect(changed).toHaveBeenCalledWith(false);
+  });
+
+  it('shows no auto-collapse state for a reader-collapsed toolbar', () => {
+    const fixture = setup();
+    fixture.componentRef.setInput('collapsed', true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.auto-collapsed')).toBeNull();
+    expect(fixture.componentInstance.handleHint).toContain('selection-expand--arialabel');
   });
 });

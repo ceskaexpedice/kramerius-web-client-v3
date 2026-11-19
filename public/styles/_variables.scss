@@ -307,7 +307,7 @@
 
   --color-gray-500: #8099B3;
 
-  // CRD-1: zamerne stejna svetla hodnota jako v light rezimu - nahledy dokumentu
-  // maji byt na svetle plose i v dark, jinak vznikaji cerne letterbox pruhy.
-  --color-bg-thumbnail: #EFF2F5;
+  // CRD-1: letterbox pruhy kolem nahledu nesmi byt cerne, ale svetla #EFF2F5
+  // v dark rezimu prilis svitila - tlumena modroseda jako --color-bg-bright.
+  --color-bg-thumbnail: #263340;
 }

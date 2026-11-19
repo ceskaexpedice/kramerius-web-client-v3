@@ -86,10 +86,19 @@ export class TabsComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['initialTab'] && !changes['initialTab'].firstChange) {
-      if (this.tabs().length > 0 && this.initialTab) {
+      // Parents commonly mirror tabChanged back into [initialTab]; when the
+      // binding only names the tab that is already active, re-selecting it
+      // would emit tabChanged a second time (and the metadata dialog would
+      // fetch the same resource twice).
+      if (this.tabs().length > 0 && this.initialTab && !this.isActive(this.initialTab)) {
         this.selectTabByIdOrLabel(this.initialTab);
       }
     }
+  }
+
+  private isActive(identifier: string): boolean {
+    const active = this.tabs()[this.activeTabIndex()];
+    return !!active && (active.id === identifier || active.label === identifier);
   }
 
   selectTab(index: number): void {

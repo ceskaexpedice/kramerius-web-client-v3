@@ -2,7 +2,7 @@
   <div class="page-container__inner">
 
     <!-- Left Sidebar with filters -->
-    <app-filter-sidebar [isDisabled]="false">
+    <app-filter-sidebar [isDisabled]="false" [showApplyButton]="true">
       <app-monograph-filters></app-monograph-filters>
     </app-filter-sidebar>
 
@@ -43,21 +43,24 @@
                   <!-- Phones: actions collapse into the "more" menu (as on the
                        periodical page) so the title keeps its width, and Info
                        lives there instead of in a floating button. -->
-                  <app-toolbar-controls [mobileMenuMode]="breakpointService.isMobile()"
-                                        [showFavorites]="true"
-                                        [favoritesActive]="(parent()?.uuid ? (favoritesHelper.getFavoritedStatus(parent()!.uuid) | async) : false) ?? false"
-                                        [showShare]="true" [showQuote]="true" [showInfo]="breakpointService.isMobile()" [showSelect]="true"
-                                        (infoClicked)="openRecordInfo()"
-                                        (favoritesClicked)="onFavoritesClicked($event)"
-                                        (shareClicked)="recordHandler.openShareDialog(parent() || null)"
-                                        (quoteClicked)="recordHandler.openCitationDialog(parent() || null)"
-                                        (selectClicked)="adminModeService.toggle()">
-                  </app-toolbar-controls>
+                  <!-- Phones with the filter panel open: actions unrelated to filtering would confuse. -->
+                  @if (!breakpointService.mobileSidebarOpen()) {
+                    <app-toolbar-controls [mobileMenuMode]="breakpointService.isMobile()"
+                                          [showFavorites]="true"
+                                          [favoritesActive]="(parent()?.uuid ? (favoritesHelper.getFavoritedStatus(parent()!.uuid) | async) : false) ?? false"
+                                          [showShare]="true" [showQuote]="true" [showInfo]="breakpointService.isMobile()" [showSelect]="true"
+                                          (infoClicked)="openRecordInfo()"
+                                          (favoritesClicked)="onFavoritesClicked($event)"
+                                          (shareClicked)="recordHandler.openShareDialog(parent() || null)"
+                                          (quoteClicked)="recordHandler.openCitationDialog(parent() || null)"
+                                          (selectClicked)="adminModeService.toggle()">
+                    </app-toolbar-controls>
 
-                  <app-results-sort [selectedSort]="monographVolumesService.sortBy"
-                                    [selectedDirection]="monographVolumesService.sortDirection"
-                                    (sortChange)="onSortChange($event)">
-                  </app-results-sort>
+                    <app-results-sort [selectedSort]="monographVolumesService.sortBy"
+                                      [selectedDirection]="monographVolumesService.sortDirection"
+                                      (sortChange)="onSortChange($event)">
+                    </app-results-sort>
+                  }
                 </ng-container>
 
                 <app-admin-selection-count></app-admin-selection-count>
@@ -82,7 +85,22 @@
            paginator at the bottom; the metadata sidebar stays fixed beside it. -->
       <div class="content-with-sidebar">
 
-        <div class="page-content__wrapper" [appScrollHideHeader]="breakpointService.isMobile()">
+        <div class="page-content__wrapper" [appScrollHideHeader]="breakpointService.isMobile()"
+          [class.wrapper--no-top-padding]="selectedTags().length > 0">
+
+          <!-- Active search term / filters as removable chips (as on search results) -->
+          @if (selectedTags().length > 0) {
+            <div class="page-content__sticky-tags">
+              <app-selected-tags [items]="selectedTags()" [operators]="{}"
+                [showClearAll]="selectedTags().length > 1" [showOperators]="false"
+                [translateItems]="true" [textTransform]="'capitalize'"
+                (remove)="monographVolumesService.removeFilter($event)"
+                (removeGroup)="monographVolumesService.resetOperator($event)"
+                (clearAll)="monographVolumesService.clearAllFilters()"
+                clearButtonPosition="left">
+              </app-selected-tags>
+            </div>
+          }
 
           <!-- Error State -->
           @if (error() && !loading()) {

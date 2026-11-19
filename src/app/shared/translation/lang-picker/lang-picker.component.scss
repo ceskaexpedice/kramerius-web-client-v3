@@ -56,6 +56,10 @@
 
 .arrow-icon {
   transition: 0.2s;
+  // The cdk-icons chevron is drawn larger than the old Font Awesome
+  // angle-down at the same font-size (13x7 vs 10x6 px at 17.8px); scale it
+  // back to the previous size. em, so it still follows the text-scale setting.
+  font-size: 0.77em;
 }
 
 .arrow-icon--rotated {

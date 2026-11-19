@@ -23,7 +23,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { AdminActionsComponent } from '../../shared/components/admin-actions';
-import { PdfViewer } from '../../shared/components/pdf-viewer/pdf-viewer';
+import { PdfViewerLazyComponent } from '../../shared/components/pdf-viewer/pdf-viewer-lazy.component';
 import { PdfSidebarComponent } from '../../shared/components/pdf-sidebar/pdf-sidebar.component';
 import { DocumentSidebarComponent } from '../../shared/components/document-sidebar/document-sidebar.component';
 import { MetadataSidebarComponent } from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
@@ -91,7 +91,7 @@ const routes: Routes = [
 		DetailLayoutComponent,
 		TranslatePipe,
 		AdminActionsComponent,
-		PdfViewer,
+		PdfViewerLazyComponent,
 		PdfSidebarComponent,
 		DocumentSidebarComponent,
 		MetadataSidebarComponent,
