@@ -154,7 +154,7 @@ neomezuje. Podrobnosti viz
 ### Build image
 
 ```shell
-docker build -t trinera/cdk-client:3.0.38 .
+docker build -t trinera/cdk-client:3.0.39 .
 ```
 
 ### Build & push (multiplatformní) image na Docker Hub
@@ -162,7 +162,7 @@ docker build -t trinera/cdk-client:3.0.38 .
 ```shell
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t trinera/cdk-client:3.0.38 \
+  -t trinera/cdk-client:3.0.39 \
   --push .
 ```
 
@@ -170,7 +170,7 @@ docker buildx build \
 
 ```shell
 docker run -p 1234:80 \
-  trinera/cdk-client:3.0.38
+  trinera/cdk-client:3.0.39
 ```
 
 Otevřít v prohlížeči:
@@ -187,7 +187,7 @@ adresáře:
 docker run -p 1234:80 \
   -e APP_DEV_MODE=true \
   -v ./public/local-config:/usr/share/nginx/local-config:ro \
-  trinera/cdk-client:3.0.38
+  trinera/cdk-client:3.0.39
 ```
 
 ## Spuštění pomocí Docker Compose
@@ -197,7 +197,7 @@ Vytvořte soubor `docker-compose.yml`:
 ```yaml
 services:
   cdk-client:
-    image: trinera/cdk-client:3.0.38
+    image: trinera/cdk-client:3.0.39
     ports:
       - "1234:80"
     environment:
