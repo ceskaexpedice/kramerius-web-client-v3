@@ -92,13 +92,24 @@ export class BreakpointService {
 
   /**
    * True when the floating right metadata sidebar can no longer sit beside the
-   * content and floats over it instead. Mirrors the `(max-width: 1279px)` rule in
-   * the periodical, monograph-volumes and collections page styles and the overlay
-   * mode of detail-layout - keep them in sync. In this band an open sidebar hides grid columns or part of the page
-   * image, so it must start collapsed.
+   * content and floats over it instead. Mirrors the overlay mode of detail-layout.
+   * The periodical, monograph-volumes and collections pages float the panel only
+   * below 1052px (their grids reflow beside it); they still start it collapsed
+   * in this whole band.
    */
   rightSidebarOverlaysContent = toSignal(
     this.breakpointObserver.observe('(max-width: 1279px)').pipe(map(result => result.matches)),
+    { initialValue: false }
+  );
+
+  /**
+   * True when the right metadata panel of the grid pages (periodical,
+   * monograph-volumes, collections) floats over the grid. Mirrors their
+   * `(max-width: 1051px)` rule - keep in sync. Above it the panel sits beside
+   * the grid, so it can be resized.
+   */
+  gridSidebarOverlaysContent = toSignal(
+    this.breakpointObserver.observe('(max-width: 1051px)').pipe(map(result => result.matches)),
     { initialValue: false }
   );
 

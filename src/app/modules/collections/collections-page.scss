@@ -164,9 +164,10 @@
   @include mixins.floating-sidebar;
   position: relative;
 
-  // Below desktop (1280px) float over content instead of squeezing it —
-  // same breakpoint as the document detail panel (detail-layout).
-  @media (max-width: 1279px) {
+  // Small tablets: float over content instead of squeezing it. From 1052px the
+  // panel sits beside the content so the grid reflows to fewer columns rather
+  // than hiding items under the panel (D7).
+  @media (max-width: 1051px) {
     &,
     &--relative {
       position: absolute;

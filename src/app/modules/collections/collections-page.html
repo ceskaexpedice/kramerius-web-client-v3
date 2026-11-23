@@ -205,8 +205,8 @@
           role="complementary"
           [attr.aria-label]="'metadata-panel--label' | translate"
           [attr.inert]="rightSidebarVisible() ? null : ''"
-            (keydown.escape)="breakpointService.rightSidebarOverlaysContent() && rightSidebarVisible() && hideRightSidebar()">
-          @if (rightSidebarVisible() && sidebarPositionMode === 'relative' && !breakpointService.rightSidebarOverlaysContent()) {
+            (keydown.escape)="breakpointService.gridSidebarOverlaysContent() && rightSidebarVisible() && hideRightSidebar()">
+          @if (rightSidebarVisible() && sidebarPositionMode === 'relative' && !breakpointService.gridSidebarOverlaysContent()) {
             <app-panel-resize-handle [controls]="metadataPanelId"></app-panel-resize-handle>
           }
           <app-metadata-sidebar [metadata]="metadata" mode="floating"
