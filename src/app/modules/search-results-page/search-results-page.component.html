@@ -2,10 +2,9 @@
   <h1 class="visually-hidden">{{ 'results' | translate }}</h1>
   <div class="page-container__inner">
 
-    <!-- Phones: lift the filter button 12px above the 60px bottom nav bar; when
-         the bar scrolls away the button follows it down to the default 12px. -->
+    <!-- Phones open the filters from the results toolbar, not a floating button. -->
     <app-filter-sidebar [isDisabled]="adminModeService.adminMode()" [dimmed]="(noResults$ | async) ?? false"
-      [toggleButtonBottomOffset]="breakpointService.isMobile() && !mobileNavHidden() ? 72 : 0"
+      [hideToggleButton]="breakpointService.isMobile()"
       [showApplyButton]="true"
       [resultCount]="view() === ViewOptions.map ? ((mapSearchService.totalCount$ | async) ?? null) : searchService.totalCount">
       <app-search-filters></app-search-filters>
@@ -80,7 +79,14 @@
                 <!-- Phones with the filter panel open: only the result count stays,
                      actions unrelated to filtering would confuse. -->
                 @if (!breakpointService.mobileSidebarOpen()) {
-                  <app-toggle-button-group *ngIf="view() !== ViewOptions.map" [options]="viewOptions" [value]="view()" [size]="'md'" (valueChange)="setView($event)" />
+                  <!-- Phones: the Results/Maps switch joins the grid/list toggle
+                       (no bottom nav bar, which kept sliding in and out). -->
+                  @if (breakpointService.isMobile()) {
+                    <app-toggle-button-group [options]="mobileViewOptions" [value]="view()" [size]="'md'"
+                      groupAriaLabel="results-view--label" (valueChange)="setView($event)" />
+                  } @else if (view() !== ViewOptions.map) {
+                    <app-toggle-button-group [options]="viewOptions" [value]="view()" [size]="'md'" (valueChange)="setView($event)" />
+                  }
 
                   <div class="toolbar-controls-wrapper flex flex--align-center flex--gap-x2">
                     <app-toolbar-controls [showViewToggle]="false" [showFavorites]="false" [showShare]="false"
@@ -95,6 +101,18 @@
                     [selectedSort]="searchService.sortBy"
                     [selectedDirection]="searchService.sortDirection" (sortChange)="onSortChange($event)">
                   </app-results-sort>
+                }
+
+                <!-- Phones: opens the filter panel. Only hidden while the panel is
+                     open (its own close button takes this spot), so it stays in
+                     the DOM and gets focus back on close. -->
+                @if (breakpointService.isMobile()) {
+                  <button type="button" class="icon-button outlined tertiary"
+                    [class.filters-toggle--hidden]="breakpointService.mobileSidebarOpen()"
+                    [attr.aria-label]="'open-filters' | translate"
+                    (click)="breakpointService.toggleSidebar()">
+                    <i class="icon-filter" aria-hidden="true"></i>
+                  </button>
                 }
               </ng-container>
 
@@ -130,14 +148,3 @@
   </div>
 
 </div>
-
-<!-- Mobile navigation bar -->
-@if (breakpointService.isMobile()) {
-  <app-mobile-nav-bar
-    [class.mobile-nav-bar--hidden]="mobileNavHidden()"
-    [attr.inert]="mobileNavHidden() ? '' : null"
-    [items]="mobileNavItems"
-    [activeId]="mobileActiveTab"
-    (activeIdChange)="onMobileNavChange($event)">
-  </app-mobile-nav-bar>
-}

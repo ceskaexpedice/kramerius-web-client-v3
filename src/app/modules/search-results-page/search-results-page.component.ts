@@ -1,6 +1,5 @@
-import { Component, computed, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FixedPanelService } from '../../shared/components/fixed-panel/fixed-panel.service';
 import { SearchService } from '../../shared/services/search.service';
 import { AdvancedSearchService } from '../../shared/services/advanced-search.service';
 import { AppResultsViewType } from '../settings/settings.model';
@@ -15,8 +14,6 @@ import { isMapTab } from './const/map-utils';
 import { ScrollPositionService } from '../../shared/services/scroll-position.service';
 import { BreakpointService } from '../../shared/services/breakpoint.service';
 import { ExportService } from '../../shared/services/export.service';
-import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
-import { UiStateService } from '../../shared/services/ui-state.service';
 
 @Component({
   selector: 'app-search-results-page',
@@ -29,6 +26,12 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   viewOptions = [
     { value: AppResultsViewType.grid, icon: 'icon-row-horizontal', ariaLabel: 'view-grid--arialabel' },
     { value: AppResultsViewType.list, icon: 'icon-table', ariaLabel: 'view-list--arialabel' },
+  ];
+
+  /** Phones: grid / list / map in one switch, in place of the bottom nav bar. */
+  mobileViewOptions = [
+    ...this.viewOptions,
+    { value: AppResultsViewType.map, icon: 'icon-location', ariaLabel: 'tab-maps' },
   ];
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
@@ -47,36 +50,10 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   private scrollPositionService = inject(ScrollPositionService);
   private exportService = inject(ExportService);
   public breakpointService = inject(BreakpointService);
-  private uiState = inject(UiStateService);
-  private fixedPanel = inject(FixedPanelService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
   private subscriptions: Subscription[] = [];
-
-  // Mobile nav bar
-  mobileNavItems: MobileNavItem[] = [
-    // "Results", not "All": the scope tabs above the list already start with
-    // an "All" option, and two different "All"s on one screen read as one.
-    { id: 'all', label: 'results', icon: 'icon-element-3' },
-    { id: 'map', label: 'tab-maps', icon: 'icon-location' },
-  ];
-
-  // The bottom bar follows the app header: scrolling the list down hides both
-  // (see appScrollHideHeader on the results wrapper), scrolling up restores them.
-  mobileNavHidden = computed(() => this.breakpointService.isMobile() && (!this.uiState.headerVisible() || this.fixedPanel.anyOpen()));
-
-  get mobileActiveTab(): string {
-    return this.view() === AppResultsViewType.map ? 'map' : 'all';
-  }
-
-  onMobileNavChange(id: string): void {
-    if (id === 'filters') {
-      this.breakpointService.manualToggle.set(true);
-    } else {
-      this.onTabChanged(id);
-    }
-  }
 
   ngOnInit(): void {
 
