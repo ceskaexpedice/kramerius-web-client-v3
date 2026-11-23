@@ -313,6 +313,19 @@ export class CustomSearchService {
     });
   }
 
+  /**
+   * Drops the facet's filters from local state without navigating, so the caller
+   * can fold the change into its own navigation. Returns the new `customSearch`
+   * param value (null = remove), or undefined when nothing was selected.
+   */
+  dropFacetFilters(facetKey: string): string | null | undefined {
+    const current = this._appliedFilters();
+    const updated = current.filter(k => !k.startsWith(facetKey + ':'));
+    if (updated.length === current.length) return undefined;
+    this._appliedFilters.set(updated);
+    return updated.length > 0 ? updated.join(',') : null;
+  }
+
   setSingleFilterForFacet(facetKey: string, value: string, extraParams: Record<string, any> = {}): void {
     const updated = [
       ...this._appliedFilters().filter(k => !k.startsWith(facetKey + ':')),

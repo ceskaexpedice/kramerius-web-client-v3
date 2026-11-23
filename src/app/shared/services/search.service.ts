@@ -24,7 +24,7 @@ import { SolrOperators, SolrSortFields } from '../../core/solr/solr-helpers';
 import { SolrService } from '../../core/solr/solr.service';
 import { AdvancedSearchService } from './advanced-search.service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { facetKeysEnum, mapFacetsToSearchFields, mapOperatorsToSearchFields } from '../../modules/search-results-page/const/facets';
+import { customDefinedFacetsEnum, facetKeysEnum, mapFacetsToSearchFields, mapOperatorsToSearchFields } from '../../modules/search-results-page/const/facets';
 import { BaseFilterService } from './base-filter.service';
 import { LibraryContextService } from './library-context.service';
 import { isMapTab } from '../../modules/search-results-page/const/map-utils';
@@ -334,6 +334,22 @@ export class SearchService extends BaseFilterService {
     ).subscribe(params => {
       if (this.isOnSearchResultsRoute()) {
         this.customSearchService.initializeFromRoute();
+
+        // The map tab has no "where to search" toggle, so a page/article choice
+        // (e.g. from a shared link) would act as a hidden filter. Drop it; the
+        // rewritten URL re-enters this subscription.
+        if (isMapTab(params)) {
+          const customSearch = this.customSearchService.dropFacetFilters(customDefinedFacetsEnum.whereToSearchModel);
+          if (customSearch !== undefined) {
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { customSearch },
+              queryParamsHandling: 'merge',
+              replaceUrl: true,
+            });
+            return;
+          }
+        }
 
         this.advancedSearchService.resetFromParams(params);
 

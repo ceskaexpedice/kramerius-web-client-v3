@@ -14,6 +14,8 @@ import { isMapTab } from './const/map-utils';
 import { ScrollPositionService } from '../../shared/services/scroll-position.service';
 import { BreakpointService } from '../../shared/services/breakpoint.service';
 import { ExportService } from '../../shared/services/export.service';
+import { CustomSearchService } from '../../shared/services/custom-search.service';
+import { customDefinedFacetsEnum } from './const/facets';
 
 @Component({
   selector: 'app-search-results-page',
@@ -49,6 +51,7 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   public adminModeService = inject(AdminModeService);
   private scrollPositionService = inject(ScrollPositionService);
   private exportService = inject(ExportService);
+  private customSearchService = inject(CustomSearchService);
   public breakpointService = inject(BreakpointService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -221,9 +224,12 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
     if (view === AppResultsViewType.map) {
       // Map tab: set tab=map; default to score sort; remove viewType; coords written by MapBrowseComponent
       this.searchService.changeSortBy(SolrSortFields.relevance, SolrSortDirections.desc);
+      // The map tab has no "where to search" toggle, so a choice like "Samostatné
+      // strany" would linger as a hidden page filter. Drop it in the same navigation.
+      const customSearch = this.customSearchService.dropFacetFilters(customDefinedFacetsEnum.whereToSearchModel);
       this.router.navigate([], {
         relativeTo: this.route,
-        queryParams: { tab: 'map', viewType: null },
+        queryParams: { tab: 'map', viewType: null, ...(customSearch !== undefined ? { customSearch } : {}) },
         queryParamsHandling: 'merge',
         replaceUrl: true
       });
