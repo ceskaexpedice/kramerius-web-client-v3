@@ -59,13 +59,18 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
 
     this.searchService.initialize();
 
+    // Reactive on the unified total and the page-hits request: pages load in a
+    // follow-up request after titles, so a query matching only pages (fulltext)
+    // must not leave the sidebar dimmed once those page hits arrive.
     this.noResults$ = combineLatest([
       this.searchService.loading$,
+      this.searchService.pageResultsLoading$,
+      this.searchService.totalCount$,
       this.searchService.selectedTags
     ]).pipe(
-      map(([loading, tags]) => {
+      map(([loading, pagesLoading, totalCount, tags]) => {
         if (this.view() === AppResultsViewType.map) return false;
-        if (loading || this.searchService.totalCount > 0) return false;
+        if (loading || pagesLoading || totalCount > 0) return false;
         // Only dim sidebar when there are no active facet filters
         // (i.e. the only tags are the search query itself)
         const hasActiveFilters = tags.some(t => !t.startsWith('search:'));

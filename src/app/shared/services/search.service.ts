@@ -12,6 +12,7 @@ import {
   selectFacetsLoading,
   selectNonPageSearchResults,
   selectPageSearchResults,
+  selectPageSearchResultsLoading,
   selectSearchResults,
   selectSearchResultsLoading,
   selectSearchResultsTotalCount,
@@ -66,6 +67,7 @@ export class SearchService extends BaseFilterService {
   pageResults$: Observable<SearchDocument[]>;
   attachmentResults$: Observable<SearchDocument[]>;
   loading$: Observable<boolean>;
+  pageResultsLoading$: Observable<boolean>;
   override facetsLoading$: Observable<boolean>;
   totalCount$: Observable<number>;
   activeFilters$: Observable<string[]>;
@@ -158,6 +160,7 @@ export class SearchService extends BaseFilterService {
     this.pageResults$ = this.store.select(selectPageSearchResults);
     this.attachmentResults$ = this.store.select(selectAttachmentSearchResults);
     this.loading$ = this.store.select(selectSearchResultsLoading);
+    this.pageResultsLoading$ = this.store.select(selectPageSearchResultsLoading);
     this.facetsLoading$ = this.store.select(selectFacetsLoading);
 
     this.totalCount$ = this.store.select(selectUnifiedTotalCount);
@@ -282,9 +285,13 @@ export class SearchService extends BaseFilterService {
     //this.initialize();
     // A fresh query always opens the All tab — explicitly clear tab + map coords
     // so a submit from the home hero or header search drops any prior map state.
+    // It also drops the advanced query: a new search starts fresh instead of
+    // staying silently scoped by the previous advanced search.
     this.router.navigate(this.libraryContext.prependLibraryPrefix([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`]), {
       queryParams: {
         query,
+        advSearch: null,
+        advOp: null,
         page: this._page(),
         pageSize: this._pageSize(),
         sortBy: this._sortBy(),
