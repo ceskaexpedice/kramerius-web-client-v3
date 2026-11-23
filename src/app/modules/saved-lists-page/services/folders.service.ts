@@ -267,21 +267,18 @@ export class FoldersService {
   }
 
   /**
-   * Sorts folders to put the favorites folder first, then rest in original order
+   * Sorts folders to put the favorites folder(s) first, then rest in original
+   * order. Duplicate favorites folders (created by older builds) are all kept,
+   * so the user can see and delete them.
    */
   sortFoldersWithFavoritesFirst(folders: Folder[]): Folder[] {
     if (!folders || folders.length === 0) {
       return folders;
     }
 
-    const favoritesFolder = folders.find(folder => this.isFavoritesFolder(folder));
-
-    if (!favoritesFolder) {
-      return folders;
-    }
-
+    const favoritesFolders = folders.filter(folder => this.isFavoritesFolder(folder));
     const otherFolders = folders.filter(folder => !this.isFavoritesFolder(folder));
 
-    return [favoritesFolder, ...otherFolders];
+    return [...favoritesFolders, ...otherFolders];
   }
 }

@@ -3,7 +3,7 @@ import {Store} from '@ngrx/store';
 import {AsyncPipe} from '@angular/common';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {InputComponent} from '../input/input.component';
-import {Folder, selectUserOwnedFolders} from '../../../modules/saved-lists-page/state';
+import {Folder, selectFoldersLoading, selectUserOwnedFolders} from '../../../modules/saved-lists-page/state';
 import * as FoldersActions from '../../../modules/saved-lists-page/state/folders.actions';
 import {combineLatest, map, startWith, takeUntil, Subject, of, Observable, filter, take} from 'rxjs';
 import {toObservable} from '@angular/core/rxjs-interop';
@@ -259,11 +259,10 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
       this.selectedFolderIds.set(selected);
     }
 
-    // Determine which folder to pre-check based on priority:
-    // 1. Current folder (if specified)
-    // 2. Folders that already contain this item
-    // 3. Last used folder (if valid)
-    // 4. Fake favorites folder (fallback)
+    // Pre-check only folders that really contain the item (plus the current
+    // folder above). The last used folder is never pre-checked, only sorted to
+    // the top: a pre-checked folder the item isn't in got the item added on a
+    // plain "Done" click.
 
     // Only proceed if itemId is defined
     if (!this.itemId) {
@@ -284,35 +283,12 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
         folderIds.forEach(folderId => selected.add(folderId));
         this.selectedFolderIds.set(selected);
       } else if (!this.currentFolderId) {
-        // Item is not in any folder and no current folder specified
-        // Check for last used folder or fallback to fake favorites
+        // Item is not in any folder: sort the last used folder to the top.
         this.allFolders$.pipe(
           takeUntil(this.destroy$)
         ).subscribe(folders => {
-          const allFolderIds = folders.map(f => f.uuid);
-          const lastUsedFolderId = this.validateAndGetLastUsedFolder(allFolderIds);
-
-          const newSelected = new Set(this.selectedFolderIds());
-
-          if (lastUsedFolderId) {
-            // Pre-check last used folder and set it as the last used for sorting
-            newSelected.add(lastUsedFolderId);
-            this.lastUsedFolderId.set(lastUsedFolderId);
-          } else if (this._hasFavoritesFolder) {
-            // Fallback: pre-check real favorites folder (any language)
-            const favoriteFolder = folders.find(f => this.foldersService.isFavoritesFolder(f));
-            if (favoriteFolder) {
-              newSelected.add(favoriteFolder.uuid);
-            }
-          } else {
-            // Fallback: pre-check fake favorites folder
-            const fakeFavoriteFolder = folders.find(f => f.uuid === this.FAKE_FAVORITES_UUID);
-            if (fakeFavoriteFolder) {
-              newSelected.add(this.FAKE_FAVORITES_UUID);
-            }
-          }
-
-          this.selectedFolderIds.set(newSelected);
+          const lastUsedFolderId = this.validateAndGetLastUsedFolder(folders.map(f => f.uuid));
+          this.lastUsedFolderId.set(lastUsedFolderId);
         });
       }
     });
@@ -429,18 +405,16 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   }
 
   hasChanges(): boolean {
-    // Has changes if:
-    // 1. User has selected lists, OR
-    // 2. User has entered a new list name, OR
-    // 3. User has unchecked folders that originally contained the item
+    // Has changes if the user checked a folder the item isn't in yet, entered a
+    // new list name, or unchecked a folder that already contains the item.
     const selectedIds = this.selectedFolderIds();
     const originalFolderIds = this.foldersContainingItem();
     const newListName = this.newListName().trim();
 
-    // Check if any original folders were unchecked (removal)
+    const hasAdditions = Array.from(selectedIds).some(folderId => !originalFolderIds.includes(folderId));
     const hasRemovals = originalFolderIds.some(folderId => !selectedIds.has(folderId));
 
-    return selectedIds.size > 0 || newListName.length > 0 || hasRemovals;
+    return hasAdditions || newListName.length > 0 || hasRemovals;
   }
 
   onCancel() {
@@ -491,8 +465,11 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     const selectedIds = Array.from(this.selectedFolderIds());
     const originalFolderIds = this.foldersContainingItem();
 
-    // Store the first selected folder as last used (excluding fake favorites)
-    const realSelectedIds = selectedIds.filter(id => id !== this.FAKE_FAVORITES_UUID);
+    // Only folders the item isn't in yet get an add request (excluding fake
+    // favorites, which is created below). The first of them becomes last used.
+    const realSelectedIds = selectedIds.filter(id =>
+      id !== this.FAKE_FAVORITES_UUID && !originalFolderIds.includes(id)
+    );
     if (realSelectedIds.length > 0) {
       this.setLastUsedFolder(realSelectedIds[0]);
     }
@@ -517,12 +494,34 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
     }
 
     if (isFakeFavoritesSelected) {
-      // Set flag to create real favorites folder and add item to it
-      this.setShouldCreateRealFavoritesFolder(true);
-      this.store.dispatch(FoldersActions.createFolder({
-        folder: { name: this.foldersService.getFavoritesFolderName() },
-        suppressToast: true
-      }));
+      // The fake entry may have been shown before the folder list finished
+      // loading. Wait for it and re-check, so an existing favorites folder (in
+      // any language) gets the item instead of a duplicate being created.
+      combineLatest([
+        this.store.select(selectFoldersLoading),
+        this.ownedFolders$
+      ]).pipe(
+        filter(([loading]) => !loading),
+        take(1)
+      ).subscribe(([, ownedFolders]) => {
+        const existingFavorites = ownedFolders.find(f => this.foldersService.isFavoritesFolder(f));
+        if (existingFavorites) {
+          this.store.dispatch(FoldersActions.updateFolderItems({
+            request: {
+              uuid: existingFavorites.uuid,
+              items: [this.itemId]
+            },
+            suppressToast: true
+          }));
+          return;
+        }
+        // Set flag to create real favorites folder and add item to it
+        this.setShouldCreateRealFavoritesFolder(true);
+        this.store.dispatch(FoldersActions.createFolder({
+          folder: { name: this.foldersService.getFavoritesFolderName() },
+          suppressToast: true
+        }));
+      });
     }
 
     // Add item to selected existing lists (excluding fake folder)
