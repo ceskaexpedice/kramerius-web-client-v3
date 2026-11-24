@@ -105,7 +105,6 @@ export class IIIFViewerService {
   private drawStartPoint: OpenSeadragon.Point | null = null;
   private selectionOverlay: HTMLElement | null = null;
   private mouseTracker: OpenSeadragon.MouseTracker | null = null;
-  private rectangleCounter: number = 0;
   private dimElement: HTMLElement | null = null;
   private dimSelectionRect: OpenSeadragon.Rect | null = null;
   private dimUpdateHandler: (() => void) | null = null;
@@ -130,8 +129,6 @@ export class IIIFViewerService {
    */
   private lockedViewApplied = false;
   private scrollLockHandler: ((event: any) => void) | null = null;
-
-  private testFallbackMode = false;
 
   /**
    * Height in px of the fallback notice the viewer shows above the page (0 when
@@ -366,20 +363,9 @@ export class IIIFViewerService {
 
   // Get IIIF info.json URL
   getIIIFInfoUrl(pid: string): string {
-    // If testing fallback, return invalid URL to trigger error
-    if (this.testFallbackMode) {
-      console.warn('TEST_FALLBACK is enabled - returning invalid URL to test error handling');
-      return `https://invalid-url.example.com/fake-${pid}-info.json`;
-    }
     const code = this.cdkSource.getCode();
     const prefix = code ? `/${code}` : '';
     return `${this.API_URL}/search/iiif${prefix}/${pid}/info.json`;
-  }
-
-  // Enable/disable test fallback mode
-  setTestFallbackMode(enabled: boolean): void {
-    this.testFallbackMode = enabled;
-    console.log(`Test fallback mode ${enabled ? 'ENABLED' : 'DISABLED'}`);
   }
 
   // Get direct image URL (fallback when IIIF fails)
@@ -452,7 +438,6 @@ export class IIIFViewerService {
 
           const fullyLoaded = tiledImage.getFullyLoaded();
           if (fullyLoaded) {
-            console.log('Image fully loaded and ready');
             this.imageLoadedSubject.next();
           }
         }
@@ -473,7 +458,6 @@ export class IIIFViewerService {
         if (tiledImage) {
           const fullyLoaded = tiledImage.getFullyLoaded();
           if (fullyLoaded) {
-            console.log('Viewport updated, image ready');
             this.imageLoadedSubject.next();
           }
         }
@@ -483,7 +467,6 @@ export class IIIFViewerService {
 
     // Listen for the open event (when a new image starts loading)
     this.viewer.addHandler('open', () => {
-      console.log('New image opened in viewer');
       // Clear any pending timeouts when a new image opens
       if (imageLoadTimeout) {
         clearTimeout(imageLoadTimeout);
@@ -539,7 +522,6 @@ export class IIIFViewerService {
     this.isDraggingSubject.next(false);
 
     // Clear all overlays and counters
-    this.rectangleCounter = 0;
     this.removeDimElement();
     this.rectangles.clear();
 
@@ -671,17 +653,10 @@ export class IIIFViewerService {
 
     this.viewer.addOverlay(overlay, rect);
     this.rectangles.set(overlay, rect);
-    console.log(`Rectangle ${++this.rectangleCounter} added at x:${x}, y:${y}, width:${width}, height:${height}`);
   }
 
   // Handle rectangle click
   private onRectangleClick(rect: OpenSeadragon.Rect, overlay: HTMLElement): void {
-    console.log('Rectangle clicked:', {
-      x: rect.x,
-      y: rect.y,
-      width: rect.width,
-      height: rect.height
-    });
 
     // Visual feedback
     const originalBorder = overlay.style.border;
@@ -886,7 +861,6 @@ export class IIIFViewerService {
         event.preventDefaultAction = true;
       },
       dragHandler: (event: any) => {
-        // console.log('MouseTracker: drag');
         if (!this.drawStartPoint) return;
 
         const currentPoint = this.viewer!.viewport.viewerElementToViewportCoordinates(this.toContainerPx(event.position));
@@ -1161,7 +1135,6 @@ export class IIIFViewerService {
       console.warn('Failed to clear overlays, viewer not fully initialized:', e);
     }
     this.rectangles.clear();
-    this.rectangleCounter = 0;
   }
 
   // Remove specific rectangle
@@ -1277,8 +1250,6 @@ export class IIIFViewerService {
       //this.clearSearchState();
       return 0;
     }
-
-    console.log(`Found ${boxes.length} matches for "${searchTerm}"`);
 
     // Calculate scale factors
     const scaleX = imageWidth / altoDims.width;
@@ -1550,7 +1521,6 @@ export class IIIFViewerService {
       } else {
         // Single page mode
         const pageUrl = this.getIIIFInfoUrl(currentPagePid);
-        console.log(`Opening single page: ${currentPagePid}`);
         this.viewer.open({ tileSource: pageUrl });
       }
     } catch (error) {

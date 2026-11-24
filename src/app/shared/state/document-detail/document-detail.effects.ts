@@ -131,7 +131,6 @@ export class DocumentDetailEffects {
         const isConvolute = detailItem?.model === DocumentTypeEnum.convolute;
 
         if ((isMonograph && hasMonographUnits) || isConvolute) {
-          console.log('Detected multi-volume monograph, redirecting to /monograph/' + uuid);
           // Carry ?fulltext through the redirect so an in-document search term
           // (e.g. from the saved-lists page) survives, matching the periodical
           // flow which keeps it because no redirect happens there. Other params
@@ -151,7 +150,6 @@ export class DocumentDetailEffects {
         const isArticle = detailItem?.model === DocumentTypeEnum.article;
         const parentPid = detailItem?.['own_parent.pid'];
         if (isArticle && parentPid && parentPid !== uuid) {
-          console.log('Article route doc detected, redirecting to parent issue:', parentPid);
           const currentTree = this.router.parseUrl(this.router.url);
           const queryParams = { ...currentTree.queryParams, article: uuid };
           this.router.navigate(
@@ -161,8 +159,6 @@ export class DocumentDetailEffects {
         }
       }),
       switchMap(({ detailItem, children, currentMods, rootMods }) => {
-        console.log('detailItem', detailItem);
-        console.log('children', children);
         if (!detailItem) {
           throw new Error('Document detail item is null');
         }
@@ -196,7 +192,6 @@ export class DocumentDetailEffects {
         return of(successAction);
       }),
       catchError(error => {
-        console.log('Error loading document detail:', error);
         return of(DocumentDetailActions.loadDocumentDetailFailure({ error }));
       })
     );
@@ -251,7 +246,6 @@ export class DocumentDetailEffects {
         ).pipe(
           map(pages => DocumentDetailActions.reloadPagesForCdkCollectionSuccess({ pages })),
           catchError(error => {
-            console.log('Error reloading pages for CDK collection:', error);
             return of(DocumentDetailActions.reloadPagesForCdkCollectionSuccess({ pages: [] }));
           })
         )
@@ -268,7 +262,6 @@ export class DocumentDetailEffects {
             return DocumentDetailActions.loadArticleDetailSuccess({ articleDetail });
           }),
           catchError(error => {
-            console.log('Error loading article detail:', error);
             return of(DocumentDetailActions.loadArticleDetailFailure({ error }));
           })
         );

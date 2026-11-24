@@ -202,7 +202,6 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
   }
 
   onToggleFacet(fullValue: string): void {
-    console.log(fullValue);
     // fullValue is expected to be in the format 'facetKey:facetValue'
     // we need to check if facetKey is in customDefinedFacets, if so, we need to toggle the filter using the customSearchService
     const [facetKey, facetValue] = fullValue.split(':');

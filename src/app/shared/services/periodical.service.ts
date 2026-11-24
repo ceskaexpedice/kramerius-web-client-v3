@@ -114,7 +114,6 @@ export class PeriodicalService extends BaseFilterService {
     private recordHandler: RecordHandlerService,
   ) {
     super();
-    console.log('PeriodicalService initialized');
 
     this.load();
 
@@ -218,7 +217,6 @@ export class PeriodicalService extends BaseFilterService {
 
       const previousUuid = this.uuid;
       this.uuid = foundUuid;
-      console.log('URL changed. UUID:', this.uuid, 'QueryParams:', queryParams);
 
       if (this.uuid && this.uuid !== 'undefined' && currentRoute.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)) {
         // Opening a different periodical that carries no query: clear any stale search
@@ -243,7 +241,6 @@ export class PeriodicalService extends BaseFilterService {
       filter(Boolean),
       takeUntil(this.destroy$)
     ).subscribe(doc => {
-      console.log('document loaded:', doc);
       // Only handle document if we're not in search results mode to prevent conflicts
       const queryParams = this.route.snapshot.queryParams;
       const hasSearchQuery = queryParams && queryParams['query'] && queryParams['query'].length > 0;
@@ -258,8 +255,6 @@ export class PeriodicalService extends BaseFilterService {
 
 
   private dispatchPeriodicalSearch(params: any): void {
-
-    console.log('uuid:', this.uuid);
 
     if (!this.uuid || this.uuid === 'undefined') return;
 
@@ -307,8 +302,6 @@ export class PeriodicalService extends BaseFilterService {
       this.goToPage(page);
     }
 
-    console.log('baseFilters:', baseFilters);
-
     const pageSize = Number(params && params['pageSize']) || this._pageSize();
     const sortBy = params && params['sortBy'] || this._sortBy();
     const sortDirection = params && params['sortDirection'] || this._sortDirection();
@@ -323,8 +316,6 @@ export class PeriodicalService extends BaseFilterService {
 
     let filters: string[];
 
-    console.log('customFilters:', customFilters);
-
     filters = [...baseFilters, ...customFilters];
 
     // Date filter uses interval overlap on date.min/date.max so it matches both
@@ -338,9 +329,6 @@ export class PeriodicalService extends BaseFilterService {
       this.store.dispatch(loadPeriodical({ uuid: this.uuid, filters: filters, advancedQuery: finalAdvancedQuery, page: (page - 1) * pageSize, pageCount: pageSize, sortBy, sortDirection, cdkCollection }));
       return;
     }
-
-    console.log('query periodical:', query);
-    console.log('advanced query:', finalAdvancedQuery);
 
     // The search effect only loads results + facets, not the root periodical
     // document/metadata. On a fresh reload with a query in the URL the store is
@@ -391,7 +379,6 @@ export class PeriodicalService extends BaseFilterService {
   }
 
   getSuggestionsFn = (term: string): Observable<string[]> => {
-    console.log('[PeriodicalService] getting suggestions for:', term);
     return this.solrService.getAutocompleteSuggestions(term);
   }
 
@@ -665,7 +652,6 @@ export class PeriodicalService extends BaseFilterService {
 
   private navigateToRelativeYear(offset: number): void {
     if (!this.selectedYear() || this.availableYears.length === 0) {
-      console.log('Early return: no selected year or no available years');
       return;
     }
 
@@ -673,8 +659,6 @@ export class PeriodicalService extends BaseFilterService {
     const target = this.availableYears[currentIndex + offset];
     if (target) {
       this.selectYear(target.year);
-    } else {
-      console.log('No target found for offset:', offset);
     }
   }
 
@@ -817,7 +801,6 @@ export class PeriodicalService extends BaseFilterService {
   private fetchMonthIssuesFromAPI(year: string, month: number): Observable<any[]> {
     // TODO: Replace with actual API call
     // For now, return empty array to maintain functionality
-    console.log(`Skeleton: Would fetch issues for ${year}-${month}`);
     return of([]);
   }
 

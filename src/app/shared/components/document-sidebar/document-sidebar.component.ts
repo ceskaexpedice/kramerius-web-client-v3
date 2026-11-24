@@ -172,7 +172,6 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
    * Handles when a user selects a suggestion from the autocomplete
    */
   onSuggestionSelected(suggestion: string): void {
-    console.log('onSuggestionSelected', suggestion);
     if (!this.document?.uuid) {
       return;
     }

@@ -274,7 +274,6 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   }
 
   onEditSelected(selectedIds: string[]): void {
-    console.log('Edit selected items:', selectedIds);
     // TODO: Implement edit functionality specific to search results
   }
 

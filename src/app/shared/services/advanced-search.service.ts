@@ -101,8 +101,6 @@ export class AdvancedSearchService {
     const updatedFq = this.getFilters();
     const updatedOperators = this.getOperators();
 
-    console.log('advancedQuery:', advancedQuery);
-
     const queryParams: any = {
       advSearch: advancedQuery || null,
       advOp: mainOperator,
@@ -122,7 +120,6 @@ export class AdvancedSearchService {
   }
 
   setAppliedGroups(groups: FilterGroup[]) {
-    console.log('applied groups set:', groups);
     this.appliedGroupsSignal.set(groups);
   }
 
@@ -510,7 +507,6 @@ export class AdvancedSearchService {
       const filters: AdvancedFilterDefinition[] = [];
 
       for (let part of parts) {
-        console.log('Processing part:', part);
         // check if first character is "-", if so set isEquals to false
         let isEquals = true;
         if (part.startsWith('-')) {
@@ -528,7 +524,6 @@ export class AdvancedSearchService {
         if (!match) continue;
 
         const solrField = match[1];
-        console.log('solrField:', solrField);
         let rawValue = match[2].trim();
         let value = rawValue;
 

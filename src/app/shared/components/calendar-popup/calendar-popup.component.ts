@@ -563,7 +563,6 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
 
     // Handle preselected date changes (only if year didn't change)
     if (changes['preselectedDate'] && this.preselectedDate) {
-      console.log('Preselected date changed:', this.preselectedDate);
       this.updateCalendarToPreselectedDate();
     }
   }
@@ -571,7 +570,6 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
   private updateCurrentDate(): void {
     const date = new Date(this.currentYear(), this.currentMonth(), 1);
     this.currentDate.set(date);
-    console.log(`Updated current date to: ${formatLocalDateKey(date)}`);
   }
 
   private updateCalendarToPreselectedDate(): void {
@@ -831,7 +829,6 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
         // used to clear the loading flag, and the second one was then ignored -
         // half the year stayed missing until the calendar was reopened.
         if (state?.monthIssues) {
-          console.log('Reactive data loading triggered');
           this.updateCurrentMonthFromStore();
         }
       });
@@ -888,7 +885,6 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
     const currentData = Array.from(byPid.values());
 
     // Always clear loading state when data arrives, even if empty
-    console.log(`Found ${currentData.length} issues in store for ${year}-${month}, updating calendar`);
 
     if (currentData.length > 0) {
       this.currentMonthIssues.set(currentData);
@@ -942,11 +938,8 @@ export class CalendarPopupComponent implements OnInit, OnChanges, OnDestroy, Aft
 
         const monthIssues = uuids.flatMap(uuid => state?.monthIssues[monthCacheKey(uuid, year, month)] ?? []);
 
-        console.log(`Month ${year}-${month}: volumes=${uuids.length}, pending=${pending.length}, issues=${monthIssues.length}`);
-
         if (pending.length > 0) {
           // Not cached and not loading - dispatch a request per missing volume.
-          console.log(`Dispatching loadMonthIssues for ${year}-${month}`);
           for (const uuid of pending) {
             this.store.dispatch(loadMonthIssues({
               parentVolumeUuid: uuid,

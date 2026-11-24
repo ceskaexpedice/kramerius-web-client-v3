@@ -297,7 +297,6 @@ export class ConfigService {
     this.config$.next(config);
     this.envService.applyAppConfig(config.api?.baseUrl ?? null, switchEnabled, code);
     this.loaded = true;
-    console.log(`ConfigService: Configuration loaded for library '${code}'.`);
   }
 
   /** Neutral config (no CDK branding) used when no config could be loaded. */

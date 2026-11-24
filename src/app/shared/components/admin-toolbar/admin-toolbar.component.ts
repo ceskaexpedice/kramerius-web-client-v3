@@ -70,9 +70,6 @@ export class AdminToolbarComponent implements OnInit, OnDestroy {
       format: ExportFormat.JSON,
       includeMetadata: true
     }).subscribe({
-      next: () => {
-        console.log(`Successfully exported ${selectedIds.length} items`);
-      },
       error: (error) => {
         console.error('Export failed:', error);
       }
@@ -81,11 +78,9 @@ export class AdminToolbarComponent implements OnInit, OnDestroy {
 
   onDeleteSelected(): void {
     const selectedIds = this.adminModeService.getSelectedIds();
-    console.log('Delete selected items:', selectedIds);
   }
 
   onBulkAddToFavorites(): void {
     const selectedIds = this.adminModeService.getSelectedIds();
-    console.log('Add to favorites:', selectedIds);
   }
 }

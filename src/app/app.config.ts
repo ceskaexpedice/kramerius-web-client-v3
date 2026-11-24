@@ -1,16 +1,12 @@
-import { InjectionToken } from '@angular/core';
-
+/**
+ * Built-in defaults. Deployment-specific values come from the runtime
+ * configuration (config-main.json / API); these apply only where it is silent.
+ */
 export const ENVIRONMENT = {
-  production: false,
-  apiUrl: 'https://dev-api.example.com',
-  enableDebug: true,
-  availableLanguages: ['cs', 'en', 'sk', 'pl'],
+  availableLanguages: ['cs', 'en', 'sk', 'pl', 'de'],
   defaultLanguage: 'cs',
   fallbackLanguage: 'en',
   dateRangeStartYear: 1162,
   translationVersion: '2.1.4',
   contactEmail: 'info@ceskadigitalniknihovna.cz'
 };
-
-export const API_URL = new InjectionToken<string>('API_URL');
-export const DEFAULT_LANGUAGE = new InjectionToken<string>('DEFAULT_LANGUAGE');

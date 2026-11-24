@@ -534,8 +534,6 @@ export class SolrService {
   searchPeriodicals(scopePidPath: string, query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 180, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
     includePeriodicalItem = false, includePage = false, includeFacets = true, availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }): Observable<SearchResultResponse> {
 
-    console.log('solr search periodicals')
-
     const simpleBaseFilters = SolrQueryBuilder.pageFilter();
 
     // Get fields to return: base fields + optional fields for visible columns
@@ -556,8 +554,6 @@ export class SolrService {
         ...SolrQueryBuilder.facetFields(DEFAULT_PERIODICAL_FACET_FIELDS)
       };
     }
-
-    console.log('paramsObject', paramsObject);
 
     if (includePage) {
       paramsObject = {
@@ -801,8 +797,6 @@ export class SolrService {
     availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] },
     cdkCollection?: string | null
   ): Observable<SearchResultResponse> {
-
-    console.log('getPeriodicalChildrenFacets', parentPid, model);
 
     const query = this.buildPeriodicalChildrenQuery(parentPid, model, advancedQuery, cdkCollection);
     const filtersByField = this.groupFiltersByField(filters);
@@ -1116,7 +1110,6 @@ export class SolrService {
     sortDirection: any,
     advancedQuery?: string
   ) {
-    console.log('filters:', filters)
     return forkJoin({
       volumes: this.getPeriodicalVolumes(uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery),
       facets: this.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.periodicalvolume, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery),
@@ -1137,7 +1130,6 @@ export class SolrService {
     sortDirection: any,
     advancedQuery?: string
   ) {
-    console.log('filters:', filters)
     return forkJoin({
       children: this.getPeriodicalItems(uuid, filters, page, pageCount, sortBy, sortDirection, advancedQuery),
       facets: this.getPeriodicalChildrenFacets(uuid, `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery),

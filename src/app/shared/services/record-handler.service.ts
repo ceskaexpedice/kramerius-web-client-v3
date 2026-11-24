@@ -259,7 +259,6 @@ export class RecordHandlerService {
   }
 
   clickedToolbarTitle(model: string, pid: string) {
-    console.log('clickedToolbarTitle::', model, pid);
     if (this.isParentPeriodical(model)) {
       this.navigateToPeriodical(pid);
     }
@@ -595,7 +594,6 @@ export class RecordHandlerService {
         this.FILTERS_TO_PRESERVE.some(preserveKey => filter.startsWith(`${preserveKey}:`))
       );
       if (relevantFqFilters.length > 0) {
-        console.log('relevantFqFilters:', relevantFqFilters);
         filtersToAdd['fq'] = relevantFqFilters;
       }
     }

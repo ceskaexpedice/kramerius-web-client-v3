@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, NgZone, OnDestroy, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EpubViewerComponent } from '../../../shared/components/epub-viewer/epub-viewer';
 import { EpubSidebarComponent } from '../../../shared/components/epub-sidebar/epub-sidebar.component';
@@ -25,10 +25,10 @@ export class EpubTestPageComponent implements OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   public epubService = inject(EpubService);
-  private zone = inject(NgZone);
 
-  localFileName: string | null = null;
-  hasLocalEpub = false;
+  // Signals: the file is read asynchronously and the app runs without zone.js.
+  readonly localFileName = signal<string | null>(null);
+  readonly hasLocalEpub = signal(false);
 
   openFilePicker(): void {
     this.fileInput.nativeElement.click();
@@ -39,18 +39,14 @@ export class EpubTestPageComponent implements OnDestroy {
     const file = input.files?.[0];
     if (!file) return;
 
-    this.localFileName = file.name;
+    this.localFileName.set(file.name);
 
     const reader = new FileReader();
     reader.onload = () => {
-      this.zone.run(() => {
-        this.epubService.loadLocalEpub(reader.result as ArrayBuffer);
-        // Defer showing the viewer to the next tick so Angular creates it
-        // in a separate CD cycle after layout has settled.
-        setTimeout(() => {
-          this.hasLocalEpub = true;
-        });
-      });
+      this.epubService.loadLocalEpub(reader.result as ArrayBuffer);
+      // Defer showing the viewer to the next tick so Angular creates it
+      // in a separate CD cycle after layout has settled.
+      setTimeout(() => this.hasLocalEpub.set(true));
     };
     reader.readAsArrayBuffer(file);
 

@@ -339,8 +339,6 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
           console.warn('No area selected for crop export');
         }
       });
-    } else {
-      console.log('JPEG Export:', value);
     }
   }
 

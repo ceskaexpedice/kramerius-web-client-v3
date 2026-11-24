@@ -97,7 +97,6 @@ export class UserService {
     // Clear cache if licenses changed (user logged in/out or got new licenses)
     if (!this.arraysEqual(previousLicenses, newLicenses)) {
       clearSimpleCache();
-      console.log('[UserService] Licenses changed, cache cleared');
     }
   }
 
@@ -181,7 +180,6 @@ export class UserService {
     this._roles.set([]);
     this._userSession.set(null);
     clearSimpleCache();
-    console.log('[UserService] User data cleared, cache cleared');
   }
 
   // Admin override for dev tools

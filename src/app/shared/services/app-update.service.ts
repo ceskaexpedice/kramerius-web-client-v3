@@ -78,7 +78,6 @@ export class AppUpdateService {
 
   private armReloadOnNextNavigation(): void {
     this.updatePending = true;
-    console.info('AppUpdate: new version deployed, reloading on next navigation.');
 
     this.router.events
       .pipe(filter((e): e is NavigationStart => e instanceof NavigationStart), take(1))

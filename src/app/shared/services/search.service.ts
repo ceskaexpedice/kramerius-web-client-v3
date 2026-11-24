@@ -108,7 +108,6 @@ export class SearchService extends BaseFilterService {
   }
 
   getSuggestionsFn = (term: string): Observable<string[]> => {
-    console.log('[SearchService] getting suggestions for:', term);
     return this.solrService.getAutocompleteSuggestions(term);
   }
 
@@ -463,8 +462,6 @@ export class SearchService extends BaseFilterService {
 
     let baseFilters = this.queryParamsService.getFilters(params);
     let customFilters = this.customSearchService.getSolrFqFilters();
-
-    console.log('customFilters:', customFilters);
 
     // if we have license filter in both baseFilters and customFilters operator between them is AND
 

@@ -239,11 +239,9 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
       map(articleDetail => {
         if (articleDetail) {
           const metadata = fromSolrToMetadata(articleDetail);
-          console.log('New article metadata loaded - UUID:', metadata?.uuid);
           // Return new object reference to force change detection
           return { ...metadata };
         }
-        console.log('Article metadata cleared');
         return null;
       }),
       shareReplay(1)

@@ -190,7 +190,6 @@ export class EnvironmentService {
     try {
       const url = new URL(fullUrl);
       const base = `${url.protocol}//${url.hostname}${url.port ? `:${url.port}` : ''}`;
-      console.log('Base API URL:', base);
       return base;
     } catch (err) {
       console.error('Invalid URL:', fullUrl);

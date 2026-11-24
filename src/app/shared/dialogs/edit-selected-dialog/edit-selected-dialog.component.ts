@@ -248,7 +248,6 @@ export class EditSelectedDialogComponent {
       confirmButtonLabel: 'yes-execute--button',
       cancelButtonLabel: 'cancel'
     }, () => {
-      console.log('Save changes for section:', currentSection, sectionData);
       this.dialogRef.close({
         action: 'yes-execute--button',
         section: currentSection,
@@ -272,7 +271,6 @@ export class EditSelectedDialogComponent {
     });
 
     confirmationDialogRef.afterClosed().subscribe(confirmed => {
-      console.log('confirmed', confirmed);
       if (confirmed) {
         this.dialogRef.close();
       }
@@ -400,7 +398,6 @@ export class EditSelectedDialogComponent {
       confirmButtonLabel: 'yes-execute--button',
       cancelButtonLabel: 'cancel'
     }, () => {
-      console.log('Execute action for section:', currentSection, sectionData);
       // Close dialog and return the action data
       this.dialogRef.close({
         section: currentSection,

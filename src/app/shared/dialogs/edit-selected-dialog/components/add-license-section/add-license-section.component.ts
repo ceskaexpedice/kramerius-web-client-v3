@@ -66,7 +66,6 @@ export class AddLicenseSectionComponent implements OnInit, OnChanges {
         next: (response) => {
           // Preselect licenses from the single item
           this.selectedLicenses = response.licenses || [];
-          console.log('Preselected licenses for single item:', this.selectedLicenses);
           this.emitChange();
         },
         error: (error) => {
@@ -91,10 +90,8 @@ export class AddLicenseSectionComponent implements OnInit, OnChanges {
         if (allEqual && licenseSets.length > 0) {
           // All items have the same licenses - preselect them
           this.selectedLicenses = Array.from(licenseSets[0]);
-          console.log('All items have the same licenses. Preselected:', this.selectedLicenses);
         } else {
           // Items have different licenses - don't preselect anything
-          console.log('Items have different licenses. No preselection.');
         }
 
         this.emitChange();

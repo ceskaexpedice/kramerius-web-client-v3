@@ -93,7 +93,6 @@ export class MusicService {
   }
 
   trackSelected(track: SoundTrackModel) {
-    console.log('trackSelected', track);
     this.soundService.play(track)
   }
 

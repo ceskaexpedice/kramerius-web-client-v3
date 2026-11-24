@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Observable, from, forkJoin } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { AdminModeService } from './admin-mode.service';
 import { ExportService, ExportFormat } from './export.service';
 import { ToastService } from './toast.service';
@@ -205,8 +205,6 @@ export class AdminActionsService {
       return from([null]);
     }
 
-    console.log('Processing edit operation:', result);
-
     switch (result.section) {
       case EditSelectedDialogSections.reindex:
         return this.handleReindexOperation(result.data);
@@ -233,8 +231,6 @@ export class AdminActionsService {
   handleExportResult(result: any): void {
     if (!result || result.action !== 'export') return;
 
-    console.log('Processing export operation:', result);
-
     const exportOptions = {
       format: this.mapExportFormat(result.format),
       includeMetadata: result.options?.includeMetadata || false,
@@ -244,7 +240,6 @@ export class AdminActionsService {
 
     this.exportService.exportSelectedItems(result.selectedIds, exportOptions).subscribe({
       next: () => {
-        console.log(`Successfully exported ${result.selectedIds.length} items as ${result.format}`);
         this.toastService.show('export-success', 'close', 5000);
       },
       error: (error) => {
@@ -259,7 +254,6 @@ export class AdminActionsService {
    * @param selectedIds Array of selected item IDs
    */
   handleAdminNavigation(selectedIds: string[]): void {
-    console.log('Navigating to admin interface with items:', selectedIds);
     // TODO: Implement navigation to admin interface
   }
 
@@ -270,11 +264,9 @@ export class AdminActionsService {
   performEditAction(selectedIds?: string[]): void {
     this.openEditDialog(selectedIds).subscribe(result => {
       if (result && result.section) {
-        console.log('Processing admin action...', result);
 
         this.handleEditResult(result).subscribe({
           next: (responses) => {
-            console.log('Admin action completed successfully', responses);
             // Show success messages from API responses
             this.showSuccessMessages(responses, result.section);
           },
@@ -307,13 +299,11 @@ export class AdminActionsService {
    * @param data Reindex section data
    */
   private handleReindexOperation(data: ReindexSectionData): Observable<any> {
-    console.log('Handling reindex operation:', data);
 
     // Map scope to API type
     const type = data.scope === 'object-and-children' ? 'TREE_AND_FOSTER_TREES' : 'OBJECT';
 
     return this.reindexService.reindexBulk(data.selectedIds, type).pipe(
-      tap(() => console.log(`Reindexed ${data.selectedIds.length} items with scope: ${type}`)),
       catchError(error => {
         console.error('Reindex operation failed:', error);
         throw error;
@@ -326,7 +316,6 @@ export class AdminActionsService {
    * @param data Add collection section data
    */
   private handleAddCollectionOperation(data: AddCollectionSectionData): Observable<any> {
-    console.log('Handling add collection operation:', data);
 
     if (!data.selectedCollections || data.selectedCollections.length === 0) {
       console.warn('No collections selected');
@@ -337,7 +326,6 @@ export class AdminActionsService {
       data.selectedCollections,
       data.selectedIds
     ).pipe(
-      tap(() => console.log(`Added ${data.selectedIds.length} items to ${data.selectedCollections.length} collections`)),
       catchError(error => {
         console.error('Add collection operation failed:', error);
         throw error;
@@ -350,7 +338,6 @@ export class AdminActionsService {
    * @param data Remove collection section data
    */
   private handleRemoveCollectionOperation(data: RemoveCollectionSectionData): Observable<any> {
-    console.log('Handling remove collection operation:', data);
 
     if (!data.selectedCollections || data.selectedCollections.length === 0) {
       console.warn('No collections selected');
@@ -361,7 +348,6 @@ export class AdminActionsService {
       data.selectedCollections,
       data.selectedIds
     ).pipe(
-      tap(() => console.log(`Removed ${data.selectedIds.length} items from ${data.selectedCollections.length} collections`)),
       catchError(error => {
         console.error('Remove collection operation failed:', error);
         throw error;
@@ -374,7 +360,6 @@ export class AdminActionsService {
    * @param data Add license section data
    */
   private handleAddLicenseOperation(data: AddLicenseSectionData): Observable<any> {
-    console.log('Handling add license operation:', data);
 
     if (!data.selectedLicenses || data.selectedLicenses.length === 0) {
       console.warn('No licenses selected');
@@ -387,7 +372,6 @@ export class AdminActionsService {
     );
 
     return forkJoin(operations).pipe(
-      tap(() => console.log(`Added ${data.selectedLicenses.length} licenses to ${data.selectedIds.length} items`)),
       catchError(error => {
         console.error('Add license operation failed:', error);
         throw error;
@@ -400,7 +384,6 @@ export class AdminActionsService {
    * @param data Remove license section data
    */
   private handleRemoveLicenseOperation(data: RemoveLicenseSectionData): Observable<any> {
-    console.log('Handling remove license operation:', data);
 
     if (!data.selectedLicenses || data.selectedLicenses.length === 0) {
       console.warn('No licenses selected');
@@ -413,7 +396,6 @@ export class AdminActionsService {
     );
 
     return forkJoin(operations).pipe(
-      tap(() => console.log(`Removed ${data.selectedLicenses.length} licenses from ${data.selectedIds.length} items`)),
       catchError(error => {
         console.error('Remove license operation failed:', error);
         throw error;
@@ -431,7 +413,6 @@ export class AdminActionsService {
       return from([null]);
     }
     return this.adminApi.setRepresentativePage(data.targetPid, data.pagePid).pipe(
-      tap(() => console.log(`Set page ${data.pagePid} as representative for ${data.targetPid}`)),
       catchError(error => {
         console.error('Set representative page failed:', error);
         throw error;

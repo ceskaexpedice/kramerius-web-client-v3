@@ -88,7 +88,6 @@ export class CollectionsService extends BaseFilterService {
     protected searchService: SearchService
   ) {
     super();
-    console.log('CollectionsService initialized');
 
     this._pageSize.set(1000);
 
@@ -210,7 +209,6 @@ export class CollectionsService extends BaseFilterService {
       const queryParams = this.route.snapshot.queryParams;
 
       this.uuid = extractUuid(rawUrl);
-      console.log('URL changed. UUID:', this.uuid, 'QueryParams:', queryParams);
 
       if (currentRoute.includes(APP_ROUTES_ENUM.COLLECTION)) {
 
@@ -338,10 +336,6 @@ export class CollectionsService extends BaseFilterService {
 
     let filters: string[] = [...baseFilters, ...customFilters];
 
-    console.log('query collections:', query);
-    console.log('filters:', filters);
-    console.log('advancedQuery:', advancedQuery);
-
     filters = mapFacetsToSearchFields(filters);
 
     // CDK aggregator: when a member-library source is selected (via the metadata
@@ -403,7 +397,6 @@ export class CollectionsService extends BaseFilterService {
   }
 
   getSuggestionsFn = (term: string): Observable<string[]> => {
-    console.log('[CollectionsService] getting suggestions for:', term);
     return this.solrService.getAutocompleteSuggestions(term);
   }
 

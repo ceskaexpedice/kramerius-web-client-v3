@@ -29,7 +29,6 @@ export class RecordInfoDialogComponent implements OnInit {
   uuid = inject<string>(MAT_DIALOG_DATA);
 
   ngOnInit() {
-    console.log('MODS UUID Metadata:', this.uuid);
 
   }
 

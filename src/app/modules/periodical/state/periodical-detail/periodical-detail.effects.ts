@@ -49,15 +49,6 @@ export class PeriodicalDetailEffects {
     this.actions$.pipe(
       ofType(loadPeriodical),
       mergeMap(({ uuid, filters, advancedQuery, page, pageCount, sortBy, sortDirection, cdkCollection }) => {
-        console.log('triggerDocumentLoad$ - filters:', {
-          uuid,
-          filters,
-          advancedQuery,
-          page,
-          pageCount,
-          sortBy,
-          sortDirection
-        });
 
         return [
           DocumentDetailActions.loadDocumentDetail({ uuid }),
@@ -104,7 +95,6 @@ export class PeriodicalDetailEffects {
               const hasMonographUnits = children?.some((child: any) => child.model === DocumentTypeEnum.monographunit);
 
               if (hasMonographUnits) {
-                console.log('Backward compatibility: redirecting from /periodical/ to /monograph/ for multi-volume monograph:', data.uuid);
                 // Use replaceUrl to replace history entry, preventing back button issues.
                 // Carry ?fulltext so a search term from the source page (e.g. saved
                 // lists) survives — this effect fires on every document detail load
@@ -422,7 +412,6 @@ export class PeriodicalDetailEffects {
     this.actions$.pipe(
       ofType(loadPeriodicalItems),
       switchMap(({ parentVolumeUuid }) => {
-        console.log('loadPeriodicalItems$ effect - parentVolumeUuid:', parentVolumeUuid);
 
         return this.solr.getPeriodicalItems(
           parentVolumeUuid,

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Injector, ChangeDetectorRef, signal, inject, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, Injector, ChangeDetectorRef, signal, inject, effect, isDevMode } from '@angular/core';
 import { Router, NavigationEnd, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -442,7 +442,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.libraryContext.prependLibraryPrefix(['/pages', page.id]);
   }
 
+  /**
+   * Prints build and environment details for the team, only on development
+   * builds and deployments flagged as dev (APP_DEV_MODE).
+   */
   logDevInfo(): void {
+    if (!isDevMode() && !this.envService.get('devMode')) {
+      return;
+    }
     const devInfo = {
       useStaticRuntimeConfig: this.envService.get('useStaticRuntimeConfig'),
       devMode: this.envService.get('devMode'),
@@ -455,16 +462,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
       gitCommitHash: this.envService.get('git_commit_hash'),
       gitTag: this.envService.get('git_tag'),
       buildDate: this.envService.get('build_date'),
-      gitCommitUrl: undefined as string | undefined,
     };
-    if (devInfo.gitCommitHash) {
-      const commitUrl = 'https://github.com/trineracz/CDK-klient/commit/' + devInfo.gitCommitHash;
-      devInfo.gitCommitUrl = commitUrl;
-      console.log('Git commit URL:', commitUrl);
-    } else {
-      delete devInfo.gitCommitHash;
-    }
-    console.log('Dev Info:', devInfo);
+    console.info('Build info:', devInfo);
   }
 
   protected readonly AppSettingsThemeEnum = AppSettingsThemeEnum;

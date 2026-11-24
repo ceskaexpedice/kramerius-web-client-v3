@@ -221,7 +221,6 @@ export class BreadcrumbsService {
    */
   public shouldAppendBreadcrumb(): boolean {
     const history = this.getHistory();
-    console.log('history', history);
 
     // Need at least 2 items to have previousUrl and currentUrl
     if (history.length < 2) return false;

@@ -35,8 +35,6 @@ export class MonographVolumesEffects {
           userLicenses: this.userService.licenses
         };
 
-        console.log('Effect - Loading volumes with filters:', filters);
-
         return forkJoin({
           parent: this.solr.getDetailItem(uuid),
           volumesWithFacets: this.solr.getChildrenByModel(uuid, sort ?? 'rels_ext_index.sort asc', null, true, facetFields, filters, {}, availabilityFilter),
@@ -60,8 +58,6 @@ export class MonographVolumesEffects {
               this.userService.isLoggedIn
             );
 
-            console.log('Loaded monograph volumes with facets:', { parent, volumes, facets, filters });
-
             return MonographVolumesActions.loadMonographVolumesSuccess({
               parent: fromSolrToMetadata(parent),
               volumes,
@@ -69,7 +65,6 @@ export class MonographVolumesEffects {
             });
           }),
           catchError(error => {
-            console.log('Error loading monograph volumes:', error);
             return of(MonographVolumesActions.loadMonographVolumesFailure({ error }));
           })
         );
@@ -95,7 +90,6 @@ export class MonographVolumesEffects {
             return MonographVolumesActions.loadMonographVolumesSearchSuccess({ results, totalCount });
           }),
           catchError(error => {
-            console.log('Error searching monograph volumes:', error);
             return of(MonographVolumesActions.loadMonographVolumesSearchFailure({ error }));
           })
         );

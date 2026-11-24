@@ -384,7 +384,6 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   onCreateNewList() {
     const listName = this.newListName().trim();
     if (!listName) {
-      console.log('No list name, returning early');
       return;
     }
 

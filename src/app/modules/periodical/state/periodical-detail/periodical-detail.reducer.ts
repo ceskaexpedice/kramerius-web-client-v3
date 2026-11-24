@@ -79,14 +79,6 @@ export const periodicalDetailReducer = createReducer(
     monthLoading: {}
   })),
   on(setPeriodicalSearchParams, (state, { filters, advancedQuery, page, pageCount, sortBy, sortDirection, cdkCollection }) => {
-    console.log('setPeriodicalSearchParams reducer - filters:', {
-      filters,
-      advancedQuery,
-      page,
-      pageCount,
-      sortBy,
-      sortDirection
-    });
     return {
       ...state,
       searchParams: {

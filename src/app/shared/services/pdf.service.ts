@@ -262,7 +262,6 @@ export class PdfService {
 
     // Check if viewer is ready
     if (!this.pdfViewerReady || !this.pdfViewerComponent) {
-      console.log('PDF viewer not ready yet, search will be deferred');
       return undefined;
     }
 
@@ -278,7 +277,6 @@ export class PdfService {
       // Handle multiple search terms if needed
       const searchQuery = this.pdfFindProperties.multiple ? searchtext.split(' ') : searchtext;
 
-      console.log('Calling find on component service with:', searchQuery);
       const numberOfResultsPromises = componentService.find(searchQuery, {
         highlightAll: this.pdfFindProperties.highlightAll,
         matchCase: this.pdfFindProperties.matchCase,
@@ -418,7 +416,6 @@ export class PdfService {
 
   // Process outline loaded event from ngx-extended-pdf-viewer
   async processOutlineLoaded(outline: any): Promise<void> {
-    console.log('processOutlineLoaded - Event:', outline);
 
     if (!outline) {
       console.warn('processOutlineLoaded - No outline event received');
@@ -521,7 +518,6 @@ export class PdfService {
             if (dest && Array.isArray(dest) && dest.length > 0) {
               const pageRef = dest[0];
               const pageIndex = await this._pdfDocument.getPageIndex(pageRef);
-              console.log('extractPageNumber - Resolved named destination to page:', pageIndex + 1);
               return pageIndex + 1; // Convert 0-based to 1-based
             }
           } catch (error) {
@@ -665,7 +661,6 @@ export class PdfService {
       };
     }, 0);
 
-    console.log('Switched to view mode:', next);
   }
 
   bookModeToggle() {
@@ -744,30 +739,4 @@ export class PdfService {
       return false;
     }
   }
-
-  async getPageAsText(pageNumber?: number): Promise<string | undefined> {
-    const currentPage = pageNumber || this.getCurrentPage();
-
-    try {
-      const text = await this.pdfViewerService?.getPageAsText(currentPage);
-      return text;
-    } catch (error) {
-      console.error(`Error extracting text from page ${currentPage}:`, error);
-      return undefined;
-    }
-  }
-
-  async extractCurrentPageText(): Promise<void> {
-    const currentPage = this.getCurrentPage();
-    console.log(`Extracting text from page ${currentPage}...`);
-
-    const text = await this.getPageAsText(currentPage);
-
-    if (text) {
-      console.log(`Text from page ${currentPage}:`, text);
-    } else {
-      console.log(`No text found on page ${currentPage}`);
-    }
-  }
-
 }

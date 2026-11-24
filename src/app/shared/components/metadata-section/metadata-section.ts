@@ -1204,7 +1204,6 @@ export class MetadataSection implements OnInit, OnChanges {
   }
 
   clickedLicense = (license: string): void => {
-    console.log('license clicked:', license);
     const url = `?fq=${facetKeysEnum.license}:${encodeURIComponent(license)}&${facetKeysEnum.license}_operator=OR`;
     this.searchService.redirectDirectlyToUrl(url);
   };

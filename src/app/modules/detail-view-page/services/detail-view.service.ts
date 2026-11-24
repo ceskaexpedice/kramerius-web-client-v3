@@ -581,7 +581,6 @@ export class DetailViewService {
       skip(1),
       take(1)
     ).subscribe((doc) => {
-      console.log('Document loaded:', doc);
       this.loadPages(doc);
 
       // If document is from a periodical, proactively load periodical children data
@@ -644,13 +643,10 @@ export class DetailViewService {
         let safePages = pages ?? [];
         const model = doc?.model || this.document?.model;
 
-        console.log('loadPages: model=', model, 'doc?.model=', doc?.model, 'this.document?.model=', this.document?.model, 'pages count=', safePages.length, 'page models=', safePages.map((p: any) => p.model));
-
         // When the document is a periodicalvolume, children may include both
         // pages and periodicalitems. Keep only actual pages for the viewer.
         if (model === DocumentTypeEnum.periodicalvolume) {
           safePages = safePages.filter((p: any) => p.model === DocumentTypeEnum.page);
-          console.log('loadPages: filtered to pages only, count=', safePages.length);
         }
 
         this._pages.set(safePages);
@@ -1002,7 +998,6 @@ export class DetailViewService {
       }
 
       if (currentVolumeIndex >= availableYears.length - 1) {
-        console.log('Already at last volume');
         return;
       }
 
@@ -1069,7 +1064,6 @@ export class DetailViewService {
       }
 
       if (currentVolumeIndex <= 0) {
-        console.log('Already at first volume');
         return;
       }
 
@@ -1174,7 +1168,6 @@ export class DetailViewService {
         filter(children => children && children.length > 0),
         take(1)
       ).subscribe(() => {
-        console.log(`Year ${year} data loaded, navigating to ${pid}`);
         this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
       });
     });

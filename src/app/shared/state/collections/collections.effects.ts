@@ -231,7 +231,6 @@ export class CollectionsEffects {
   );
 
   loadAllCollections$ = createEffect(() => {
-    console.log('Load Collections');
     return this.actions$.pipe(
       ofType(loadAllCollections),
       switchMap(() => {
@@ -252,7 +251,6 @@ export class CollectionsEffects {
           map(response => {
             const collections = response.response?.docs || [];
             const totalCount = response.response?.numFound || collections.length;
-            console.log(`Loaded ${collections.length} collections via NgRx`);
 
             const parsedResults = (response.response?.docs ?? []).map(doc => {
               return parseSearchDocument(doc);

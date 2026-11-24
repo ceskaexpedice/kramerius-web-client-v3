@@ -93,7 +93,6 @@ export class DateStepperComponent {
   }
 
   parseFromString(dateString: string): void {
-    console.log('dateString:', dateString);
 
     const singleDatePattern = /^(\d{4})-(\d{2})-(\d{2})\+(-?\d+)$/;
     const rangePattern = /^\[([0-9T:\-\.Z]+)\s+TO\s+([0-9T:\-\.Z]+)\]$/;
@@ -107,8 +106,6 @@ export class DateStepperComponent {
       const month = parseInt(monthStr, 10);
       const day = parseInt(dayStr, 10);
       const offset = parseInt(offsetStr, 10);
-
-      console.log('Parsed single date:', { year, month, day, offset });
 
       const isValid = !isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(offset);
       if (!isValid) {
@@ -181,7 +178,6 @@ export class DateStepperComponent {
   dateRangeChange(range: DateRange) {
     this.dateFrom = range.from;
     this.dateTo = range.to;
-    console.log('dateRangeChange:', range);
     this.emitDate();
   }
 
@@ -204,13 +200,10 @@ export class DateStepperComponent {
       dateTo = this.dateTo;
     }
 
-    console.log('dateTo:', dateTo);
-
     this.dateChange.emit({dateFrom : utcDate, dateTo, offset: this.dateMode() === DatePickerMode.Manual ? this.offset : -1});
   }
 
   getDay(date: Date): number {
-    console.log('date:', date);
     return date.getDate();
   }
 
@@ -219,8 +212,6 @@ export class DateStepperComponent {
   }
 
   getYear(date: Date): number {
-    console.log('getYear date:', date);
-    console.log('year:', date.getFullYear());
     return date.getFullYear();
   }
 

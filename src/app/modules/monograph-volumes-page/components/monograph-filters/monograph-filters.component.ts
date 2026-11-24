@@ -164,7 +164,6 @@ export class MonographFiltersComponent implements OnInit, OnDestroy {
   }
 
   onToggleFacet(fullValue: string): void {
-    console.log('Toggle facet:', fullValue);
     this.filterService.resetPage();
     this.filterService.toggleFilter(this.route, fullValue);
   }

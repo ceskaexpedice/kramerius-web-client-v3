@@ -232,10 +232,6 @@ function cleanupExpired(): void {
   }
 
   keysToDelete.forEach(key => localStorage.removeItem(key));
-
-  if (keysToDelete.length > 0) {
-    console.log(`[SimpleCache] Cleaned up ${keysToDelete.length} expired entries from localStorage`);
-  }
 }
 
 /**
@@ -277,7 +273,6 @@ function performIntelligentCleanup(): void {
 
     toRemove.forEach(({ key }) => localStorage.removeItem(key));
 
-    console.log(`[SimpleCache] Intelligent cleanup: removed ${toRemove.length} LRU entries, cache size reduced from ${currentSize} to ${getCacheSize()} bytes`);
   }
 }
 
@@ -312,10 +307,6 @@ export function clearSimpleCacheForPattern(pattern: string): void {
   }
 
   keysToDelete.forEach(key => localStorage.removeItem(key));
-
-  if (keysToDelete.length > 0) {
-    console.log(`[SimpleCache] Cleared ${keysToDelete.length} cache entries matching pattern: ${pattern}`);
-  }
 }
 
 // Export function to get cache statistics

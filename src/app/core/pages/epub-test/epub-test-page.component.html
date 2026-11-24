@@ -2,7 +2,7 @@
 
   <ng-container left-sidebar>
     <div class="sidebar--container">
-      @if (hasLocalEpub) {
+      @if (hasLocalEpub()) {
         <app-epub-sidebar></app-epub-sidebar>
       } @else {
         <div class="epub-test--empty-sidebar">
@@ -16,8 +16,8 @@
     <app-action-toolbar>
       <div left class="epub-test--toolbar-left">
         <span class="epub-test--label">EPUB Test Viewer</span>
-        @if (localFileName) {
-          <span class="epub-test--filename">{{ localFileName }}</span>
+        @if (localFileName()) {
+          <span class="epub-test--filename">{{ localFileName() }}</span>
         }
       </div>
       <div right>
@@ -32,7 +32,7 @@
 
   <ng-container main-content>
     <div class="epub-test--content">
-      @if (hasLocalEpub) {
+      @if (hasLocalEpub()) {
         <div class="epub-test--viewer-wrapper">
           <app-epub-viewer></app-epub-viewer>
         </div>

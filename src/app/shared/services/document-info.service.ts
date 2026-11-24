@@ -77,7 +77,6 @@ export class DocumentInfoService {
                     this._currentPageInfo.set(pageInfo);
                     this._isLoading.set(false);
                     this._state.set('LOADED');
-                    console.log('DocumentInfoService: Page info loaded for', pageUuid, pageInfo);
                 },
                 error: (error: any) => {
                     console.error('DocumentInfoService: Error loading page info:', error);

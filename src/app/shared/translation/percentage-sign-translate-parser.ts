@@ -1,3 +1,4 @@
+import {Injectable} from '@angular/core';
 import {InterpolateFunction, TranslateDefaultParser, InterpolationParameters} from '@ngx-translate/core';
 
 /**
@@ -25,6 +26,7 @@ import {InterpolateFunction, TranslateDefaultParser, InterpolationParameters} fr
  *		}),
  *
  */
+@Injectable()
 export class PercentageSignTranslateParser extends TranslateDefaultParser {
 
 	protected regexp = new RegExp(/%\s?([a-z0-9\-_]+)\s?%/, 'ig');
