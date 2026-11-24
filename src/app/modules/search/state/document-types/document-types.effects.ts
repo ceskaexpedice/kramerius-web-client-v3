@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import * as DocumentTypesActions from './document-types.actions';
 import {SolrService} from '../../../../core/solr/solr.service';

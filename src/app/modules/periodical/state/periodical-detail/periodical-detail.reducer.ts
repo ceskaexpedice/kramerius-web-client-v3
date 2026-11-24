@@ -7,7 +7,7 @@ import {
 } from './periodical-detail.actions';
 import {PeriodicalItem, PeriodicalItemChild, PeriodicalItemYear} from '../../../models/periodical-item';
 import {Metadata} from '../../../../shared/models/metadata.model';
-import {SolrOperators, SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
+import {SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
 import {monthCacheKey} from './periodical-detail.selectors';
 
 export interface PeriodicalDetailState {

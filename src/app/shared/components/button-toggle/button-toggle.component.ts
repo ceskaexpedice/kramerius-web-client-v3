@@ -1,7 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {CheckboxComponent} from '../checkbox/checkbox.component';
 import {TranslatePipe} from '@ngx-translate/core';
-import {MatCheckbox} from '@angular/material/checkbox';
 import {FormsModule} from '@angular/forms';
 import {NgIf} from '@angular/common';
 

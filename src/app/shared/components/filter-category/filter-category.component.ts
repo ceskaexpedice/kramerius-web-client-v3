@@ -20,7 +20,6 @@ import { CustomSearchService } from '../../services/custom-search.service';
 import { FilterItemsRadioComponent } from '../filter-items-radio/filter-items-radio.component';
 import { RangeSliderComponent } from '../range-slider/range-slider.component';
 import { DatePickerComponent } from '../date-picker/date-picker.component';
-import { FilterElementType } from '../../dialogs/advanced-search-dialog/solr-filters';
 import { getModelColor, getModelIcon, getLanguageFlagIcon } from '../../utils/filter-icons.utils';
 import { SkeletonListPipe } from '../../pipes/skeleton-list.pipe';
 import { CdkTooltipDirective } from '../../directives/cdk-tooltip/cdk-tooltip.directive';
@@ -92,7 +91,6 @@ export class FilterCategoryComponent implements OnChanges {
   @Input() yearRangeTo: number = new Date().getFullYear();
 
   @Output() toggle = new EventEmitter<string>();
-  @Output() showMore = new EventEmitter<void>();
   @Output() datePickerChange = new EventEmitter<any>();
   @Output() rangeChange = new EventEmitter<any>();
   /** Re-emitted when the user presses Enter in a range slider input */
@@ -313,5 +311,4 @@ export class FilterCategoryComponent implements OnChanges {
     return item.name;
   }
 
-  protected readonly AdvancedFilterType = FilterElementType;
 }

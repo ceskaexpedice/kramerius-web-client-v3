@@ -3,7 +3,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ShareService } from '../../services/share.service';
 import { DocumentHierarchySelectorComponent, DocumentHierarchyItem } from '../../components/document-hierarchy-selector/document-hierarchy-selector.component';
-import { RecordHandlerService } from '../../services/record-handler.service';
 import { Metadata } from '../../models/metadata.model';
 import { copyTextToClipboard } from '../../misc/misc-functions';
 import { ToastService } from '../../services/toast.service';
@@ -29,7 +28,6 @@ export class ShareDialogComponent {
   @Output() close = new EventEmitter<void>();
 
   public shareService = inject(ShareService);
-  private recordHandlerService = inject(RecordHandlerService);
   private toastService = inject(ToastService);
   private solr = inject(SolrService);
 

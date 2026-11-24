@@ -267,16 +267,6 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
     this.adminModeService.toggle();
   }
 
-  // Admin action methods (delegated from admin-actions component)
-  onExportSelected(): void {
-    // The AdminActionsComponent handles the export logic by default
-    // This method can be used to add additional page-specific export behavior if needed
-  }
-
-  onEditSelected(selectedIds: string[]): void {
-    // TODO: Implement edit functionality specific to search results
-  }
-
   downloadCsv(): void {
     this.searchService.results$.pipe(take(1)).subscribe(results => {
       this.exportService.downloadSearchResultsCsv(results);

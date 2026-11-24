@@ -1,15 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { catchError, combineLatest, of, startWith } from 'rxjs';
+import { catchError, of, startWith } from 'rxjs';
 
-import { selectSearchResultsLoading } from '../../modules/search-results-page/state/search.selectors';
-import { selectPeriodicalLoading } from '../../modules/periodical/state/periodical-detail/periodical-detail.selectors';
-import { selectDocumentDetailLoading } from '../state/document-detail/document-detail.selectors';
-import {
-  selectFolderDetailsLoading,
-  selectFolderSearchResultsLoading,
-  selectFoldersLoading,
-} from '../../modules/saved-lists-page/state';
 
 @Injectable({
   providedIn: 'root'

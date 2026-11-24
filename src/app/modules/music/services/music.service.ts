@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import {ActivatedRoute, Router} from "@angular/router";
+import {Router} from "@angular/router";
 import {
   selectMusicError,
   selectMusicLoading,
@@ -33,7 +33,6 @@ import {BreakpointService} from '../../../shared/services/breakpoint.service';
 export class MusicService {
   uuid: string | null = null;
 
-  private route = inject(ActivatedRoute);
   private soundService = inject(SoundService);
   private solr = inject(SolrService);
   private fileService = inject(FileService);

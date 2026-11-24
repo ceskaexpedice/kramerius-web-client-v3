@@ -1,7 +1,7 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { filter, forkJoin, map, Observable, of, takeUntil, combineLatest } from 'rxjs';
+import { filter, forkJoin, map, Observable, takeUntil, combineLatest } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { SolrSortDirections, SolrSortFields, SolrOperators } from '../../core/solr/solr-helpers';
 import {

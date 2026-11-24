@@ -31,7 +31,6 @@ import {
 import { customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-results-page/const/facets';
 import { AdvancedSearchService } from './advanced-search.service';
 import { BaseFilterService } from './base-filter.service';
-import { SearchService } from './search.service';
 import { appendToAdvancedQuery, buildDateOverlapQuery, buildYearRangeQuery, normalizeDateRangeParams } from '../utils/date-range-query';
 import { ConfigService } from '../../core/config/config.service';
 import { ALL_SOURCES } from '../utils/cdk-source.constants';
@@ -63,18 +62,13 @@ export class PeriodicalService extends BaseFilterService {
   dateFilterBounds = signal<{ min: Date | null; max: Date | null }>({ min: null, max: null });
   private dateFilterBoundsPid: string | null = null;
 
-  // Debug wrapper for selectedYear.set to track when it changes
+  // Single write path for selectedYear, so specs can intercept the writes.
   private setSelectedYear(value: string | null) {
     this.selectedYear.set(value);
   }
 
   availableYears: PeriodicalItemYear[] = [];
   periodicalYears: PeriodicalItemYear[] = [];
-
-  // Lazy loading state for calendar months
-  private monthlyIssuesCache = new Map<string, any[]>();
-  private loadingMonths = new Set<string>();
-  monthlyIssuesLoading = signal(false);
 
   inputSearchTerm = '';
 
@@ -105,7 +99,6 @@ export class PeriodicalService extends BaseFilterService {
 
 
   override advancedSearchService = inject(AdvancedSearchService);
-  private searchService = inject(SearchService);
   private configService = inject(ConfigService);
 
   constructor(
@@ -718,26 +711,6 @@ export class PeriodicalService extends BaseFilterService {
   }
 
 
-  public goToNextPeriodicalYear() {
-    if (!this.selectedYear() || this.availableYears.length === 0) return;
-    const currentIndex = this.availableYears.findIndex(y => y.year === this.selectedYear());
-    if (currentIndex === -1 || currentIndex === this.availableYears.length - 1) return;
-    const nextYear = this.availableYears[currentIndex + 1];
-    if (nextYear) {
-      this.selectYear(nextYear.year);
-    }
-  }
-
-  public goToPreviousPeriodicalYear() {
-    if (!this.selectedYear() || this.availableYears.length === 0) return;
-    const currentIndex = this.availableYears.findIndex(y => y.year === this.selectedYear());
-    if (currentIndex <= 0) return;
-    const previousYear = this.availableYears[currentIndex - 1];
-    if (previousYear) {
-      this.selectYear(previousYear.year);
-    }
-  }
-
   public goToNextPeriodicalIssue() {
     if (!this.uuid) return;
     this.periodicalChildren$.pipe(take(1)).subscribe(children => {
@@ -760,59 +733,6 @@ export class PeriodicalService extends BaseFilterService {
     });
   }
 
-  public getCurrentPeriodicalYearPid(): string | null {
-    const year = this.selectedYear();
-    if (!year) return null;
-    const yearData = this.availableYears.find(y => y.year === year);
-    return yearData ? yearData.pid : null;
-  }
-
-  // Lazy loading methods for calendar months
-  loadMonthIssues(year: string, month: number): Observable<any[]> {
-    const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
-
-    if (this.monthlyIssuesCache.has(monthKey)) {
-      return of(this.monthlyIssuesCache.get(monthKey) || []);
-    }
-
-    if (this.loadingMonths.has(monthKey)) {
-      return of([]);
-    }
-
-    this.loadingMonths.add(monthKey);
-    this.monthlyIssuesLoading.set(true);
-
-    // TODO: Implement actual API call to load issues for specific month
-    // This is a skeleton - replace with real implementation
-    return this.fetchMonthIssuesFromAPI(year, month).pipe(
-      map(issues => {
-        this.monthlyIssuesCache.set(monthKey, issues);
-        this.loadingMonths.delete(monthKey);
-
-        if (this.loadingMonths.size === 0) {
-          this.monthlyIssuesLoading.set(false);
-        }
-
-        return issues;
-      })
-    );
-  }
-
-  private fetchMonthIssuesFromAPI(year: string, month: number): Observable<any[]> {
-    // TODO: Replace with actual API call
-    // For now, return empty array to maintain functionality
-    return of([]);
-  }
-
-  getMonthIssuesFromCache(year: string, month: number): any[] {
-    const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
-    return this.monthlyIssuesCache.get(monthKey) || [];
-  }
-
-  clearMonthlyCache(): void {
-    this.monthlyIssuesCache.clear();
-    this.loadingMonths.clear();
-  }
 }
 
 /** 'YYYY-MM-DD' -> local Date at midnight (avoids the UTC shift of new Date(iso)). */

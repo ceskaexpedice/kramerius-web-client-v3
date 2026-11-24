@@ -46,8 +46,7 @@
                                 (goBack)="recordHandler.goBackClicked(document)">
 
               <!-- Show admin actions when in SearchResults mode and admin mode is active -->
-              <app-admin-actions *ngIf="adminModeService.adminMode()" (exportRequested)="onExportSelected()"
-                (editRequested)="onEditSelected($event)">
+              <app-admin-actions *ngIf="adminModeService.adminMode()">
               </app-admin-actions>
 
             </app-toolbar-header>

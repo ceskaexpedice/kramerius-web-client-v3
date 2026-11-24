@@ -1,4 +1,4 @@
-import { Component, computed, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { Component, computed, EventEmitter, inject, Input, Output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Store } from '@ngrx/store';
 import { selectLastSearchPayload, selectSearchResultsError } from '../../state/search.selectors';

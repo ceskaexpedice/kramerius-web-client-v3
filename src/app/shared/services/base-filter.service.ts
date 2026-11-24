@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, OnDestroy, Signal, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, map, Observable, of, Subject, takeUntil } from 'rxjs';
+import { combineLatest, map, Observable, of, Subject } from 'rxjs';
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
 import { QueryParamsService } from '../../core/services/QueryParamsManager';
 import { CustomSearchService } from './custom-search.service';

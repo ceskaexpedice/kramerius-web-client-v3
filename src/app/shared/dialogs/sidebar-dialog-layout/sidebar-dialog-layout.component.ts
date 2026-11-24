@@ -1,4 +1,4 @@
-import {Component, EventEmitter, HostListener, inject, Input, Output, signal} from '@angular/core';
+import {Component, EventEmitter, inject, Input, Output, signal} from '@angular/core';
 import {TranslatePipe} from '@ngx-translate/core';
 import {NgForOf, NgIf} from '@angular/common';
 import {BreakpointService} from '../../services/breakpoint.service';

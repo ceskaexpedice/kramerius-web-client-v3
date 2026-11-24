@@ -25,11 +25,6 @@ export interface FacetItem {
   colorDot?: string;
 }
 
-export interface FacetGroup {
-  type: 'radio' | 'checkbox';
-  items: FacetItem[];
-}
-
 export const parseFacetField = (raw: any[]): FacetItem[] => {
   const items: FacetItem[] = [];
   for (let i = 0; i < raw.length; i += 2) {

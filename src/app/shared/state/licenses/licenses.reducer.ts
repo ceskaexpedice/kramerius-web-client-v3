@@ -56,11 +56,6 @@ export const licensesReducer = createReducer(
     loading: true,
     error: null
   })),
-  on(LicensesActions.loadMoreLicenses, (state) => ({
-    ...state,
-    loading: true,
-    error: null
-  })),
   on(LicensesActions.clearLicensesSearch, () => ({
     ...initialState
   }))

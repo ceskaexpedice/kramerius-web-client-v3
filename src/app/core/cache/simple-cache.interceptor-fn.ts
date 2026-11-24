@@ -5,7 +5,6 @@ import { tap, delay } from 'rxjs/operators';
 const TTL = 24 * 60 * 60 * 1000; // 1 day
 const CACHE_PREFIX = 'cdk-cache:';
 const MAX_CACHE_SIZE = 3 * 1024 * 1024; // 3MB limit (leave room for other app data)
-const MAX_ENTRY_SIZE = 100 * 1024; // 100KB per entry limit
 const CLEANUP_THRESHOLD = 0.8; // Clean up when cache reaches 80% of limit
 
 // List of URL patterns that should not be cached
@@ -83,13 +82,6 @@ function getCacheSize(): number {
   return totalSize;
 }
 
-/**
- * Get cache entry size estimate
- */
-function getEntrySize(key: string, entry: CacheEntry): number {
-  return key.length + JSON.stringify(entry).length;
-}
-
 export const simpleCacheInterceptor: HttpInterceptorFn = (req, next) => {
   // Only cache GET requests and URLs that are allowed to be cached
   if (req.method !== 'GET' || !shouldCache(req.url)) {
@@ -143,23 +135,7 @@ export const simpleCacheInterceptor: HttpInterceptorFn = (req, next) => {
           }
         });
 
-        // Check if entry would be too large
         const entryData = compressData(event.body);
-        const estimatedSize = cacheKey.length + JSON.stringify({
-          response: entryData.data,
-          timestamp: Date.now(),
-          lastAccessed: Date.now(),
-          status: event.status,
-          statusText: event.statusText,
-          headers: headersObj,
-          compressed: entryData.compressed
-        }).length;
-
-        // Skip caching if entry is too large
-        // if (estimatedSize > MAX_ENTRY_SIZE) {
-        //   console.warn(`[SimpleCache] Entry too large (${estimatedSize} bytes), skipping: ${req.url}`);
-        //   return;
-        // }
 
         const cacheEntry: CacheEntry = {
           response: entryData.compressed ? entryData.data : event.body,

@@ -7,7 +7,6 @@ import {
   FilterElementType,
   FilterValue,
   getOriginalSolrKey,
-  isFilterWithCaseSensitiveSupport,
   SolrFacetKey,
   getSolrFieldName,
   applyCaseSensitiveToFields,
@@ -376,8 +375,6 @@ export class AdvancedSearchService {
   }
 
   getAdvancedSearchPreviewGroups = computed(() => {
-    const mainOp = this.appliedMainOperatorSignal();
-
     return this.appliedGroupsSignal().map(group => {
       const filters = group.filters
         .filter(f => !!f.elementValue?.trim())

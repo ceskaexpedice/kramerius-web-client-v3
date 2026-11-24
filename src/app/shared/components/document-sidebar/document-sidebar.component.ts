@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit, OnChanges, SimpleChanges, signal, effect, OnDestroy} from '@angular/core';
+import {Component, inject, Input, OnInit, OnChanges, SimpleChanges, signal, OnDestroy} from '@angular/core';
 import { NgIf, AsyncPipe } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PageNavigatorComponent } from '../page-navigator/page-navigator.component';

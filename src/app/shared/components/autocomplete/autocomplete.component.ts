@@ -8,7 +8,7 @@ import {
   EventEmitter,
   Output,
   ViewChild,
-  Signal, WritableSignal, inject, computed, OnChanges, SimpleChanges, ChangeDetectorRef,
+  WritableSignal, inject, computed,
 } from '@angular/core';
 import {NgIf} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';

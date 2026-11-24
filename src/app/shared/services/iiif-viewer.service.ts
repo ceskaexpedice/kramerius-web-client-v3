@@ -664,23 +664,6 @@ export class IIIFViewerService {
     setTimeout(() => overlay.style.border = originalBorder, 300);
   }
 
-  // Get coordinates of a specific rectangle
-  getRectangleCoordinates(overlay: HTMLElement): OpenSeadragon.Rect | undefined {
-    return this.rectangles.get(overlay);
-  }
-
-  // Get all rectangles
-  getAllRectangles(): Array<{ overlay: HTMLElement, rect: OpenSeadragon.Rect }> {
-    return Array.from(this.rectangles.entries()).map(([overlay, rect]) => ({ overlay, rect }));
-  }
-
-  // Adds rectangle at center of current viewport - just for TEST
-  addRectangleAtDefaultPosition(): void {
-    if (!this.viewer) return;
-    const center = this.viewer.viewport.getCenter();
-    this.addRectangle(center.x - 0.1, center.y - 0.1, 0.2, 0.2);
-  }
-
   // Toggle area selection mode
   toggleSelectArea(): void {
     this.setSelectionMode(!this.isSelectionMode);
@@ -1135,13 +1118,6 @@ export class IIIFViewerService {
       console.warn('Failed to clear overlays, viewer not fully initialized:', e);
     }
     this.rectangles.clear();
-  }
-
-  // Remove specific rectangle
-  removeRectangle(overlay: HTMLElement): void {
-    if (!this.viewer) return;
-    this.viewer.removeOverlay(overlay);
-    this.rectangles.delete(overlay);
   }
 
   /**

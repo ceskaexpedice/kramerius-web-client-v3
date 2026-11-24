@@ -6,9 +6,7 @@ import {getOnlineLicenses, getOpenLicenses, getTerminalLicenses, getAfterLoginLi
 import { toObservable } from '@angular/core/rxjs-interop';
 import {
   getCustomDefinedFacets,
-  customDefinedFacetsEnum,
   facetKeysEnum,
-  FacetIcons,
   getAccessIcon,
 } from '../../../modules/search-results-page/const/facets';
 import {FacetItem} from '../../../modules/models/facet-item';
@@ -115,8 +113,6 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
   }
 
   enrichFacetsWithUserData() {
-    const onlineLicenses = getOnlineLicenses();
-
     this.facets$ = combineLatest([
       this.facets$,
       this.userLicenses$
@@ -141,15 +137,6 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
                 userLicenses.includes(item.name),
               )
             }));
-        }
-
-        // Recalculate accessibility facet counts
-        if (updated[customDefinedFacetsEnum.accessibility]) {
-          const licenseFacet = updated[facetKeysEnum.license];
-
-          updated[customDefinedFacetsEnum.accessibility] = updated[customDefinedFacetsEnum.accessibility].map((item: FacetItem) => {
-            return item;
-          });
         }
 
         return updated;
@@ -204,7 +191,7 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
   onToggleFacet(fullValue: string): void {
     // fullValue is expected to be in the format 'facetKey:facetValue'
     // we need to check if facetKey is in customDefinedFacets, if so, we need to toggle the filter using the customSearchService
-    const [facetKey, facetValue] = fullValue.split(':');
+    const [facetKey] = fullValue.split(':');
     const isCustom = getCustomDefinedFacets().find(c => c.facetKey === facetKey);
 
     this.filterService.resetPage();
@@ -264,9 +251,6 @@ export abstract class BaseFiltersComponent implements OnInit, OnDestroy {
     this.hasDateRangeChanged = false;
   }
 
-  private formatDateForUrl(date: Date): string {
-    return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
-  }
 
   private initializeDateRange() {
     // Initialize pending values from current service values

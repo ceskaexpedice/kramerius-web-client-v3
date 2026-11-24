@@ -38,43 +38,6 @@ export class RecordHandlerService {
     private searchService: SearchService
   ) { }
 
-  /**
-   * Handle navigation based on the document type.
-   */
-  handleDocumentClick(document: SearchDocument): void {
-    const model = document.model;
-
-    // Remember the page the user is leaving (see isOnViewerPage) so the back
-    // button returns to it. Skip while inside a viewer to keep the original source.
-    if (!this.isOnViewerPage()) {
-      this.searchService.backupCurrentSearchUrl();
-    }
-
-    switch (model) {
-      case DocumentTypeEnum.periodical:
-        //this.navigateToPeriodical(document.pid);
-        break;
-      case DocumentTypeEnum.soundrecording:
-        this.navigateToMusic(document.pid);
-        break;
-      default:
-        this.navigateToDetail(document.pid);
-    }
-  }
-
-  handleDocumentClickByModelAndPid(model: string, pid: string): void {
-    switch (model) {
-      case DocumentTypeEnum.periodical:
-        //this.navigateToPeriodical(pid);
-        break;
-      case DocumentTypeEnum.soundrecording:
-        this.navigateToMusic(pid);
-        break;
-      default:
-        this.navigateToDetail(pid);
-    }
-  }
-
   getDocumentUrl(opts: { model: string; pid: string; ownParentPid?: string | null; ownParentModel?: string | null; fulltext?: string | null; fulltextForDocument?: string | null; grouped?: boolean }): string {
     const { model, pid, ownParentPid, ownParentModel, fulltext, fulltextForDocument, grouped } = opts;
     // Only pages carry the search term inside getHandleDocumentUrlByModelAndPid
@@ -146,13 +109,6 @@ export class RecordHandlerService {
       default:
         return this.router.createUrlTree(lp([APP_ROUTES_ENUM.DETAIL_VIEW, pid])).toString();
     }
-  }
-
-  /**
-   * Navigate to the document detail view.
-   */
-  public navigateToDetail(pid: string): void {
-    this.router.navigate(this.libraryContext.prependLibraryPrefix([APP_ROUTES_ENUM.DETAIL_VIEW, pid]));
   }
 
   /**

@@ -1,6 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Router, NavigationEnd, NavigationStart } from '@angular/router';
-import { ViewportScroller } from '@angular/common';
 import { filter, throttleTime } from 'rxjs/operators';
 import { fromEvent } from 'rxjs';
 
@@ -15,7 +14,6 @@ export class ScrollPositionService {
 
   constructor(
     private router: Router,
-    private viewportScroller: ViewportScroller,
     private ngZone: NgZone
   ) {
     this.initializeScrollRestoration();

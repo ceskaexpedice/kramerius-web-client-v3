@@ -1,10 +1,7 @@
 import { Component, OnInit, OnDestroy, Injector, ChangeDetectorRef, signal, inject, effect, isDevMode } from '@angular/core';
 import { Router, NavigationEnd, RouterLink } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription, filter, take } from 'rxjs';
-import { selectFoldersCount } from '../../../modules/saved-lists-page/state';
 import { LoginPromptDialogComponent } from '../../../shared/dialogs/login-prompt-dialog/login-prompt-dialog.component';
 import { BreakpointService } from '../../../shared/services/breakpoint.service';
 import { APP_ROUTES_ENUM } from '../../../app.routes';
@@ -89,7 +86,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private logoClickTimer: any = null;
 
   private uiState = inject(UiStateService);
-  private store = inject(Store);
   private dialog = inject(MatDialog);
   private breakpointService = inject(BreakpointService);
 

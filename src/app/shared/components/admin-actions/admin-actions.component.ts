@@ -1,4 +1,4 @@
-import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AdminModeService } from '../../services/admin-mode.service';
@@ -20,8 +20,6 @@ export class AdminActionsComponent {
   public adminModeService = inject(AdminModeService);
   private adminActionsService = inject(AdminActionsService);
 
-  @Output() exportRequested = new EventEmitter<string[]>();
-  @Output() editRequested = new EventEmitter<string[]>();
 
   onSelectAll(): void {
     this.adminModeService.selectAllVisible();
@@ -37,13 +35,11 @@ export class AdminActionsComponent {
 
   onExportSelected(): void {
     const selectedIds = this.adminModeService.getSelectedIds();
-    this.exportRequested.emit(selectedIds);
     this.adminActionsService.performExportAction(selectedIds);
   }
 
   onEditSelected(): void {
     const selectedIds = this.adminModeService.getSelectedIds();
-    this.editRequested.emit(selectedIds);
     this.adminActionsService.performEditAction(selectedIds);
   }
 }

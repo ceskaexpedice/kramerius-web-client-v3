@@ -20,7 +20,12 @@ export class AppLoaderService {
   private appConfig = inject(AppConfigService);
   private env = inject(EnvironmentService);
   private settingsService = inject(SettingsService);
-  private pageTitle = inject(PageTitleService);
+
+  constructor() {
+    // Created eagerly for its side effect: it keeps document.title in sync with
+    // the route from the first navigation on.
+    inject(PageTitleService);
+  }
 
   /**
    * Main app initialization method

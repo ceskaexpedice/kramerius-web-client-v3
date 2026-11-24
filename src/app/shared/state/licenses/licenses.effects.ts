@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, switchMap, withLatestFrom, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { catchError, map, switchMap, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AdminLicensesService } from '../../../core/admin/admin-licenses.service';
@@ -9,14 +9,8 @@ import {
   loadLicensesFailure,
   loadLicensesSuccess,
   searchLicenses,
-  loadMoreLicenses,
   License
 } from './licenses.actions';
-import {
-  selectLicensesQuery,
-  selectLicensesCurrentPage,
-  selectLicensesPageSize
-} from './licenses.selectors';
 
 @Injectable()
 export class LicensesEffects {
@@ -61,17 +55,4 @@ export class LicensesEffects {
     )
   );
 
-  loadMoreLicenses$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(loadMoreLicenses),
-      withLatestFrom(
-        this.store.select(selectLicensesQuery),
-        this.store.select(selectLicensesCurrentPage),
-        this.store.select(selectLicensesPageSize)
-      ),
-      map(([action, query, currentPage, pageSize]) =>
-        loadLicenses({ query, page: currentPage + 1, pageSize })
-      )
-    )
-  );
 }

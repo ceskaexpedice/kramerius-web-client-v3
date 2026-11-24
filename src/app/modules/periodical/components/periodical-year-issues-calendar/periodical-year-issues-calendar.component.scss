@@ -214,16 +214,3 @@ h3 {
 }
 
 // Loading placeholder
-.month-loading-placeholder {
-  min-height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-
-  .loading-content {
-    text-align: center;
-    color: var(--color-text-tertiary);
-    font-size: var(--font-size-small);
-  }
-}

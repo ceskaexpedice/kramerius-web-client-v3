@@ -6,7 +6,7 @@ import { EnvironmentService } from '../../shared/services/environment.service';
 import { SEARCH_RETURN_FIELDS } from '../search-results-page/const/search-return-fields';
 import { MAP_SERIES_SHAPEFILES } from './map-series.shapefiles';
 import { SolrUtils } from '../../core/solr/solr-utils';
-import { LatLng, MapSeriesItem, ShapefilePolygon } from './map-series.model';
+import { MapSeriesItem, ShapefilePolygon } from './map-series.model';
 
 /**
  * Data access for the map series ("klad mapových listů") view: the list of
@@ -23,11 +23,6 @@ export class MapSeriesService {
    * map series view, matching the previous client.
    */
   readonly rootCollectionUuid = 'uuid:ee2388c6-7343-4a7f-9287-15bc8b564cbf';
-
-  /** Map centre and zoom shared by the series view. */
-  readonly center: LatLng = { lat: 49.5, lng: 15 };
-
-  zoom = 7;
 
   private get apiUrl(): string {
     return this.env.getApiUrl('search');

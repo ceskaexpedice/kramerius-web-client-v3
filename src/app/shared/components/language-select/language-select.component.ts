@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, NgZone, OnDestroy, Output, ViewChild, inject, signal } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, NgZone, OnDestroy, Output, ViewChild, inject } from '@angular/core';
 import { Language } from '../../translation/lang-picker/language';
 import { ClickOutsideDirective } from '../../directives/click-outside';
 import { LanguageBadgeComponent } from '../language-badge/language-badge.component';

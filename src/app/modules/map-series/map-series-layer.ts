@@ -210,22 +210,6 @@ export class MapSeriesLayer {
     });
   }
 
-  /** Sheets whose centre lies inside the current viewport. */
-  sheetsInView(sheets: MapSeriesSheet[]): MapSeriesSheet[] {
-    const extent = transformExtent(
-      this.map.getView().calculateExtent(this.map.getSize()),
-      this.map.getView().getProjection(),
-      'EPSG:4326'
-    );
-    const [west, south, east, north] = extent;
-    return sheets.filter(sheet =>
-      !!sheet.center
-      && sheet.center.lat > south
-      && sheet.center.lat < north
-      && sheet.center.lng > west
-      && sheet.center.lng < east);
-  }
-
   /** Steps the view one zoom level in or out, as the viewer controls do. */
   zoomBy(delta: number): void {
     const view = this.map.getView();

@@ -1,4 +1,3 @@
-import {SearchDocument} from '../../models/search-document';
 import {SolrSortDirections, SolrSortFields} from '../../../core/solr/solr-helpers';
 import {FacetItem} from '../../models/facet-item';
 

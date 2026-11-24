@@ -4,7 +4,6 @@ import { PanelResizeHandleComponent } from '../../shared/components/panel-resize
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {MusicPageComponent} from "./music-page.component";
-import {DetailViewPageComponent} from "../detail-view-page/detail-view-page.component";
 import {DetailLayoutComponent} from "../../shared/components/detail-layout/detail-layout.component";
 import {InputComponent} from "../../shared/components/input/input.component";
 import {SheetCloseButtonComponent} from "../../shared/components/sheet-close-button/sheet-close-button.component";

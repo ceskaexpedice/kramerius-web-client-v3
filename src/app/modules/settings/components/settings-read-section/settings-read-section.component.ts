@@ -10,7 +10,7 @@ import { AiApiService, TtsProvider } from '../../../../shared/services/ai-api.se
 import { take } from 'rxjs/operators';
 import { TRANSLATION_LANGUAGES } from '../../../../shared/translation/translation-languages';
 import { Language } from '../../../../shared/translation/lang-picker/language';
-import { TtsVoiceOption, SAMPLE_TEXTS, getAllVoices, getVoiceLabel } from './tts-voices.data';
+import { TtsVoiceOption, SAMPLE_TEXTS, getVoiceLabel } from './tts-voices.data';
 
 @Component({
   selector: 'app-settings-read-section',

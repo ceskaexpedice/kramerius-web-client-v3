@@ -10,7 +10,7 @@ import {
   NoteInfo,
 } from '../models/metadata.model';
 import { EnvironmentService } from './environment.service';
-import { APP_LANG_TO_SOLR_SUFFIX, SOLR_LANG_TO_APP_LANG } from '../utils/language-utils';
+import { SOLR_LANG_TO_APP_LANG } from '../utils/language-utils';
 
 const SUBJECT_AUTHORITIES = ['czenas', 'eczenas'];
 

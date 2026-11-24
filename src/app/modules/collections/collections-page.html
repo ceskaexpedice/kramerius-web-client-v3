@@ -43,8 +43,7 @@
 
             <app-toolbar-header [showBackButton]="false" [title]="getLocalizedTitle(metadata)">
 
-              <app-admin-actions *ngIf="adminModeService.adminMode()" (exportRequested)="onExportSelected()"
-                (editRequested)="onEditSelected($event)">
+              <app-admin-actions *ngIf="adminModeService.adminMode()">
               </app-admin-actions>
 
             </app-toolbar-header>

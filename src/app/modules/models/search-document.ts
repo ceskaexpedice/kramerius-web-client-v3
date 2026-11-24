@@ -127,7 +127,3 @@ function parseDocumentCoords(doc: any): { north?: number; south?: number; east?:
   return {};
 }
 
-export function isDocumentPoint(doc: SearchDocument): boolean {
-  return doc.north != null && doc.south != null &&
-    doc.north === doc.south && doc.east === doc.west;
-}

@@ -1,26 +1,14 @@
 <div class="months-calendar-container" *ngIf="shouldShowCalendars()" (mousedown)="onCalendarClick($event)">
   @for (i of months; track i) {
-  <div class="month-calendar"
-    [class.month-placeholder]="!isMonthVisible(i)">
+  <div class="month-calendar">
     <div class="month-header">
       <h3>{{ monthNames[i] | translate }}</h3>
     </div>
 
-    <!-- Show calendar if month is visible -->
-    <mat-calendar *ngIf="isMonthVisible(i)" class="custom-label" [dateClass]="dateClass" [dateFilter]="hasIssueOnDate" [startAt]="getMonthDate(i)"
+    <mat-calendar class="custom-label" [dateClass]="dateClass" [dateFilter]="hasIssueOnDate" [startAt]="getMonthDate(i)"
       [startView]="'month'" [minDate]="getMonthMinDate(i)" [maxDate]="getMonthMaxDate(i)"
       (selectedChange)="onDateSelected($event)">
     </mat-calendar>
-
-    <!-- Show placeholder for lazy-loaded months -->
-    <div *ngIf="!isMonthVisible(i)" class="month-loading-placeholder" (click)="loadMonthIfNeeded(i)"
-         role="button" tabindex="0" [attr.aria-label]="(lazyLoadingEnabled() ? 'click-to-load-month' : 'loading') | translate"
-         (keydown.enter)="loadMonthIfNeeded(i)" (keydown.space)="$event.preventDefault(); loadMonthIfNeeded(i)">
-      <div class="loading-content">
-        <div class="loading-spinner" *ngIf="periodicalService.monthlyIssuesLoading()"></div>
-        <p>{{ lazyLoadingEnabled() ? ('click-to-load-month' | translate) : ('loading' | translate) }}</p>
-      </div>
-    </div>
   </div>
   }
 </div>

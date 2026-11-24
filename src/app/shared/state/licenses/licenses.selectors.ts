@@ -10,4 +10,3 @@ export const selectLicensesQuery = createSelector(selectLicensesState, state => 
 export const selectLicensesCurrentPage = createSelector(selectLicensesState, state => state.currentPage);
 export const selectLicensesPageSize = createSelector(selectLicensesState, state => state.pageSize);
 export const selectLicensesTotalCount = createSelector(selectLicensesState, state => state.totalCount);
-export const selectLicensesHasMore = createSelector(selectLicensesState, state => state.hasMore);

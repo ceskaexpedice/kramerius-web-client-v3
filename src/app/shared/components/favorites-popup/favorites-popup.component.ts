@@ -53,7 +53,6 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
   @Output() success = new EventEmitter<void>();
 
   // Store original itemId to revert if hierarchy selection is not used
-  private originalItemId: string = '';
   selectedHierarchyItemId = signal<string>('');
   selectedHierarchyItemName = signal<string>('');
 
@@ -174,7 +173,6 @@ export class FavoritesPopupComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Store original itemId
-    this.originalItemId = this.itemId;
 
     // Initialize filteredLists$ observable now that itemId is available
     this.filteredLists$ = combineLatest([

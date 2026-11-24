@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from './core/auth/auth.guard';
 import { authCallbackGuard } from './core/auth/auth-callback.guard';
 import { logoutReturnGuard } from './core/auth/logout-return.guard';
 import { LOGOUT_RETURN_PATH } from './core/auth/auth.service';

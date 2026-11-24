@@ -21,18 +21,3 @@ export interface SoundTrackModel {
   year?: number;
 }
 
-export const parseSoundTrack = (doc: any): SoundTrackModel => ({
-  accessibility: doc.accessibility,
-  licenses_of_ancestors: doc.licenses_of_ancestors || [],
-  model: doc.model,
-  pid: doc.pid,
-  'root.pid': doc.root?.pid || doc['root.pid'],
-  'root.title': doc.root?.title || doc['root.title'],
-  'title.search': doc['title.search'],
-  'track.length': doc['track.length'] || 0,
-  url: doc.url || '',
-  part: doc.part || '',
-  parentPid: doc.parentPid || doc['own_parent.pid'] || '',
-  authors: doc['authors.facet'] || doc.authors || [],
-  year: doc['date_range_start.year'] ? parseInt(doc['date_range_start.year'], 10) : undefined
-});

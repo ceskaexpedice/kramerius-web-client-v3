@@ -7,7 +7,6 @@ import {
   OnDestroy,
   ElementRef,
   ViewChild,
-  AfterViewInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCheckboxModule } from '@angular/material/checkbox';

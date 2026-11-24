@@ -1,4 +1,4 @@
-import { Directive, EventEmitter, Output, Signal, signal, computed } from '@angular/core';
+import { Directive, EventEmitter, Output, Signal, computed } from '@angular/core';
 
 @Directive()
 export abstract class BasePaginatorComponent {

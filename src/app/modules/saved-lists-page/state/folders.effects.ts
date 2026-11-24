@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of, combineLatest, forkJoin } from 'rxjs';
 import { catchError, map, switchMap, mergeMap, tap, filter, take, withLatestFrom } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { FoldersService } from '../services/folders.service';
 import { FolderSearchFiltersBuilder } from '../services/folder-search-filters.builder';
 import { CustomSearchService } from '../../../shared/services/custom-search.service';

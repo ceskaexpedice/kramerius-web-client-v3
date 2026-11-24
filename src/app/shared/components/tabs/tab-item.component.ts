@@ -1,5 +1,4 @@
 import { Component, Input, TemplateRef, ViewChild } from '@angular/core';
-import { NgClass, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-tab-item',

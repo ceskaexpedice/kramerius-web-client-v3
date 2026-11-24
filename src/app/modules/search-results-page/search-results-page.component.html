@@ -51,7 +51,7 @@
 
             <!-- Admin view: show admin actions -->
             <ng-container *ngIf="adminModeService.adminMode()">
-              <app-admin-actions (exportRequested)="onExportSelected()" (editRequested)="onEditSelected($event)">
+              <app-admin-actions>
               </app-admin-actions>
             </ng-container>
           </div>

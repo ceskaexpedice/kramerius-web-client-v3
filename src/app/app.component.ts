@@ -26,7 +26,6 @@ export class AppComponent implements OnInit {
   private env = inject(EnvironmentService);
   private soundService = inject(SoundService);
   private appLoader = inject(AppLoaderService);
-  private accessibilityService = inject(AccessibilityService);
   private uiState = inject(UiStateService);
   private appUpdate = inject(AppUpdateService);
   private lockService = inject(LockService);
@@ -38,6 +37,10 @@ export class AppComponent implements OnInit {
   playbackBarHeight = computed(() => this.showPlaybackBar() ? 'var(--playback-bar-height-value)' : '0px');
 
   constructor() {
+    // Created eagerly for its side effect: it applies the saved accessibility
+    // settings (contrast, colour filters, zoom) as soon as the app starts.
+    inject(AccessibilityService);
+
     // Immersive reading on phones (document detail): hide the global header and
     // take it out of the tab order / a11y tree while it is off-screen.
     effect(() => {

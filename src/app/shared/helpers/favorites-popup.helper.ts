@@ -1,4 +1,4 @@
-import { signal, Signal } from '@angular/core';
+import { signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FavoritesService } from '../services/favorites.service';
 import { PopupPositioningService, PopupState } from '../services/popup-positioning.service';

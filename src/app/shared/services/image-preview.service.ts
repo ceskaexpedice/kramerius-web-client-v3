@@ -1,4 +1,4 @@
-import { ComponentRef, Injectable, Injector, signal, inject } from '@angular/core';
+import { Injectable, Injector, signal, inject } from '@angular/core';
 import { Overlay, OverlayConfig, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { ImagePreviewOverlayComponent } from '../components/image-preview-overlay/image-preview-overlay.component';
@@ -17,7 +17,6 @@ export class ImagePreviewService {
   private injector = inject(Injector);
 
   private overlayRef: OverlayRef | null = null;
-  private componentRef: ComponentRef<ImagePreviewOverlayComponent> | null = null;
 
   // State signals
   private _isOpen = signal(false);
@@ -100,7 +99,6 @@ export class ImagePreviewService {
     if (this.overlayRef) {
       this.overlayRef.dispose();
       this.overlayRef = null;
-      this.componentRef = null;
     }
 
     this._images.set([]);
@@ -155,6 +153,6 @@ export class ImagePreviewService {
 
     // Attach the component
     const portal = new ComponentPortal(ImagePreviewOverlayComponent, null, this.injector);
-    this.componentRef = this.overlayRef.attach(portal);
+    this.overlayRef.attach(portal);
   }
 }

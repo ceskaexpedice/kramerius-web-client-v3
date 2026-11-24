@@ -23,7 +23,6 @@ import { Store } from '@ngrx/store';
 import { loadMonthIssues } from '../../../modules/periodical/state/periodical-detail/periodical-detail.actions';
 import {
   selectMonthIssues,
-  selectMonthLoading,
   selectPidsCoveringYear,
   selectPeriodicalState,
   selectAvailableYearsForCurrentDocument,

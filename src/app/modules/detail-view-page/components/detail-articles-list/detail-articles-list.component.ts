@@ -24,7 +24,8 @@ export class DetailArticlesListComponent {
 
   constructor() {
     effect(() => {
-      const index = this.detailViewService.currentArticleIndex;
+      // Read for dependency tracking: re-run whenever the active article changes.
+      this.detailViewService.currentArticleIndex;
       queueMicrotask(() => this.scrollToActiveArticle());
     });
   }

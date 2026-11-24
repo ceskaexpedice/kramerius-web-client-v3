@@ -15,7 +15,6 @@ import {
 import { SearchService } from '../../../shared/services/search.service';
 import { UserService } from '../../../shared/services/user.service';
 import { handleFacetsWithOperators } from '../../../shared/utils/facet-utils';
-import { AdvancedSearchService } from '../../../shared/services/advanced-search.service';
 import { DisplayConfigService } from '../../../shared/services/display-config.service';
 import { CustomSearchService } from '../../../shared/services/custom-search.service';
 import { ConfigService } from '../../../core/config/config.service';
@@ -28,7 +27,6 @@ export class SearchEffects {
     private solr: SolrService,
     private store: Store,
     private searchService: SearchService,
-    private advancedSearchService: AdvancedSearchService,
     private userService: UserService,
     private displayConfigService: DisplayConfigService,
     private customSearchService: CustomSearchService,

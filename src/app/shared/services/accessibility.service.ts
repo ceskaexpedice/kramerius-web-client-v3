@@ -1,7 +1,6 @@
 import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SettingsService } from '../../modules/settings/settings.service';
-import { AppSettingsThemeEnum } from '../../modules/settings/settings.model';
 
 export interface AccessibilitySettings {
   textScale: number;

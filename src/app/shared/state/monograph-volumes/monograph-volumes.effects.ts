@@ -4,7 +4,6 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
 import * as MonographVolumesActions from './monograph-volumes.actions';
 import { SolrService } from '../../../core/solr/solr.service';
-import { Store } from '@ngrx/store';
 import { fromSolrToMetadata } from '../../models/metadata.model';
 import { UserService } from '../../services/user.service';
 import { handleFacetsWithOperators } from '../../utils/facet-utils';
@@ -17,7 +16,6 @@ export class MonographVolumesEffects {
   constructor(
     private actions$: Actions,
     private solr: SolrService,
-    private store: Store,
     private userService: UserService,
     private customSearchService: CustomSearchService,
   ) {}

@@ -1104,16 +1104,6 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     }
   }
 
-  private updateViewerSource(): void {
-    if (!this.viewer) return;
-
-    const pid = this.imagePid || this.metadata?.uuid;
-    if (!pid) return;
-
-    const infoUrl = this.iiifViewerService.getIIIFInfoUrl(pid);
-    this.viewer.open({ tileSource: infoUrl });
-  }
-
   /**
    * Triggers a viewer update. Any in-flight update is cancelled via switchMap.
    */
