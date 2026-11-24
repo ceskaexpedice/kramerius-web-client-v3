@@ -64,26 +64,12 @@ export const authReducer = createReducer(
     error
   })),
 
-  on(AuthActions.refreshToken, (state) => ({
-    ...state,
-    loading: true,
-    error: null
-  })),
-
-  on(AuthActions.refreshTokenSuccess, (state, { tokens }) => ({
-    ...state,
-    tokens,
-    loading: false,
-    error: null
-  })),
-
-  on(AuthActions.refreshTokenFailure, (state, { error }) => ({
+  on(AuthActions.sessionExpired, (state) => ({
     ...state,
     isAuthenticated: false,
     tokens: null,
     user: null,
-    loading: false,
-    error
+    loading: false
   })),
 
   // AuthActions.logout intentionally leaves the state alone (issue #115): the

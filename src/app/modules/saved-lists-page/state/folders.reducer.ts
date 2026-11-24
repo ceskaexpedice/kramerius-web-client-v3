@@ -1,9 +1,13 @@
 import { createReducer, on } from '@ngrx/store';
 import { FoldersState, initialFoldersState } from './folders.models';
 import * as FoldersActions from './folders.actions';
+import * as AuthActions from '../../../core/auth/store/auth.actions';
 
 export const foldersReducer = createReducer(
   initialFoldersState,
+
+  // The user's folders must not stay on screen once their session has ended.
+  on(AuthActions.sessionExpired, (): FoldersState => initialFoldersState),
 
   on(FoldersActions.loadFolders, (state): FoldersState => ({
     ...state,

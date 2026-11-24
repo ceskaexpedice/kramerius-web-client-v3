@@ -523,8 +523,7 @@ export class FoldersEffects {
     this.actions$.pipe(
       ofType(
         AuthActions.loginSuccess,
-        AuthActions.exchangeCodeForTokenSuccess,
-        AuthActions.refreshTokenSuccess
+        AuthActions.exchangeCodeForTokenSuccess
       ),
       switchMap(() => {
         // First try to load folder items from cache

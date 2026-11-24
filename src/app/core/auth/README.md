@@ -13,8 +13,8 @@ This authentication system implements OAuth2/OpenID Connect flow with automatic 
 
 2. **Automatic Token Management**:
    - Access tokens are automatically attached to all API calls
-   - Tokens are refreshed automatically when they expire
-   - User is logged out if refresh fails
+   - The backend offers no token refresh: when the access token expires (or the API answers 401), the local session ends and the user is asked to log in again
+   - Keycloak's SSO session usually lets that login finish without a password prompt
 
 ## Usage Examples
 
@@ -107,6 +107,5 @@ The callback URL is automatically set to: `${window.location.origin}/auth/callba
 
 - Tokens are stored in localStorage
 - All API calls automatically include Authorization header
-- Expired tokens are automatically refreshed
-- Users are logged out if token refresh fails
+- An expired or rejected access token ends the local session 
 - Auth endpoints are excluded from token attachment
