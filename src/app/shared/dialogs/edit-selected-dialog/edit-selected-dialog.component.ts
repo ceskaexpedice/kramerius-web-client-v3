@@ -304,7 +304,7 @@ export class EditSelectedDialogComponent {
 
     const uuid = selectedIds[0];
     const url = `${adminClientUrl}/object/${uuid}/actions`;
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   openActionConfirmationDialog(data: ActionConfirmationDialogData, onConfirm: () => void) {

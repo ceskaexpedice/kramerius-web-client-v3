@@ -9,6 +9,7 @@ import * as MonographVolumesSelectors from '../state/monograph-volumes/monograph
 import { getCustomDefinedFacets, customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-results-page/const/facets';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { SolrQueryBuilder } from '../../core/solr/solr-query-builder';
+import { SolrUtils } from '../../core/solr/solr-utils';
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
 import { ConfigService } from '../../core/config/config.service';
 
@@ -132,7 +133,7 @@ export class MonographVolumesService extends BaseFilterService {
     // library. `cdk.collection` is a raw Solr field, so it is appended as-is.
     const cdkSource = params && params['source'];
     const filters = this.configService.isCdk() && cdkSource
-      ? [...baseFilters, ...customFilters, `cdk.collection:${cdkSource}`]
+      ? [...baseFilters, ...customFilters, `cdk.collection:"${SolrUtils.escapeSolrValue(String(cdkSource))}"`]
       : [...baseFilters, ...customFilters];
 
     console.log('Base filters:', baseFilters);

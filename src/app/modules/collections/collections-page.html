@@ -134,7 +134,7 @@
             @if (getLocalizedDescription(metadata).length > 0) {
               <div class="collection-description-wrapper">
                 <div #descriptionElement class="collection--notes" [class.expanded]="isDescriptionExpanded()"
-                     [innerHTML]="getLocalizedDescription(metadata) | safeHtml">
+                     [innerHTML]="getLocalizedDescription(metadata)">
                 </div>
                 @if (isDescriptionTruncated()) {
                 <button class="button link primary with-icon show-more-btn p-left-0"

@@ -21,7 +21,6 @@ import { EffectsModule } from '@ngrx/effects';
 import { CollectionsEffects } from '../../shared/state/collections/collections.effects';
 import { ResultsSortComponent } from '../search-results-page/components/results-sort/results-sort.component';
 import { ToolbarControlsComponent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
-import { SafeHtmlPipe } from '../../shared/pipes/safe-html.pipe';
 import { MetadataSidebarComponent } from '../../shared/components/metadata-sidebar/metadata-sidebar.component';
 import { MetadataSection } from '../../shared/components/metadata-section/metadata-section';
 import { ScrollHideHeaderDirective } from '../../shared/directives/scroll-hide-header.directive';
@@ -65,7 +64,6 @@ const routes: Routes = [
     EffectsModule.forFeature([CollectionsEffects]),
     ResultsSortComponent,
     ToolbarControlsComponent,
-    SafeHtmlPipe,
     NgClass,
     MetadataSidebarComponent,
     MetadataSection,

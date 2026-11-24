@@ -1,4 +1,4 @@
-import { inject } from '@angular/core';
+import { inject, isDevMode } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { ConfigService } from '../config/config.service';
 import { EnvironmentService } from '../../shared/services/environment.service';
@@ -13,6 +13,21 @@ import { EnvironmentService } from '../../shared/services/environment.service';
  * config-toggled feature gets a guard here, so a disabled feature is
  * unreachable rather than merely unadvertised.
  */
+
+/**
+ * Blocks the developer tools page outside development builds, unless the
+ * internal-only multi-library switch is on (internal/test deployments).
+ */
+export const devToolsGuard: CanActivateFn = () => {
+  const envService = inject(EnvironmentService);
+  const router = inject(Router);
+
+  if (isDevMode() || envService.isLibrarySwitchEnabled()) {
+    return true;
+  }
+
+  return router.createUrlTree(['/404']);
+};
 
 /**
  * Blocks the library-picker page unless the internal-only multi-library switch

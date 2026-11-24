@@ -185,7 +185,7 @@ export class SolrService {
    * folder search can size its scope chunks against the exact string sent.
    */
   static pidScopeTerm(id: string, exact = false): string {
-    return exact ? `pid:"${id}"` : `pid_paths:${id.replace(/:/g, '\\:')}*`;
+    return exact ? `pid:"${SolrUtils.escapeSolrValue(id)}"` : `pid_paths:${id.replace(/:/g, '\\:')}*`;
   }
 
   private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, rootUuid: string | null = null, collectionUuid: string | null = null, includeSupplement: boolean = true, includeArticle: boolean = true, pidScope: string[] = [], pidScopeExact = false): string {
@@ -311,14 +311,15 @@ export class SolrService {
    * `in_collections` — otherwise a query inside a collection finds nothing.
    */
   private buildCollectionScopeFq(collectionUuid: string, includePeriodicalItem = false, includePage = false): string {
-    const direct = `in_collections.direct:"${collectionUuid}"`;
+    const escapedUuid = SolrUtils.escapeSolrValue(collectionUuid);
+    const direct = `in_collections.direct:"${escapedUuid}"`;
     const models: string[] = [];
     if (includePage) {
       models.push('model:page', 'model:article');
       if (includePeriodicalItem) models.push('model:periodicalitem');
     }
     if (!models.length) return `(${direct})`;
-    return `((${direct}) OR ((${models.join(' OR ')}) AND in_collections:"${collectionUuid}"))`;
+    return `((${direct}) OR ((${models.join(' OR ')}) AND in_collections:"${escapedUuid}"))`;
   }
 
   /**
@@ -513,7 +514,7 @@ export class SolrService {
    */
   getOwnPidPath(pid: string): Observable<string> {
     const params = this.createHttpParams({
-      q: `pid:"${pid}"`,
+      q: `pid:"${SolrUtils.escapeSolrValue(pid)}"`,
       fl: 'own_pid_path',
       rows: 1,
       wt: 'json'
@@ -1058,7 +1059,7 @@ export class SolrService {
 
 
   getDetailItem(pid: string): Observable<any> {
-    const params = new HttpParams({ fromObject: { q: `pid:"${pid}"`, ...SolrQueryBuilder.rows(1) } });
+    const params = new HttpParams({ fromObject: { q: `pid:"${SolrUtils.escapeSolrValue(pid)}"`, ...SolrQueryBuilder.rows(1) } });
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs[0] ?? null)
     );
@@ -1071,7 +1072,7 @@ export class SolrService {
   getPagesByFosterParent(articlePid: string): Observable<any[]> {
     const params = new HttpParams({
       fromObject: {
-        q: `foster_parents.pids:"${articlePid}"`,
+        q: `foster_parents.pids:"${SolrUtils.escapeSolrValue(articlePid)}"`,
         fl: 'pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement',
         sort: 'rels_ext_index.sort asc',
         rows: '4000',
@@ -1089,7 +1090,7 @@ export class SolrService {
         obs.complete();
       });
     }
-    const query = `pid:(${pids.map(pid => `"${pid}"`).join(' OR ')})`;
+    const query = `pid:(${pids.map(pid => `"${SolrUtils.escapeSolrValue(pid)}"`).join(' OR ')})`;
     const params = new HttpParams({
       fromObject: {
         q: query,

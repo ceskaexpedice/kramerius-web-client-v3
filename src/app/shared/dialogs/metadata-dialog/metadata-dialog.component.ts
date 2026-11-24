@@ -297,7 +297,7 @@ export class MetadataDialogComponent implements OnInit {
             url = this.api.getMetadataUrl(this.selectedPid, this.activeTabLabel);
         }
         if (url) {
-            window.open(url, '_blank');
+            window.open(url, '_blank', 'noopener,noreferrer');
         }
     }
 

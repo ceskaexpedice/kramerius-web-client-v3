@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import { EnvironmentService } from '../../shared/services/environment.service';
 import { SEARCH_RETURN_FIELDS } from '../search-results-page/const/search-return-fields';
 import { MAP_SERIES_SHAPEFILES } from './map-series.shapefiles';
+import { SolrUtils } from '../../core/solr/solr-utils';
 import { LatLng, MapSeriesItem, ShapefilePolygon } from './map-series.model';
 
 /**
@@ -67,7 +68,7 @@ export class MapSeriesService {
     ];
     const params = new HttpParams({
       fromObject: {
-        q: `in_collections.direct:"${pid}"`,
+        q: `in_collections.direct:"${SolrUtils.escapeSolrValue(pid)}"`,
         fl: fields.join(','),
         rows: '2000',
         wt: 'json'

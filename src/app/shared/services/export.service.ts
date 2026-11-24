@@ -102,14 +102,14 @@ export class ExportService {
   exportJpeg(pid: string): void {
     const baseUrl = this.environmentService.getBaseApiUrl();
     const url = `${baseUrl}/search/iiif/${pid}/full/max/0/default.jpg`;
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   exportJpegCrop(pid: string, rect: { x: number, y: number, width: number, height: number }): void {
     const baseUrl = this.environmentService.getBaseApiUrl();
     const region = `${Math.round(rect.x)},${Math.round(rect.y)},${Math.round(rect.width)},${Math.round(rect.height)}`;
     const url = `${baseUrl}/search/iiif/${pid}/${region}/max/0/default.jpg`;
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   /**
@@ -168,7 +168,7 @@ export class ExportService {
     const url = `${baseUrl}/search/localPrintPDF?pids=${pidsParam}&pagesize=${pageSize}&imgop=${imgOp}`;
 
     // Open in new tab to trigger print dialog
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
 

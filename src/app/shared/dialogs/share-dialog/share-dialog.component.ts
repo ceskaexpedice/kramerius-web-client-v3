@@ -100,7 +100,8 @@ export class ShareDialogComponent {
       baseUrl + encodeURIComponent(this.currentShareUrl),
       'sharer',
       'toolbar=0,status=0,width=' + width + ',height=' + height +
-      ',top=' + (window.innerHeight - height) / 2 + ',left=' + (window.innerWidth - width) / 2
+      ',top=' + (window.innerHeight - height) / 2 + ',left=' + (window.innerWidth - width) / 2 +
+      ',noopener,noreferrer'
     );
   }
 

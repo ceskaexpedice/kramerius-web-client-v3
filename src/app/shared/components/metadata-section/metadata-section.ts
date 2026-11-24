@@ -28,7 +28,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { AuthorsDialogComponent } from '../../dialogs/authors-dialog/authors-dialog.component';
 import { LicenseInfoDialogComponent } from '../../dialogs/license-info-dialog/license-info-dialog.component';
 import { SelectComponent } from '../select/select.component';
-import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { ConfigService } from '../../../core/config/config.service';
 import { shouldShowAccessibility, collapsesToPublic } from '../../../core/config/license-variants';
 import { pickCdkCollection, pickCdkSourceRecord } from '../../utils/cdk-collection';
@@ -62,7 +61,6 @@ import { MetadataPairDirective } from './metadata-pair.directive';
     ModelBadgeComponent,
     RouterLink,
     SelectComponent,
-    SafeHtmlPipe,
     CdkTooltipDirective,
     MetadataGroupComponent,
     CopyButtonComponent,

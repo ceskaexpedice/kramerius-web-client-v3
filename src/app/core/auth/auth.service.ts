@@ -113,8 +113,6 @@ export class AuthService {
       return;
     }
 
-    console.log('AuthService returnUrl', returnUrl);
-
     if (returnUrl) {
       this.storage.set(this.ORIGINAL_ROUTE_KEY, returnUrl);
     }
@@ -234,7 +232,6 @@ export class AuthService {
   }
 
   private mapTokenResponse(response: TokenResponse): AuthTokens {
-    console.log('response', response);
     return {
       accessToken: response.access_token,
       refreshToken: response.refresh_token,

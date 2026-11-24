@@ -199,7 +199,7 @@
       <div class="detail-item" *ngIf="articleData.identifiers['doi']">
         <span class="detail-label">DOI</span>
         <div class="detail-value">
-          <a [href]="'https://doi.org/' + articleData.identifiers['doi']" target="_blank">
+          <a [href]="'https://doi.org/' + articleData.identifiers['doi']" target="_blank" rel="noopener noreferrer">
             {{ articleData.identifiers['doi'] }}
           </a>
           <app-copy-button [value]="articleData.identifiers['doi']" label="DOI"></app-copy-button>
@@ -588,7 +588,7 @@
     <!-- A list item, so several notes clamp by whole entries ("Show all (N)")
          instead of a line clamp that cut a note in half. Bullets only appear once
          there are several notes (see bulletsVisible). -->
-    <ng-template #noteTpl let-note><span [innerHTML]="note | safeHtml"></span></ng-template>
+    <ng-template #noteTpl let-note><span [innerHTML]="note"></span></ng-template>
     <app-metadata-section-item *ngIf="data.notes.length && data.model !== 'collection'" [label]="'notes' | translate" [hideLabel]="true"
       [collapsible]="true" type="list" [items]="getNotes(data.notes)" [itemTpl]="noteTpl">
     </app-metadata-section-item>

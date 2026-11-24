@@ -8,6 +8,7 @@ import { EnvironmentService } from '../../../shared/services/environment.service
 import { SolrOperators, SolrSortFields } from '../../../core/solr/solr-helpers';
 import { facetKeysEnum, mapFacetsToSearchFields } from '../../search-results-page/const/facets';
 import { SolrService } from '../../../core/solr/solr.service';
+import { SolrUtils } from '../../../core/solr/solr-utils';
 import { FolderSearchScope } from './folder-search-scope.service';
 
 /**
@@ -135,7 +136,7 @@ export class FoldersService {
       qClauses.push(`(${this.licenseClauses(filters.availabilityLicenses)})`);
     }
     if (!isOrWithSelection && pendingSelection.size > 0) {
-      const escaped = Array.from(pendingSelection).map(v => `"${v}"`);
+      const escaped = Array.from(pendingSelection).map(v => `"${SolrUtils.escapeSolrValue(v)}"`);
       qClauses.push(escaped.length === 1
         ? `${fqField}:${escaped[0]}`
         : `(${escaped.map(val => `${fqField}:${val}`).join(` ${pendingOperator} `)})`);

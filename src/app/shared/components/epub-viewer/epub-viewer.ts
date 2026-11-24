@@ -260,7 +260,6 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
         spread: 'none',
         manager: 'continuous',
         flow: 'paginated',
-        allowScriptedContent: true,
       } as any);
 
       // Await standard EPUB parsing of the internal Table of Contents map

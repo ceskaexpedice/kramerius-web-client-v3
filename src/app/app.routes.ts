@@ -5,7 +5,7 @@ import { logoutReturnGuard } from './core/auth/logout-return.guard';
 import { LOGOUT_RETURN_PATH } from './core/auth/auth.service';
 import { legacyRouteGuard } from './core/guards/legacy-route.guard';
 import { libraryPrefixGuard } from './core/guards/library-prefix.guard';
-import { foldersEnabledGuard, librarySwitchGuard, loginEnabledGuard } from './core/guards/feature.guard';
+import { devToolsGuard, foldersEnabledGuard, librarySwitchGuard, loginEnabledGuard } from './core/guards/feature.guard';
 
 export enum APP_ROUTES_ENUM {
   SEARCH = '',
@@ -133,7 +133,8 @@ export const routes: Routes = [
   },
   {
     path: APP_ROUTES_ENUM.DEV_TOOLS,
-    loadComponent: () => import('./core/pages/dev-tools/dev-tools.component').then(c => c.DevToolsComponent)
+    loadComponent: () => import('./core/pages/dev-tools/dev-tools.component').then(c => c.DevToolsComponent),
+    canActivate: [devToolsGuard]
   },
   {
     path: APP_ROUTES_ENUM.NOT_FOUND,

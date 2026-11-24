@@ -1,5 +1,5 @@
 import { AppComponent } from './app.component';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import { APP_INITIALIZER, ErrorHandler, NgModule, isDevMode } from '@angular/core';
 import { ChunkErrorHandler } from './shared/services/chunk-error.handler';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
@@ -19,7 +19,7 @@ import { PercentageSignTranslateParser } from './shared/translation/percentage-s
 import { AppMissingTranslationService } from './shared/translation/app-missing-translation-handler';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
-import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { FooterComponent } from './core/layout/footer/footer.component';
 import { routerReducer, StoreRouterConnectingModule } from '@ngrx/router-store';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -119,7 +119,6 @@ import { CollectionsEffects } from './shared/state/collections/collections.effec
       MonographVolumesEffects,
     ]),
     StoreRouterConnectingModule.forRoot(),
-    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: ENVIRONMENT.production }),
     HeaderComponent,
     FooterComponent,
     PlaybackBarComponent,
@@ -127,6 +126,8 @@ import { CollectionsEffects } from './shared/state/collections/collections.effec
     ImagePreviewOverlayComponent,
   ],
   providers: [
+    // Redux DevTools only in development builds; production must not expose store state.
+    ...(isDevMode() ? [provideStoreDevtools({ maxAge: 25 })] : []),
     provideTranslateService({
       fallbackLang: ENVIRONMENT.fallbackLanguage,
       loader: {
