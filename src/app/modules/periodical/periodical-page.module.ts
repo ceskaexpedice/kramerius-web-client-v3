@@ -18,10 +18,8 @@ import {
 import {
   PeriodicalYearIssuesGridComponent
 } from './components/periodical-year-issues-grid/periodical-year-issues-grid.component';
-import { PeriodicalFilterService } from './services/periodical-filter.service';
 import { PeriodicalFiltersComponent } from './components/periodical-filters/periodical-filters.component';
 import { ActionToolbarComponent } from '../../shared/components/action-toolbar/action-toolbar.component';
-import { RecordTypeTabsComponent } from '../../shared/components/record-type-tabs/record-type-tabs.component';
 import { ToolbarHeaderComponent } from '../../shared/components/toolbar-header/toolbar-header.component';
 import { ToolbarControlsComponent } from '../../shared/components/toolbar-controls/toolbar-controls.component';
 import { ResultsSortComponent } from '../search-results-page/components/results-sort/results-sort.component';
@@ -76,7 +74,6 @@ const routes: Routes = [
     PeriodicalYearIssuesGridComponent,
     PeriodicalFiltersComponent,
     ActionToolbarComponent,
-    RecordTypeTabsComponent,
     ToolbarHeaderComponent,
     ToolbarControlsComponent,
     ResultsSortComponent,

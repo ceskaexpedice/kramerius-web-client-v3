@@ -3,7 +3,6 @@ import { EnvironmentService } from './environment.service';
 import { CdkSourceService } from './cdk-source.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { PdfOutlineItem } from '../components/pdf-content-tree/pdf-content-tree.component';
-import { PdfPageThumbnail } from '../components/pdf-pages-grid/pdf-pages-grid.component';
 // Type-only: a value import would put ngx-extended-pdf-viewer (~0.9 MB) into
 // every chunk that uses PdfService. PdfViewer hands over the library service.
 import type { FindResultMatchesCount, NgxExtendedPdfViewerService, PageViewModeType, ZoomType } from 'ngx-extended-pdf-viewer';
@@ -57,8 +56,6 @@ export class PdfService {
 
   _uuid: string | null = null;
   private _pdfDocument: any = null;
-  private thumbnailCache: Map<number, string> = new Map();
-  private generatingThumbnails: Set<number> = new Set();
   public pdfViewerReady: boolean = false;
   private pdfViewerComponent: any = null;
   public pdfLoaded: boolean = false;
@@ -66,9 +63,6 @@ export class PdfService {
   // Observables for PDF state
   private outlineSubject = new BehaviorSubject<PdfOutlineItem[]>([]);
   public outline$: Observable<PdfOutlineItem[]> = this.outlineSubject.asObservable();
-
-  private pagesSubject = new BehaviorSubject<PdfPageThumbnail[]>([]);
-  public pages$: Observable<PdfPageThumbnail[]> = this.pagesSubject.asObservable();
 
   private currentPageSubject = new BehaviorSubject<number>(1);
   public currentPage$: Observable<number> = this.currentPageSubject.asObservable();
@@ -170,11 +164,6 @@ export class PdfService {
   // Set PDF outline/table of contents
   setOutline(outline: PdfOutlineItem[]): void {
     this.outlineSubject.next(outline);
-  }
-
-  // Set PDF pages with thumbnails
-  setPages(pages: PdfPageThumbnail[]): void {
-    this.pagesSubject.next(pages);
   }
 
   // Set current page number
@@ -341,73 +330,6 @@ export class PdfService {
     }
   }
 
-  // Get page thumbnail - returns cached base64 image or generates it
-  async getPageThumbnail(pageNumber: number): Promise<string> {
-    // Check cache first
-    if (this.thumbnailCache.has(pageNumber)) {
-      return this.thumbnailCache.get(pageNumber)!;
-    }
-
-    // Check if already generating
-    if (this.generatingThumbnails.has(pageNumber)) {
-      // Wait for generation to complete
-      return new Promise((resolve) => {
-        const checkInterval = setInterval(() => {
-          if (this.thumbnailCache.has(pageNumber)) {
-            clearInterval(checkInterval);
-            resolve(this.thumbnailCache.get(pageNumber)!);
-          }
-        }, 100);
-      });
-    }
-
-    // Generate thumbnail
-    if (!this._pdfDocument) {
-      return ''; // Return empty if no document loaded
-    }
-
-    this.generatingThumbnails.add(pageNumber);
-
-    try {
-      const page = await this._pdfDocument.getPage(pageNumber);
-      const viewport = page.getViewport({ scale: 0.3 }); // Smaller thumbnails
-
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      if (!context) {
-        throw new Error('Could not get canvas context');
-      }
-
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-
-      const renderContext = {
-        canvasContext: context,
-        viewport: viewport,
-      };
-
-      await page.render(renderContext).promise;
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.8); // Use JPEG with 80% quality for smaller size
-
-      // Cache the thumbnail
-      this.thumbnailCache.set(pageNumber, imgData);
-      this.generatingThumbnails.delete(pageNumber);
-
-      return imgData;
-    } catch (error) {
-      console.error(`Error generating thumbnail for page ${pageNumber}:`, error);
-      this.generatingThumbnails.delete(pageNumber);
-      return '';
-    }
-  }
-
-  // Get page thumbnail URL (for backward compatibility, but returns empty now)
-  getPageThumbnailUrl(pageNumber: number): string {
-    // This method is deprecated - use getPageThumbnail() instead
-    return '';
-  }
-
   // Set the PDF document reference for page resolution
   setPdfDocument(pdfDocument: any): void {
     this._pdfDocument = pdfDocument;
@@ -561,14 +483,11 @@ export class PdfService {
   // Reset all state
   private resetState(): void {
     this.outlineSubject.next([]);
-    this.pagesSubject.next([]);
     this.currentPageSubject.next(1);
     this.totalPagesSubject.next(0);
     this.navigateToPageSubject.next(null);
     this.searchQuerySubject.next('');
     this.pagesWithResultSubject.next([]);
-    this.thumbnailCache.clear();
-    this.generatingThumbnails.clear();
     this.pdfViewerReady = false;
     this.pdfProperties = {
       zoom: 'page-fit',
