@@ -113,7 +113,6 @@
     <app-collapsible-content *ngIf="localizedTitles.length > 1" [collapsible]="true" [maxLines]="4"
       [contentKey]="localizedTitles.length" moreLabel="metadata--show-full-text" lessLabel="metadata--show-less">
       <div class="titles--container" *ngFor="let title of localizedTitles">
-<!--        <span>{{ title.title }}</span>-->
         <span *ngIf="title.subTitle">: {{ title.subTitle }}</span>
       </div>
     </app-collapsible-content>
@@ -433,8 +432,6 @@
                     <img [src]="imgSrc" [alt]="license | translate" class="provided-licenses__logo" />
                   }
                 }
-
-      <!--          <app-license-badge *ngIf="data.model !== 'collection'" [license]="data.licence"></app-license-badge>-->
 
               </div>
             }

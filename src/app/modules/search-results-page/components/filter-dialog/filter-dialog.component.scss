@@ -99,29 +99,6 @@
   gap: var(--spacing-x2);
 }
 
-.help-link-wrapper {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-x1);
-  color: var(--color-text-light);
-  cursor: pointer;
-
-  .help-text {
-    font-size: var(--font-size-small);
-    font-weight: var(--font-weight-medium);
-    margin: 0;
-    line-height: var(--line-height-xs);
-  }
-
-  i {
-    font-size: var(--font-size-base);
-  }
-
-  &:hover {
-    color: var(--color-text-tertiary);
-  }
-}
-
 .selected-tags-section {
   margin-bottom: calc(-1 * var(--spacing-x2));
   padding-bottom: var(--spacing-x2);
@@ -268,13 +245,11 @@
   }
 
   .filters--container {
-    //flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-x2);
   }
 
   .info-row {
-    //flex-direction: column;
     align-items: flex-start;
   }
 

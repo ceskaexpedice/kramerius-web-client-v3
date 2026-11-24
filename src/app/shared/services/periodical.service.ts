@@ -399,7 +399,6 @@ export class PeriodicalService extends BaseFilterService {
   }
 
   search(query: string): void {
-    //this.initialize();
     this.router.navigate([`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}/${this.uuid}`], {
       queryParams: {
         // null removes the param — a user-initiated search (or clear) takes over
@@ -699,7 +698,6 @@ export class PeriodicalService extends BaseFilterService {
   private generateYearsFromAvailable(): void {
     this.periodicalYears = [...this.availableYears]
       .map(y => ({ ...y, exists: true }))
-    //.sort((a, b) => parseInt(a.year) - parseInt(b.year));
   }
 
   private saveViewModeToLocalStorage(view: string): void {

@@ -10,7 +10,6 @@
           (click)="navigateToPage(item)">
 
           <span class="pdf-content-tree__title">{{ item.title }}</span>
-          <!--          <span class="pdf-content-tree__page">{{ item.page }}</span>-->
         </div>
 
         <div *ngIf="item.expanded && item.items" class="pdf-content-tree__subitems">
@@ -20,7 +19,6 @@
                 [class.pdf-content-tree__item-header--active]="isItemActive(subitem)" (click)="navigateToPage(subitem)">
 
                 <span class="pdf-content-tree__title">{{ subitem.title }}</span>
-                <!--                <span class="pdf-content-tree__page">{{ subitem.page }}</span>-->
               </div>
 
               <div *ngIf="subitem.expanded && subitem.items" class="pdf-content-tree__subitems">
@@ -30,7 +28,6 @@
                       [class.pdf-content-tree__item-header--active]="isItemActive(subsubitem)"
                       (click)="navigateToPage(subsubitem)">
                       <span class="pdf-content-tree__title">{{ subsubitem.title }}</span>
-                      <!--                      <span class="pdf-content-tree__page">{{ subsubitem.page }}</span>-->
                     </div>
                   </div>
                 </ng-container>

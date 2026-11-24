@@ -858,7 +858,6 @@ export class IIIFViewerService {
 
         // Create selection frame
         this.selectionOverlay = document.createElement('div');
-        // this.selectionOverlay.style.border = this.BOX_STYLES.selection.frame.border;
         this.selectionOverlay.style.boxShadow = this.BOX_STYLES.selection.frame.boxShadow;
         this.selectionOverlay.style.pointerEvents = this.BOX_STYLES.common.pointerEvents;
         this.selectionOverlay.style.background = this.BOX_STYLES.selection.frame.background;
@@ -1223,7 +1222,6 @@ export class IIIFViewerService {
 
     if (boxes.length === 0) {
       console.warn('No matches found in ALTO for search term:', searchTerm);
-      //this.clearSearchState();
       return 0;
     }
 

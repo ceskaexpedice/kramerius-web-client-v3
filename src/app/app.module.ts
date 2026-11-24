@@ -30,7 +30,6 @@ import { UserService } from './shared/services/user.service';
 import { initApp } from './core/init/app-init';
 import { AnalyticsService } from './shared/services/analytics.service';
 import { PlaybackBarComponent } from './shared/components/playback-bar/playback-bar.component';
-import { LoadingOverlayComponent } from './shared/components/loading-overlay/loading-overlay.component';
 import { ImagePreviewOverlayComponent } from './shared/components/image-preview-overlay/image-preview-overlay.component';
 import { FILTER_SERVICE } from './shared/services/filter.service';
 import { SearchService } from './shared/services/search.service';
@@ -122,7 +121,6 @@ import { CollectionsEffects } from './shared/state/collections/collections.effec
     HeaderComponent,
     FooterComponent,
     PlaybackBarComponent,
-    LoadingOverlayComponent,
     ImagePreviewOverlayComponent,
   ],
   providers: [

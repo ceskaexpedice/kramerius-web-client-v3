@@ -47,11 +47,6 @@
         font-weight: var(--font-weight-semi-bold);
         color: var(--color-primary);
       }
-
-      .pdf-content-tree__page {
-        font-weight: var(--font-weight-semi-bold);
-        color: var(--color-primary);
-      }
     }
   }
 
@@ -99,16 +94,8 @@
       color: var(--color-text-tertiary);
     }
 
-    .pdf-content-tree__page {
-      color: var(--color-text-tertiary);
-    }
-
     .pdf-content-tree__item-header--active {
       .pdf-content-tree__title {
-        color: var(--color-primary);
-      }
-
-      .pdf-content-tree__page {
         color: var(--color-primary);
       }
     }

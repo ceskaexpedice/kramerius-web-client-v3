@@ -6,6 +6,12 @@
   margin-bottom: var(--spacing-x3);
 }
 
+.track-list-empty {
+  margin: 0;
+  padding: var(--spacing-x4) 0;
+  color: var(--color-text-secondary);
+}
+
 .track-table-wrapper {
   // Phones: scroll the table sideways inside its rounded frame.
   @include m.respond(mobile-sm) {

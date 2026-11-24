@@ -8,6 +8,8 @@
 // its first imports had downloaded and parsed — one more round trip before the
 // app could boot (visible as a second "wave" of chunk requests).
 //
+// Also adds the env.json preload (see addEnvJsonPreload).
+//
 // Runs as part of `postbuild`. Idempotent: links already present are skipped.
 //
 // Usage: node scripts/add-modulepreload.js [outputDir]
@@ -38,6 +40,27 @@ function staticImports(dir, file) {
   return found;
 }
 
+// Bootstrap's first request is EnvironmentService.load → fetch('/assets/env.json').
+// Preloading it runs it alongside the JS download instead of after it.
+// `crossorigin` gives the same credentials mode as fetch()'s default, so the
+// preloaded response is reused. Only production builds read env.json
+// (useStaticRuntimeConfig), which is why this is added here and not in
+// src/index.html: under `ng serve` the preload would go unused and the browser
+// warns about it.
+const ENV_JSON_PRELOAD = '<link rel="preload" href="/assets/env.json" as="fetch" crossorigin>';
+
+function addEnvJsonPreload(html) {
+  if (html.includes('href="/assets/env.json"')) return html;
+  const head = html.indexOf('<head>');
+  if (head === -1) {
+    console.error('[add-modulepreload] ❌ no <head> in index.html');
+    process.exit(1);
+  }
+  const at = head + '<head>'.length;
+  console.log('[add-modulepreload] ✅ env.json preload added');
+  return html.slice(0, at) + ENV_JSON_PRELOAD + html.slice(at);
+}
+
 function main() {
   const dir = path.resolve(process.argv[2] || defaultOutputDir());
   const indexPath = path.join(dir, 'index.html');
@@ -45,7 +68,7 @@ function main() {
     console.error(`[add-modulepreload] ❌ ${indexPath} not found`);
     process.exit(1);
   }
-  let html = fs.readFileSync(indexPath, 'utf8');
+  let html = addEnvJsonPreload(fs.readFileSync(indexPath, 'utf8'));
 
   const entries = [...html.matchAll(/<script[^>]+src="([\w.-]+\.js)"[^>]*type="module"/g)].map(m => m[1]);
   if (!entries.length) {
@@ -72,6 +95,7 @@ function main() {
   const existing = new Set([...html.matchAll(/<link rel="modulepreload" href="([^"]+)"/g)].map(m => m[1]));
   const missing = [...closure].filter(f => !existing.has(f)).sort();
   if (!missing.length) {
+    fs.writeFileSync(indexPath, html);
     console.log(`[add-modulepreload] ✅ all ${closure.size} initial chunks already preloaded`);
     return;
   }

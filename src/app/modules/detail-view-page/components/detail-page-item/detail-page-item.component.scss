@@ -184,7 +184,6 @@
     position: absolute;
     top: var(--spacing-x1);
     left: var(--spacing-x1);
-    //transform: translate(-50%, -50%);
     width: 20px;
     height: 20px;
     padding: var(--spacing-x2);
@@ -252,7 +251,12 @@
   color: var(--color-text-base);
   background-color: var(--color-bg-base);
   font-size: var(--font-size-small);
-  line-height: 11px;
+  // Relative, not a fixed px value: some page numbers are long labels
+  // ("Obálka vnitřní 10") that wrap, and a line-height below the font size
+  // made the wrapped lines overlap.
+  line-height: 1.2;
+  max-width: calc(100% - 4px);
+  overflow-wrap: anywhere;
 }
 
 .page--type-label {

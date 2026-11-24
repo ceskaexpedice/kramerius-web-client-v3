@@ -420,11 +420,6 @@ export class SolrService {
         return `{!ex=${facetKeysEnum.rootModel},${facetKeysEnum.model}}${field}`;
       }
 
-      // Don't exclude licenses.facet from calculations - we want accurate counts
-      // if (field === facetKeysEnum.license) {
-      //   return field;
-      // }
-
       return op === SolrOperators.or && hasFilter ? `{!ex=${field}}${field}` : field;
     });
   }

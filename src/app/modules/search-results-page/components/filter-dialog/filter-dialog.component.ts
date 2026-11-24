@@ -187,9 +187,6 @@ export class FilterDialogComponent extends BasePaginatorComponent implements OnI
       // Initialize selection
       const selectedValues = this.queryParamsService.getFiltersByFacet(params, this.data.facetKey);
       this.pendingSelection.set(new Set(selectedValues));
-
-      // Now load facets after setting both operator and selection
-      //this.loadFacetsWithPendingChanges(false);
     });
 
     this.loadFacets(false);

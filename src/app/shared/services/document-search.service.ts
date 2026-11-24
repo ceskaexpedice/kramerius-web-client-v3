@@ -268,7 +268,7 @@ export class DocumentSearchService {
     this.solrService.getInDocumentSearchResults(documentUuid, searchTerm, this.isCaseSensitive, this.cdkSource.getCode()).subscribe({
       next: (results) => {
 
-        const searchResults = this.mapAndSortResults(results);
+        const searchResults = this.mapResults(results);
         this.searchResultsSubject.next(searchResults);
         this.allMatchedPages = searchResults.map(r => r.pid);
 
@@ -334,9 +334,10 @@ export class DocumentSearchService {
   }
 
   /**
-   * Maps Solr results to SearchResult format and sorts by page number
+   * Maps Solr results to SearchResult format, adding each hit's page number.
+   * Keeps the order Solr returned.
    */
-  private mapAndSortResults(results: any[]): SearchResult[] {
+  private mapResults(results: any[]): SearchResult[] {
     // Get pages array to map PIDs to page numbers
     const pages = this.detailViewService.pages;
 
@@ -350,13 +351,6 @@ export class DocumentSearchService {
         pageNumber: page?.['page.number'] !== undefined ? page['page.number'] : undefined
       };
     });
-
-    // Sort by page number
-    // searchResults.sort((a, b) => {
-    //   if (a.pageNumber === undefined) return 1;
-    //   if (b.pageNumber === undefined) return -1;
-    //   return a.pageNumber - b.pageNumber;
-    // });
 
     return searchResults;
   }

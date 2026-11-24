@@ -171,6 +171,7 @@
                   [tracks]="tracks"
                   [playingPid]="soundService.currentTrackPid"
                   [accessDenied]="accessDenied"
+                  [showEmptyState]="(musicService.tracksSettled$ | async) ?? false"
                   (select)="musicService.addTracksToQueueAndPlayFirst($event)"
                   (playAll)="musicService.addTracksToQueueAndPlayFirst($event[0])"
                   (addToQueue)="musicService.addTrackToQueue($event)"

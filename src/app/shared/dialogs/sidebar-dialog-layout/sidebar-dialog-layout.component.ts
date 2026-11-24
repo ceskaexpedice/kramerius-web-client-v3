@@ -86,14 +86,6 @@ export class SidebarDialogLayoutComponent {
 
   checkMobileView() {
     this.isMobile.set(this.breakpointService.isMobile());
-    //
-    // const wasMobile = this.isMobile();
-    // this.isMobile.set(window.innerWidth <= 768);
-    //
-    // // If transitioning from mobile to desktop, reset mobile content view
-    // if (wasMobile && !this.isMobile()) {
-    //   this.showMobileContent.set(false);
-    // }
   }
 
   setActiveSection(key: string) {

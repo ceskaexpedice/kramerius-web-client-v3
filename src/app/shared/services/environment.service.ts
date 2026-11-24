@@ -120,7 +120,6 @@ export class EnvironmentService {
     } else if (fromBuildConfig !== undefined) {
       return fromBuildConfig;
     } else {
-      // console.warn(`Key "${key}" not found in configEnv or configBuildInfo.`);
       return undefined;
     }
   }
@@ -172,8 +171,6 @@ export class EnvironmentService {
   }
 
   getApiUrl(path: string = ''): string {
-    // const baseUrl = this.get('krameriusBaseUrl');
-    // return ensureTrailingSlash(baseUrl) + path.replace(/^\/+/, '');
     const baseUrl = this.getKrameriusUrl();
 
     return ensureTrailingSlash(baseUrl) + path.replace(/^\/+/, '');
@@ -185,7 +182,6 @@ export class EnvironmentService {
   }
 
   getBaseApiUrl(): string {
-    // const fullUrl = this.get('krameriusBaseUrl');
     const fullUrl = this.getKrameriusUrl();
     try {
       const url = new URL(fullUrl);

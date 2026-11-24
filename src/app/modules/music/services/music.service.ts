@@ -4,7 +4,8 @@ import {
   selectMusicError,
   selectMusicLoading,
   selectMusicMetadata,
-  selectMusicTracks
+  selectMusicTracks,
+  selectMusicTracksSettled
 } from "../state/music-detail.selectors";
 import {Store} from "@ngrx/store";
 import {RecordHandlerService} from "../../../shared/services/record-handler.service";
@@ -46,6 +47,7 @@ export class MusicService {
   metadata$ = this.store.select(selectMusicMetadata);
   tracks$ = this.store.select(selectMusicTracks);
   loading$ = this.store.select(selectMusicLoading);
+  tracksSettled$ = this.store.select(selectMusicTracksSettled);
   error$ = this.store.select(selectMusicError);
 
   private metadataSignal = toSignal(this.metadata$, { initialValue: null });
@@ -139,10 +141,6 @@ export class MusicService {
 
       this.toastService.show('track-downloaded');
     }
-  }
-
-  goBackClicked(): void {
-    //this.recordHandler.navi();
   }
 
   openMusicStopDialog() {

@@ -61,17 +61,6 @@
         }
       }
     }
-
-    .advanced-search-indicator--image {
-      display: flex;
-      align-items: flex-end;
-
-      img {
-        height: 120px;
-        object-fit: contain;
-        display: block;
-      }
-    }
   }
 
   .advanced-search-indicator--no-results {

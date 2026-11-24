@@ -465,10 +465,6 @@ export class SearchService extends BaseFilterService {
     // if we have license filter in both baseFilters and customFilters operator between them is AND
 
 
-    // if (baseFilters.some(f => f.includes(facetKeysEnum.license)) && customFilters.some(f => f.includes(facetKeysEnum.license))) {
-    //   customFilters = customFilters.filter(f => !f.includes(facetKeysEnum.license));
-    // }
-
     // secure check, if hasSubmittedQuery is false, there cannot be filter model:page, so we need to remove it from customFilters as well as baseFilters
     if (!this.hasSubmittedQuery()) {
       customFilters = customFilters.filter(f => !f.includes(`${facetKeysEnum.model}:page`));

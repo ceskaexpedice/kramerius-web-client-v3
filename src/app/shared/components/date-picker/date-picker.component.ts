@@ -680,11 +680,7 @@ export class DatePickerComponent implements OnInit, OnChanges, AfterViewChecked 
     this.isRangeModeActive = event?.checked ?? !this.isRangeModeActive;
 
     if (this.isRangeModeActive) {
-      // Entering range mode - clear offset and set dateTo to null for user selection
-      // unless we already have both dates (from offset mode)
-      // if (this.selectedOffset() === 0 || !this.selectedDateTo()) {
-      //   this.selectedDateTo.set(null);
-      // }
+      // Entering range mode: drop the offset and start the range at the from-date.
       this.selectedOffset.set(0);
       this.selectedDateTo.set(this.selectedDateFrom());
       // Update input string for "to" date
