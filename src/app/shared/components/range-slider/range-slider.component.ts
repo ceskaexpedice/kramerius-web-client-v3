@@ -305,7 +305,6 @@ export class RangeSliderComponent implements OnInit, OnChanges {
     const target = event.target as HTMLInputElement;
     const dateValue = target.value;
     if (dateValue) {
-      // Vytvoríme Date objekt z string hodnoty
       const newDate = new Date(dateValue);
       this.onFromInput(newDate);
     }
@@ -315,7 +314,6 @@ export class RangeSliderComponent implements OnInit, OnChanges {
     const target = event.target as HTMLInputElement;
     const dateValue = target.value;
     if (dateValue) {
-      // Vytvoríme Date objekt z string hodnoty
       const newDate = new Date(dateValue);
       // set time to 23:59:59 to include the whole day
       newDate.setUTCHours(23, 59, 59, 999);

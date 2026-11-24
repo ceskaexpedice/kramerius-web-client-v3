@@ -184,10 +184,7 @@ export class ConfigService {
     }
   }
 
-  /**
-   * Returns the URL to fetch libraries.json from.
-   * On localhost uses local file, on production uses the remote API.
-   */
+  /** URL of the remote library registry (libraries.json). */
   static getLibrariesUrl(): string {
     return LIBRARIES_API_URL;
   }

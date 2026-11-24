@@ -33,7 +33,7 @@ export class SearchDebounceService {
   }
 
   /**
-   * Immediately execute and clear any pending debounce for the given key.
+   * Drops the pending debounced call for the given key without running it.
    */
   public cancel(key: string): void {
     const timeout = this.debounceTimeouts.get(key);
