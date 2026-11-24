@@ -93,6 +93,14 @@ google-map {
   }
 }
 
+// Virtual scroll swaps rows in and out above the visible ones and shifts the
+// content with a transform. Browser scroll anchoring treats that as a layout
+// shift and pulls scrollTop back by the removed rows, so the list kept
+// snapping back towards the top while scrolling.
+.cdk-virtual-scroll-viewport {
+  overflow-anchor: none;
+}
+
 *,
 *::before,
 *::after {

@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { BehaviorSubject } from 'rxjs';
 import { DetailPagesGridComponent } from './detail-pages-grid.component';
 import { DetailPageItemComponent } from '../detail-page-item/detail-page-item.component';
@@ -68,16 +69,17 @@ describe('DetailPagesGridComponent virtualization', () => {
 
   let fixture: ComponentFixture<HostComponent>;
   let pagesOnly$: BehaviorSubject<any[]>;
+  let currentPageIndex: ReturnType<typeof signal<number>>;
 
   beforeEach(async () => {
     pagesOnly$ = new BehaviorSubject<any[]>(makePages(PAGE_COUNT));
 
-    const currentPageIndex = signal(0);
+    currentPageIndex = signal(0);
     const detailViewServiceStub: Partial<DetailViewService> = {
       pages$: pagesOnly$.asObservable(),
       pagesOnly$: pagesOnly$.asObservable(),
       filterJpegPages: (pages: any[]) => pages,
-      isPageActiveByPid: (pid: string) => pid === 'uuid:page-0',
+      isPageActiveByPid: (pid: string) => pid === `uuid:page-${currentPageIndex()}`,
       isPageLocked: () => false,
       isPageUnlocked: () => false,
       isDocumentRestrictedButAccessible: (() => false) as any,
@@ -85,7 +87,7 @@ describe('DetailPagesGridComponent virtualization', () => {
       navigateToPage: jasmine.createSpy('navigateToPage'),
     };
     Object.defineProperty(detailViewServiceStub, 'currentPagePid', {
-      get: () => 'uuid:page-0',
+      get: () => `uuid:page-${currentPageIndex()}`,
     });
     Object.defineProperty(detailViewServiceStub, 'currentPageIndex', {
       get: () => currentPageIndex(),
@@ -106,8 +108,12 @@ describe('DetailPagesGridComponent virtualization', () => {
       .compileComponents();
 
     fixture = TestBed.createComponent(HostComponent);
-    fixture.detectChanges();
   });
+
+  /** Most tests start on page 1; the deep-link ones set the page first. */
+  function render(): void {
+    fixture.detectChanges();
+  }
 
   function renderedItems(): number {
     return fixture.nativeElement.querySelectorAll('app-detail-page-item').length;
@@ -144,6 +150,7 @@ describe('DetailPagesGridComponent virtualization', () => {
   });
 
   it('chunks pages into rows matching the grid column count', () => {
+    render();
     const grid = gridInstance();
 
     const rows = grid.rows();
@@ -155,6 +162,7 @@ describe('DetailPagesGridComponent virtualization', () => {
   });
 
   it('keeps the last row when the page count is not a multiple of the columns', () => {
+    render();
     pagesOnly$.next(makePages(7));
     fixture.detectChanges();
 
@@ -188,5 +196,82 @@ describe('DetailPagesGridComponent virtualization', () => {
     await settleViewport();
 
     expect(renderedItems()).toBe(6);
+  });
+
+  function scrollTop(): number {
+    return gridInstance().viewport!.measureScrollOffset();
+  }
+
+  async function frames(count: number): Promise<void> {
+    for (let i = 0; i < count; i++) {
+      await new Promise(resolve => requestAnimationFrame(() => resolve(null)));
+      fixture.detectChanges();
+    }
+  }
+
+  // Opening /view/…?page=… used to leave the grid at the first page: the jump
+  // to the active row ran before the viewport could scroll and was clamped to 0.
+  it('opens a deep link with the active page row at the top', async () => {
+    currentPageIndex.set(300);
+    render();
+    await settleViewport();
+    await frames(2);
+
+    const grid = gridInstance();
+    expect(scrollTop()).toBeCloseTo(100 * grid.rowHeight(), 0);
+    const selected = fixture.debugElement.queryAll(By.directive(StubPageItemComponent))
+      .find(item => item.componentInstance.isSelected);
+    expect(selected?.componentInstance.page.pid).toBe('uuid:page-300');
+  });
+
+  // A deferred jump must never outlive a later page change.
+  it('jumps to the latest active page, not a stale deferred one', async () => {
+    currentPageIndex.set(300);
+    render();
+    currentPageIndex.set(600);
+    fixture.detectChanges();
+    await settleViewport();
+    await frames(2);
+
+    expect(scrollTop()).toBeCloseTo(200 * gridInstance().rowHeight(), 0);
+  });
+
+  // Browser scroll anchoring treats the rows the viewport swaps out above the
+  // visible ones as a layout shift and pulls scrollTop back by them, so the
+  // list kept snapping towards the top. Guarded by the global
+  // `.cdk-virtual-scroll-viewport { overflow-anchor: none }` in styles.scss.
+  it('keeps the scroll position while scrolling through swapped rows', async () => {
+    render();
+    await settleViewport();
+    await frames(2);
+
+    const element = gridInstance().viewport!.elementRef.nativeElement;
+    expect(getComputedStyle(element).overflowAnchor).toBe('none');
+
+    let expected = 0;
+    for (let i = 0; i < 40; i++) {
+      expected += 60;
+      element.scrollTop = expected;
+      await frames(1);
+      expect(element.scrollTop).withContext(`step ${i}`).toBeCloseTo(expected, 0);
+    }
+  });
+
+  // Unrelated store updates hand out a new pages array; that must not pull a
+  // scrolled grid back to the active page.
+  it('does not scroll back when the same pages are emitted again', async () => {
+    render();
+    await settleViewport();
+    await frames(2);
+
+    const element = gridInstance().viewport!.elementRef.nativeElement;
+    element.scrollTop = 3000;
+    await frames(2);
+
+    pagesOnly$.next(makePages(PAGE_COUNT));
+    await settleViewport();
+    await frames(2);
+
+    expect(element.scrollTop).toBeCloseTo(3000, 0);
   });
 });
