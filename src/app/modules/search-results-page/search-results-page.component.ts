@@ -222,14 +222,18 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
     const currentParams = this.route.snapshot.queryParams;
 
     if (view === AppResultsViewType.map) {
-      // Map tab: set tab=map; default to score sort; remove viewType; coords written by MapBrowseComponent
-      this.searchService.changeSortBy(SolrSortFields.relevance, SolrSortDirections.desc);
+      // Map tab: set tab=map; always reset to score sort; remove viewType; coords written by MapBrowseComponent.
+      // Sort goes into this same navigation — a separate changeSortBy() navigation would be
+      // cancelled by this one and the sort from the All tab would stay in the URL (#211).
+      const sortBy = SolrSortFields.relevance;
+      const sortDirection = SolrSortDirections.desc;
+      this.searchService.setSort(sortBy, sortDirection);
       // The map tab has no "where to search" toggle, so a choice like "Samostatné
       // strany" would linger as a hidden page filter. Drop it in the same navigation.
       const customSearch = this.customSearchService.dropFacetFilters(customDefinedFacetsEnum.whereToSearchModel);
       this.router.navigate([], {
         relativeTo: this.route,
-        queryParams: { tab: 'map', viewType: null, ...(customSearch !== undefined ? { customSearch } : {}) },
+        queryParams: { tab: 'map', viewType: null, sortBy, sortDirection, ...(customSearch !== undefined ? { customSearch } : {}) },
         queryParamsHandling: 'merge',
         replaceUrl: true
       });

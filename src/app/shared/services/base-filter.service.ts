@@ -244,9 +244,14 @@ export abstract class BaseFilterService implements FilterService, OnDestroy {
   // frontend host, answered with index.html) before the API base was known.
   async load(): Promise<void> {}
 
-  changeSortBy(sortBy: SolrSortFields, sortDirection: SolrSortDirections, replaceUrl: boolean = false) {
+  /** Update sort state only; the caller writes sortBy/sortDirection to the URL itself. */
+  setSort(sortBy: SolrSortFields, sortDirection: SolrSortDirections) {
     this._sortBy.set(sortBy);
     this._sortDirection.set(sortDirection);
+  }
+
+  changeSortBy(sortBy: SolrSortFields, sortDirection: SolrSortDirections, replaceUrl: boolean = false) {
+    this.setSort(sortBy, sortDirection);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { sortBy, sortDirection },
