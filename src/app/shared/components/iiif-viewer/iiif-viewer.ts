@@ -520,7 +520,16 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // it for a loader), so the initial load must honour book mode too —
     // otherwise only the left page shows while book mode stays on.
     this.loadTileSources(pid).subscribe({
-      next: (tileSources) => this.createViewer(tileSources),
+      next: (tileSources) => {
+        // The page changed while its info.json loaded (e.g. a fulltext search
+        // jumping to the first hit). triggerViewerUpdate skips that change while
+        // no viewer exists yet, so open the page that is current now.
+        if ((this.imagePid || this.metadata?.uuid) !== pid) {
+          this.initializeViewer();
+          return;
+        }
+        this.createViewer(tileSources);
+      },
       error: (error) => {
         console.error('Failed to fetch IIIF info.json', error);
         this.handleOpenFailed();

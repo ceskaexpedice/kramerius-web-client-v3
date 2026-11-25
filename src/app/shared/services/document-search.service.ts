@@ -280,22 +280,29 @@ export class DocumentSearchService {
         let pageIndex = 0;
 
         if (skipNavigation) {
-          // For restore from URL: stay on current page if it has matches
+          // Restore from URL: stay on the current page if it has matches.
+          // Otherwise jump to the first match like the legacy client did — a
+          // search result link opens the document without ?page, so the reader
+          // would land on the cover. Article views keep their own page.
           const currentPid = this.detailViewService.currentPagePid;
-          if (currentPid) {
-            const currentIndex = this.allMatchedPages.indexOf(currentPid);
+          const currentIndex = currentPid ? this.allMatchedPages.indexOf(currentPid) : -1;
+          const keepCurrentPage = currentIndex !== -1
+            || this.allMatchedPages.length === 0
+            || this.detailViewService.isPdf
+            || !!this.route.snapshot.queryParams['article'];
+
+          if (keepCurrentPage) {
             this.currentMatchedPageIndexSubject.next(currentIndex);
 
-            // If current page has matches, display ALTO highlights.
             // Restoring from URL: the image may already be loaded, so use the
             // existing imageLoaded$ which fires on each fully-loaded settle.
             if (currentIndex !== -1) {
               this.iiifViewerService.imageLoaded$.pipe(take(1)).subscribe(() => {
-                this.fetchAndDisplayHighlights(currentPid, searchTerm);
+                this.fetchAndDisplayHighlights(currentPid!, searchTerm);
               });
             }
+            return;
           }
-          return;
         }
 
         if (targetPid && this.allMatchedPages.includes(targetPid)) {
@@ -335,24 +342,25 @@ export class DocumentSearchService {
 
   /**
    * Maps Solr results to SearchResult format, adding each hit's page number.
-   * Keeps the order Solr returned.
+   * Hits follow the document's page order (like the legacy client), so the
+   * first jump, the counter and prev/next match the sidebar list. Hits whose
+   * page is not in the reader go last, in the order Solr returned them.
    */
   private mapResults(results: any[]): SearchResult[] {
-    // Get pages array to map PIDs to page numbers
     const pages = this.detailViewService.pages;
+    const indexByPid = new Map(pages.map((p, i) => [p.pid, i]));
+    const position = (pid: string) => indexByPid.get(pid) ?? Number.MAX_SAFE_INTEGER;
 
-    // Convert to SearchResult format and add page numbers
-    const searchResults: SearchResult[] = results.map(r => {
-      const pageIndex = pages.findIndex(p => p.pid === r.pid);
-      const page = pages[pageIndex];
-      return {
-        pid: r.pid,
-        highlightedText: r.highlightedText,
-        pageNumber: page?.['page.number'] !== undefined ? page['page.number'] : undefined
-      };
-    });
-
-    return searchResults;
+    return results
+      .map(r => {
+        const page = pages[indexByPid.get(r.pid) ?? -1];
+        return {
+          pid: r.pid,
+          highlightedText: r.highlightedText,
+          pageNumber: page?.['page.number'] !== undefined ? page['page.number'] : undefined
+        };
+      })
+      .sort((a, b) => position(a.pid) - position(b.pid));
   }
 
   /**
