@@ -5,6 +5,7 @@ import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {of} from 'rxjs';
 import {AuthService} from '../auth.service';
 import * as AuthActions from './auth.actions';
+import {ToastService} from '../../../shared/services/toast.service';
 
 @Injectable()
 export class AuthEffects {
@@ -12,6 +13,7 @@ export class AuthEffects {
   private actions$ = inject(Actions);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private toast = inject(ToastService);
 
   login$ = createEffect(() =>
     this.actions$.pipe(
@@ -52,18 +54,15 @@ export class AuthEffects {
     ), { dispatch: false }
   );
 
-  refreshToken$ = createEffect(() =>
+  sessionExpired$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(AuthActions.refreshToken),
-      switchMap(() =>
-        this.authService.refreshToken().pipe(
-          map(tokens => AuthActions.refreshTokenSuccess({ tokens })),
-          catchError(error =>
-            of(AuthActions.refreshTokenFailure({ error: error.message || 'Token refresh failed' }))
-          )
-        )
-      )
-    )
+      ofType(AuthActions.sessionExpired),
+      tap(() => {
+        this.toast.show('session-expired', 'log-in', 10000)
+          .onAction()
+          .subscribe(() => this.authService.login(this.router.url));
+      })
+    ), { dispatch: false }
   );
 
   logout$ = createEffect(() =>

@@ -1,6 +1,5 @@
 import { Component, effect, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChanges, untracked } from '@angular/core';
 import { NgForOf, NgIf } from '@angular/common';
-import { MatButton } from '@angular/material/button';
 import { SelectComponent } from '../select/select.component';
 import { TranslatePipe } from '@ngx-translate/core';
 import { BreakpointService } from '../../services/breakpoint.service';

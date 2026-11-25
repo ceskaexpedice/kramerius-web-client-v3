@@ -2,10 +2,6 @@
 
   @if (searchResults.length > 0) {
 
-<!--    <div class="sort&#45;&#45;container">-->
-<!--      <app-results-sort (sortChanged)="($event)"></app-results-sort>-->
-<!--    </div>-->
-
     <!-- Show grouped by year if sorting by date -->
     @if (shouldGroupByYear()) {
       <ng-container *ngFor="let year of getSortedYears(groupResultsByYear(searchResults))">

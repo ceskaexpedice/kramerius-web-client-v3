@@ -5,7 +5,6 @@ import {
   ADVANCED_FILTERS,
   AdvancedFilterDefinition,
   FilterElementType,
-  FilterValue,
   isFilterWithCaseSensitiveSupport,
   SolrFacetKey,
 } from '../../solr-filters';

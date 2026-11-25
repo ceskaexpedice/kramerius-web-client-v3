@@ -1,13 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-/**
- * Wraps an Allmaps `AllmapsViewer` instance and exposes a reactive,
- * Angular-friendly API for georeferenced map viewers.
- *
- * Provided per-component (`providedIn: 'any'`) so each viewer instance
- * has its own state — do not register at root.
- */
 export type BasemapPreset = {
   value: string;
   label: string;
@@ -41,6 +34,13 @@ export type ViewportState = {
   zoom: number;
 };
 
+/**
+ * Wraps an Allmaps `AllmapsViewer` instance and exposes a reactive,
+ * Angular-friendly API for georeferenced map viewers.
+ *
+ * Provided per component (listed in the component's `providers`), so each
+ * viewer instance has its own state; do not register it at root.
+ */
 @Injectable()
 export class MapViewerService {
 

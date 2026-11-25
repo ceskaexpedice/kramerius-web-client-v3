@@ -1,4 +1,4 @@
-import { Component, inject, Input, Output, EventEmitter, Optional } from '@angular/core';
+import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { NgIf, NgTemplateOutlet } from '@angular/common';
 
 import { Metadata } from '../../models/metadata.model';

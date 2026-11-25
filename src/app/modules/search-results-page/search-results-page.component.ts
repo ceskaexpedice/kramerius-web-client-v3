@@ -1,6 +1,5 @@
-import { Component, computed, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FixedPanelService } from '../../shared/components/fixed-panel/fixed-panel.service';
 import { SearchService } from '../../shared/services/search.service';
 import { AdvancedSearchService } from '../../shared/services/advanced-search.service';
 import { AppResultsViewType } from '../settings/settings.model';
@@ -15,8 +14,8 @@ import { isMapTab } from './const/map-utils';
 import { ScrollPositionService } from '../../shared/services/scroll-position.service';
 import { BreakpointService } from '../../shared/services/breakpoint.service';
 import { ExportService } from '../../shared/services/export.service';
-import { MobileNavItem } from '../../shared/components/mobile-nav-bar/mobile-nav-bar.component';
-import { UiStateService } from '../../shared/services/ui-state.service';
+import { CustomSearchService } from '../../shared/services/custom-search.service';
+import { customDefinedFacetsEnum } from './const/facets';
 
 @Component({
   selector: 'app-search-results-page',
@@ -29,6 +28,12 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   viewOptions = [
     { value: AppResultsViewType.grid, icon: 'icon-row-horizontal', ariaLabel: 'view-grid--arialabel' },
     { value: AppResultsViewType.list, icon: 'icon-table', ariaLabel: 'view-list--arialabel' },
+  ];
+
+  /** Phones: grid / list / map in one switch, in place of the bottom nav bar. */
+  mobileViewOptions = [
+    ...this.viewOptions,
+    { value: AppResultsViewType.map, icon: 'icon-location', ariaLabel: 'tab-maps' },
   ];
 
   view = signal<AppResultsViewType>(AppResultsViewType.grid);
@@ -46,49 +51,29 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
   public adminModeService = inject(AdminModeService);
   private scrollPositionService = inject(ScrollPositionService);
   private exportService = inject(ExportService);
+  private customSearchService = inject(CustomSearchService);
   public breakpointService = inject(BreakpointService);
-  private uiState = inject(UiStateService);
-  private fixedPanel = inject(FixedPanelService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
   private subscriptions: Subscription[] = [];
 
-  // Mobile nav bar
-  mobileNavItems: MobileNavItem[] = [
-    // "Results", not "All": the scope tabs above the list already start with
-    // an "All" option, and two different "All"s on one screen read as one.
-    { id: 'all', label: 'results', icon: 'icon-element-3' },
-    { id: 'map', label: 'tab-maps', icon: 'icon-location' },
-  ];
-
-  // The bottom bar follows the app header: scrolling the list down hides both
-  // (see appScrollHideHeader on the results wrapper), scrolling up restores them.
-  mobileNavHidden = computed(() => this.breakpointService.isMobile() && (!this.uiState.headerVisible() || this.fixedPanel.anyOpen()));
-
-  get mobileActiveTab(): string {
-    return this.view() === AppResultsViewType.map ? 'map' : 'all';
-  }
-
-  onMobileNavChange(id: string): void {
-    if (id === 'filters') {
-      this.breakpointService.manualToggle.set(true);
-    } else {
-      this.onTabChanged(id);
-    }
-  }
-
   ngOnInit(): void {
 
     this.searchService.initialize();
 
+    // Reactive on the unified total and the page-hits request: pages load in a
+    // follow-up request after titles, so a query matching only pages (fulltext)
+    // must not leave the sidebar dimmed once those page hits arrive.
     this.noResults$ = combineLatest([
       this.searchService.loading$,
+      this.searchService.pageResultsLoading$,
+      this.searchService.totalCount$,
       this.searchService.selectedTags
     ]).pipe(
-      map(([loading, tags]) => {
+      map(([loading, pagesLoading, totalCount, tags]) => {
         if (this.view() === AppResultsViewType.map) return false;
-        if (loading || this.searchService.totalCount > 0) return false;
+        if (loading || pagesLoading || totalCount > 0) return false;
         // Only dim sidebar when there are no active facet filters
         // (i.e. the only tags are the search query itself)
         const hasActiveFilters = tags.some(t => !t.startsWith('search:'));
@@ -237,11 +222,18 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
     const currentParams = this.route.snapshot.queryParams;
 
     if (view === AppResultsViewType.map) {
-      // Map tab: set tab=map; default to score sort; remove viewType; coords written by MapBrowseComponent
-      this.searchService.changeSortBy(SolrSortFields.relevance, SolrSortDirections.desc);
+      // Map tab: set tab=map; always reset to score sort; remove viewType; coords written by MapBrowseComponent.
+      // Sort goes into this same navigation — a separate changeSortBy() navigation would be
+      // cancelled by this one and the sort from the All tab would stay in the URL (#211).
+      const sortBy = SolrSortFields.relevance;
+      const sortDirection = SolrSortDirections.desc;
+      this.searchService.setSort(sortBy, sortDirection);
+      // The map tab has no "where to search" toggle, so a choice like "Samostatné
+      // strany" would linger as a hidden page filter. Drop it in the same navigation.
+      const customSearch = this.customSearchService.dropFacetFilters(customDefinedFacetsEnum.whereToSearchModel);
       this.router.navigate([], {
         relativeTo: this.route,
-        queryParams: { tab: 'map', viewType: null },
+        queryParams: { tab: 'map', viewType: null, sortBy, sortDirection, ...(customSearch !== undefined ? { customSearch } : {}) },
         queryParamsHandling: 'merge',
         replaceUrl: true
       });
@@ -277,17 +269,6 @@ export class SearchResultsPageComponent implements OnInit, OnDestroy {
 
   toggleAdminMode(): void {
     this.adminModeService.toggle();
-  }
-
-  // Admin action methods (delegated from admin-actions component)
-  onExportSelected(): void {
-    // The AdminActionsComponent handles the export logic by default
-    // This method can be used to add additional page-specific export behavior if needed
-  }
-
-  onEditSelected(selectedIds: string[]): void {
-    console.log('Edit selected items:', selectedIds);
-    // TODO: Implement edit functionality specific to search results
   }
 
   downloadCsv(): void {

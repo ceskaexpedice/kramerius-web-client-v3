@@ -52,11 +52,14 @@ import { AiContentPanelComponent } from '../../shared/components/ai-content-pane
 import { AiActionsComponent } from '../../shared/components/metadata-sidebar/ai-actions/ai-actions.component';
 import { FullscreenComponent } from '../../shared/components/fullscreen/fullscreen.component';
 import { MusicTrackListComponent } from '../music/components/music-track-list/music-track-list.component';
+import { devToolsGuard } from '../../core/guards/feature.guard';
 
 const routes: Routes = [
   {
+    // Developer page for opening a local EPUB file; not part of the product.
     path: 'test/epub',
-    loadComponent: () => import('../../core/pages/epub-test/epub-test-page.component').then(c => c.EpubTestPageComponent)
+    loadComponent: () => import('../../core/pages/epub-test/epub-test-page.component').then(c => c.EpubTestPageComponent),
+    canActivate: [devToolsGuard]
   },
   {
     path: ':uuid', component: DetailViewPageComponent

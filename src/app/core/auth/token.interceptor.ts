@@ -1,14 +1,19 @@
 import { inject } from '@angular/core';
-import { HttpInterceptorFn, HttpErrorResponse, HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
-import { catchError, switchMap, filter, take } from 'rxjs/operators';
-import { throwError, BehaviorSubject, Observable } from 'rxjs';
+import { HttpInterceptorFn, HttpErrorResponse, HttpRequest } from '@angular/common/http';
+import { catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 import { EnvironmentService } from '../../shared/services/environment.service';
 
-let isRefreshing = false;
-let isLoggingOut = false;
-let refreshTokenSubject = new BehaviorSubject<string | null>(null);
-
+/**
+ * Attaches the CDK access token to requests for our own API.
+ *
+ * The backend has no token refresh, so an access token cannot be renewed. When
+ * it has expired, or the API rejects it with 401, the local session ends
+ * (`AuthService.expireSession`) and the user is asked to log in again. The
+ * request itself continues anonymously, which is what the backend would have
+ * served it as anyway.
+ */
 export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const env = inject(EnvironmentService);
@@ -20,24 +25,27 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Only our own backend participates in the CDK session. A third-party host
   // (the AI proxy, above all) has its own authorization and its own reasons to
-  // answer 401 — letting such a response reach handle401Error() below would
-  // refresh, and then drop, a CDK session that was never the problem. Relative
-  // URLs are ours by definition; absolute ones must match the API origin.
+  // answer 401 — letting such a response end the CDK session would log the
+  // user out for a problem that was never theirs. Relative URLs are ours by
+  // definition; absolute ones must match the API origin.
   if (!isOwnApi(req.url, env)) {
     return next(req);
   }
 
   const token = authService.getAccessToken();
-
-  let authReq = req;
-  if (token && !authService.isTokenExpired()) {
-    authReq = addTokenToRequest(req, token);
+  if (!token) {
+    return next(req);
   }
 
-  return next(authReq).pipe(
+  if (authService.isTokenExpired()) {
+    authService.expireSession();
+    return next(req);
+  }
+
+  return next(addTokenToRequest(req, token)).pipe(
     catchError(error => {
       if (error instanceof HttpErrorResponse && error.status === 401) {
-        return handle401Error(req, next, authService);
+        authService.expireSession();
       }
       return throwError(() => error);
     })
@@ -58,7 +66,7 @@ function isAuthEndpoint(url: string): boolean {
 
 /**
  * Whether a request targets the backend that issued the CDK session, and so may
- * carry its token and trigger its refresh/logout handling.
+ * carry its token and end the session on 401.
  *
  * A URL without a scheme is relative to the app itself and always qualifies. An
  * absolute URL qualifies only when its origin matches the configured API base —
@@ -79,41 +87,5 @@ function isOwnApi(url: string, env: EnvironmentService): boolean {
     return new URL(url).origin === new URL(apiUrl, window.location.origin).origin;
   } catch {
     return false;
-  }
-}
-
-function handle401Error(req: HttpRequest<any>, next: HttpHandlerFn, authService: AuthService): Observable<HttpEvent<any>> {
-  if (!isRefreshing) {
-    isRefreshing = true;
-    refreshTokenSubject.next(null);
-
-    // catchError must sit BEFORE switchMap: only a failed refresh means the
-    // session is gone. Once it succeeds, an error from the retried request (a 403
-    // for a restricted page, a 404 for a missing datastream) is that request's
-    // own failure and must reach the caller without ending the session.
-    return authService.refreshToken().pipe(
-      catchError((error) => {
-        isRefreshing = false;
-        // refreshToken() already logs out on failure; guard against a second,
-        // redundant logout navigation from here.
-        if (!isLoggingOut) {
-          isLoggingOut = true;
-          authService.logout(true);
-        }
-        return throwError(() => error);
-      }),
-      switchMap((tokens) => {
-        isRefreshing = false;
-        isLoggingOut = false;
-        refreshTokenSubject.next(tokens.accessToken);
-        return next(addTokenToRequest(req, tokens.accessToken));
-      })
-    );
-  } else {
-    return refreshTokenSubject.pipe(
-      filter(token => token != null),
-      take(1),
-      switchMap(token => next(addTokenToRequest(req, token!)))
-    );
   }
 }

@@ -9,14 +9,6 @@
         <app-genres-section></app-genres-section>
     } @else if (section.type === 'document-types') {
         <app-document-types-section></app-document-types-section>
-    } @else if (section.type === 'map') {
-        <app-map-section></app-map-section>
-    } @else if (section.type === 'authors') {
-        <app-authors-section></app-authors-section>
-    } @else if (section.type === 'images') {
-        <app-images-section></app-images-section>
-    } @else if (section.type === 'institutions') {
-        <app-institutions-section></app-institutions-section>
     } @else if (section.type === 'featured-documents') {
         @defer (on viewport) {
             <app-featured-documents-section [config]="section"></app-featured-documents-section>

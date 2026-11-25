@@ -4,8 +4,6 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import * as GenresActions from './genres.actions';
 import { SolrService } from '../../../../core/solr/solr.service';
-import { FacetItem } from '../../../models/facet-item';
-import { SolrResponseParser } from '../../../../core/solr/solr-response-parser';
 
 @Injectable()
 export class GenresEffects {

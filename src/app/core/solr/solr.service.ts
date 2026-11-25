@@ -110,20 +110,14 @@ export class SolrService {
     return filtersByField;
   }
 
-  private createFacetBaseParams(options: any = {}, addBaseFilters = false, baseFilters: { fq: string } | null = null): Record<string, any> {
-    let params: Record<string, any> = {
+  private createFacetBaseParams(options: any = {}): Record<string, any> {
+    const params: Record<string, any> = {
       ...SolrQueryBuilder.baseParams(),
       ...SolrQueryBuilder.fieldsToReturn([]),
       ...SolrQueryBuilder.pagination(0, 0),
       facet: 'true',
       'facet.mincount': (options.minCount || 1).toString()
     };
-
-    // if (baseFilters) {
-    //   params = {...params, ...baseFilters};
-    // } else {
-    //   params = {...params, ...SolrQueryBuilder.baseFilters()};
-    // }
 
     if (options.sortBy) Object.assign(params, SolrQueryBuilder.facetSortBy(options.sortBy));
     if (options.searchTerm) Object.assign(params, SolrQueryBuilder.facetContains(options.searchTerm, true));
@@ -185,7 +179,7 @@ export class SolrService {
    * folder search can size its scope chunks against the exact string sent.
    */
   static pidScopeTerm(id: string, exact = false): string {
-    return exact ? `pid:"${id}"` : `pid_paths:${id.replace(/:/g, '\\:')}*`;
+    return exact ? `pid:"${SolrUtils.escapeSolrValue(id)}"` : `pid_paths:${id.replace(/:/g, '\\:')}*`;
   }
 
   private buildQParam(query: string, advancedQuery?: string, includePeriodicalItem: boolean = false, includePage: boolean = false, periodicalOnly = false, rootUuid: string | null = null, collectionUuid: string | null = null, includeSupplement: boolean = true, includeArticle: boolean = true, pidScope: string[] = [], pidScopeExact = false): string {
@@ -311,14 +305,15 @@ export class SolrService {
    * `in_collections` — otherwise a query inside a collection finds nothing.
    */
   private buildCollectionScopeFq(collectionUuid: string, includePeriodicalItem = false, includePage = false): string {
-    const direct = `in_collections.direct:"${collectionUuid}"`;
+    const escapedUuid = SolrUtils.escapeSolrValue(collectionUuid);
+    const direct = `in_collections.direct:"${escapedUuid}"`;
     const models: string[] = [];
     if (includePage) {
       models.push('model:page', 'model:article');
       if (includePeriodicalItem) models.push('model:periodicalitem');
     }
     if (!models.length) return `(${direct})`;
-    return `((${direct}) OR ((${models.join(' OR ')}) AND in_collections:"${collectionUuid}"))`;
+    return `((${direct}) OR ((${models.join(' OR ')}) AND in_collections:"${escapedUuid}"))`;
   }
 
   /**
@@ -425,11 +420,6 @@ export class SolrService {
         return `{!ex=${facetKeysEnum.rootModel},${facetKeysEnum.model}}${field}`;
       }
 
-      // Don't exclude licenses.facet from calculations - we want accurate counts
-      // if (field === facetKeysEnum.license) {
-      //   return field;
-      // }
-
       return op === SolrOperators.or && hasFilter ? `{!ex=${field}}${field}` : field;
     });
   }
@@ -513,7 +503,7 @@ export class SolrService {
    */
   getOwnPidPath(pid: string): Observable<string> {
     const params = this.createHttpParams({
-      q: `pid:"${pid}"`,
+      q: `pid:"${SolrUtils.escapeSolrValue(pid)}"`,
       fl: 'own_pid_path',
       rows: 1,
       wt: 'json'
@@ -532,8 +522,6 @@ export class SolrService {
    */
   searchPeriodicals(scopePidPath: string, query: string, filters: string[] = [], facetOperators: { [field: string]: SolrOperators } = {}, page = 0, pageCount = 180, sortBy: SolrSortFields, sortDirection: SolrSortDirections, advancedQuery?: string,
     includePeriodicalItem = false, includePage = false, includeFacets = true, availabilityFilter?: { isActive: boolean, licenses: string[], userLicenses?: string[] }): Observable<SearchResultResponse> {
-
-    console.log('solr search periodicals')
 
     const simpleBaseFilters = SolrQueryBuilder.pageFilter();
 
@@ -555,8 +543,6 @@ export class SolrService {
         ...SolrQueryBuilder.facetFields(DEFAULT_PERIODICAL_FACET_FIELDS)
       };
     }
-
-    console.log('paramsObject', paramsObject);
 
     if (includePage) {
       paramsObject = {
@@ -801,8 +787,6 @@ export class SolrService {
     cdkCollection?: string | null
   ): Observable<SearchResultResponse> {
 
-    console.log('getPeriodicalChildrenFacets', parentPid, model);
-
     const query = this.buildPeriodicalChildrenQuery(parentPid, model, advancedQuery, cdkCollection);
     const filtersByField = this.groupFiltersByField(filters);
     const paramsObject = this.createFacetBaseParams({});
@@ -1025,23 +1009,6 @@ export class SolrService {
     );
   }
 
-  getCollections(query?: string, page: number = 0, pageSize: number = 10000): Observable<any> {
-    const baseFilters = ['level:0', `model:${DocumentTypeEnum.collection}`];
-
-    const paramsObject = {
-      ...SolrQueryBuilder.baseParams(),
-      fq: baseFilters,
-      ...SolrQueryBuilder.fieldsToReturn(SEARCH_RETURN_FIELDS),
-      ...SolrQueryBuilder.sortBy(),
-      ...SolrQueryBuilder.rows(pageSize),
-      ...SolrQueryBuilder.start(page * pageSize),
-      ...(query && query.trim() && { q: `title.search:${query}*` })
-    };
-
-    const params = new HttpParams({ fromObject: paramsObject });
-    return this.http.get<any>(this.API_URL, { params });
-  }
-
   getGenres(): Observable<FacetItem[]> {
     const params = new HttpParams({ fromObject: SolrQueryBuilder.facetByField('genres.facet') });
     return this.http.get<any>(this.API_URL, { params }).pipe(
@@ -1058,7 +1025,7 @@ export class SolrService {
 
 
   getDetailItem(pid: string): Observable<any> {
-    const params = new HttpParams({ fromObject: { q: `pid:"${pid}"`, ...SolrQueryBuilder.rows(1) } });
+    const params = new HttpParams({ fromObject: { q: `pid:"${SolrUtils.escapeSolrValue(pid)}"`, ...SolrQueryBuilder.rows(1) } });
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs[0] ?? null)
     );
@@ -1071,7 +1038,7 @@ export class SolrService {
   getPagesByFosterParent(articlePid: string): Observable<any[]> {
     const params = new HttpParams({
       fromObject: {
-        q: `foster_parents.pids:"${articlePid}"`,
+        q: `foster_parents.pids:"${SolrUtils.escapeSolrValue(articlePid)}"`,
         fl: 'pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement',
         sort: 'rels_ext_index.sort asc',
         rows: '4000',
@@ -1089,7 +1056,7 @@ export class SolrService {
         obs.complete();
       });
     }
-    const query = `pid:(${pids.map(pid => `"${pid}"`).join(' OR ')})`;
+    const query = `pid:(${pids.map(pid => `"${SolrUtils.escapeSolrValue(pid)}"`).join(' OR ')})`;
     const params = new HttpParams({
       fromObject: {
         q: query,
@@ -1100,48 +1067,6 @@ export class SolrService {
     return this.http.get<any>(this.API_URL, { params }).pipe(
       map(res => res.response?.docs ?? [])
     );
-  }
-
-  /**
-   * Improved method for getting periodical volumes with facets
-   */
-  getPeriodicalVolumesWithFacets(
-    uuid: string,
-    filters: string[],
-    facetOperators: Record<string, SolrOperators>,
-    page: number,
-    pageCount: number,
-    sortBy: any,
-    sortDirection: any,
-    advancedQuery?: string
-  ) {
-    console.log('filters:', filters)
-    return forkJoin({
-      volumes: this.getPeriodicalVolumes(uuid, filters, facetOperators, page, pageCount, sortBy, sortDirection, advancedQuery),
-      facets: this.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.periodicalvolume, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery),
-      facetsWithoutLicenses: this.getPeriodicalChildrenFacets(uuid, DocumentTypeEnum.periodicalvolume, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery)
-    });
-  }
-
-  /**
-   * Improved method for getting periodical items with facets
-   */
-  getPeriodicalItemsWithFacets(
-    uuid: string,
-    filters: string[],
-    facetOperators: Record<string, SolrOperators>,
-    page: number,
-    pageCount: number,
-    sortBy: any,
-    sortDirection: any,
-    advancedQuery?: string
-  ) {
-    console.log('filters:', filters)
-    return forkJoin({
-      children: this.getPeriodicalItems(uuid, filters, page, pageCount, sortBy, sortDirection, advancedQuery),
-      facets: this.getPeriodicalChildrenFacets(uuid, `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`, filters, DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery),
-      facetsWithoutLicenses: this.getPeriodicalChildrenFacets(uuid, `${DocumentTypeEnum.periodicalitem} OR model:${DocumentTypeEnum.supplement} OR model:${DocumentTypeEnum.page}`, filters.filter(f => !f.startsWith('license:')), DEFAULT_PERIODICAL_FACET_FIELDS, facetOperators, advancedQuery)
-    });
   }
 
   /**

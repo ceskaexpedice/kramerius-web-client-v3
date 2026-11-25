@@ -8,39 +8,22 @@ const DEFAULT_FALLBACK = DEFAULT_LANG_FALLBACK;
 @Injectable()
 export class AppMissingTranslationService extends MissingTranslationHandler {
 
-	protected missingKeys: {[key: string]: boolean} = {};
 	private fallbackTranslations: Record<string, Record<string, any>> = {};
 	private handlingKey: Set<string> = new Set();
 
 	constructor() {
 		super();
-		this.load();
-	}
-
-	getMissingKeys() {
-		return this.missingKeys;
+		// Earlier versions recorded every missing key in localStorage for every
+		// visitor; drop that leftover entry.
+		try {
+			window.localStorage.removeItem('missingTranslations');
+		} catch {
+			// Storage unavailable (privacy mode, blocked site data): nothing to clean.
+		}
 	}
 
 	setFallbackTranslations(lang: string, translations: Record<string, any>) {
 		this.fallbackTranslations[lang] = translations;
-	}
-
-	protected save() {
-		window.localStorage.setItem('missingTranslations', JSON.stringify(Object.keys(this.missingKeys)));
-	}
-
-	protected load() {
-		let loaded = window.localStorage.getItem('missingTranslations');
-		if (loaded) {
-			let parsed = JSON.parse(loaded);
-			if (parsed && parsed.length && parsed.map) {
-				parsed.map(
-					(key: string) => {
-						this.missingKeys[key] = true;
-					}
-				);
-			}
-		}
 	}
 
 	handle(params: MissingTranslationHandlerParams): any {
@@ -70,12 +53,17 @@ export class AppMissingTranslationService extends MissingTranslationHandler {
 			this.handlingKey.delete(key);
 		}
 
-		this.missingKeys[key] = true;
-		this.save();
 		return key;
 	}
 
+	/**
+	 * Bundles are flat with dots inside key names ("error.not_found.go_home"),
+	 * so the key is looked up as-is first; nested lookup covers nested bundles.
+	 */
 	private resolveNestedKey(obj: any, key: string): any {
+		if (obj && Object.prototype.hasOwnProperty.call(obj, key)) {
+			return obj[key];
+		}
 		return key.split('.').reduce((acc, part) => acc?.[part], obj);
 	}
 }

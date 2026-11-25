@@ -4,6 +4,9 @@ export interface TokenResponse {
   expires_in: number;
   refresh_token?: string;
   scope?: string;
+  /** OAuth error fields; the backend can return these with HTTP 200. */
+  error?: string;
+  error_description?: string;
 }
 
 export interface AuthTokens {

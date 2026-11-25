@@ -27,16 +27,8 @@
       <div class="advanced-search-indicator--buttons">
         <button class="button primary" (click)="updateQuery()">{{ 'advanced-search-indicator.edit' | translate
           }}</button>
-<!--        <button class="button outlined tertiary" (click)="newSearch()">{{'advanced-search-indicator.new' |-->
-<!--          translate}}</button>-->
-<!--        <button class="button outlined tertiary" (click)="clearAll()">{{'advanced-search-indicator.cancel' |-->
-<!--          translate}}</button>-->
       </div>
     </div>
-
-<!--    <div class="advanced-search-indicator&#45;&#45;image">-->
-<!--      <img src="/img/folder-image.png" [alt]="'advanced-search.folder' | translate" />-->
-<!--    </div>-->
   </div>
 
   @if (((totalCount$ | async) ?? 0) === 0 && ((loading$ | async) === false)){

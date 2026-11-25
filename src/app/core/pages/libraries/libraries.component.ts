@@ -260,7 +260,6 @@ export class LibrariesComponent implements OnInit {
   activeCode = signal<string>('');
 
   private translate = inject(TranslateService);
-  private configService = inject(ConfigService);
   private libraryContext = inject(LibraryContextService);
 
   filteredLibraries = computed(() => {

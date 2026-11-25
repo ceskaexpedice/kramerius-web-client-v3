@@ -36,4 +36,14 @@ describe('FoldersService follow/unfollow', () => {
     expect(req.request.method).toBe('POST');
     req.flush({});
   });
+
+  it('puts all favorites folders first and keeps duplicates', () => {
+    const folders = [
+      { name: 'Genealogie', uuid: 'g' },
+      { name: 'Moje oblíbené', uuid: 'f1' },
+      { name: 'TEST', uuid: 't' },
+      { name: 'Moje oblíbené', uuid: 'f2' },
+    ] as any[];
+    expect(service.sortFoldersWithFavoritesFirst(folders).map(f => f.uuid)).toEqual(['f1', 'f2', 'g', 't']);
+  });
 });

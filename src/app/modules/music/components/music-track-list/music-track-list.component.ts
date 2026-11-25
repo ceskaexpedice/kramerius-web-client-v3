@@ -27,6 +27,12 @@ export class MusicTrackListComponent implements OnDestroy {
   @Input() currentFolderId?: string;
   @Input() viewType: TrackViewType = TrackViewType.DEFAULT;
   @Input() accessDenied = false;
+  /**
+   * Set when loading has finished, so an empty list is shown as "no tracks"
+   * rather than as a bare table header. Left false where the parent shows its
+   * own empty state (saved lists).
+   */
+  @Input() showEmptyState = false;
 
   @Output() select = new EventEmitter<any>();
   @Output() playAll = new EventEmitter<any[]>();

@@ -1,37 +1,29 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { Observable, of, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 import { EnvironmentService } from '../../shared/services/environment.service';
 import { tokenInterceptor } from './token.interceptor';
 
 /**
- * Regression test for issue "AI functions log the user out".
- *
- * The interceptor ran on every request, including the third-party AI proxy. A
- * 401 from that proxy — which has its own authorization, unrelated to the CDK
- * session — was treated as an expired CDK token: it triggered refreshToken(),
- * which hits an endpoint the backend only exposes as GET-with-code (hence 405),
- * and the failed refresh logged the user out. Three unrelated systems, one
- * spurious logout.
+ * The backend has no token refresh: an expired or rejected access token ends
+ * the local session. Only our own API takes part — a 401 from a third-party
+ * host (the AI proxy) must never end the CDK session ("AI functions log the
+ * user out").
  */
-describe('tokenInterceptor origin scoping', () => {
+describe('tokenInterceptor', () => {
 
   const API_ORIGIN = 'https://cdk-api.dev.example.cz';
   const API_URL = `${API_ORIGIN}/search/api/client/v7.0/user/`;
+  const OWN_URL = `${API_ORIGIN}/search/api/client/v7.0/items/knav/uuid:1/ocr/alto`;
   const PROXY_URL = 'https://ai-proxy.example.cz/api/openai/chat/completions';
 
-  let refreshCalls: number;
-  let logoutCalls: number;
+  let expireCalls: number;
 
   function setup(
-    refresh: () => Observable<{ accessToken: string }> = () => {
-      throw new Error('refresh must not be attempted here');
-    },
+    { token = 'cdk-token' as string | null, expired = false } = {},
   ): { http: HttpClient; httpMock: HttpTestingController } {
-    refreshCalls = 0;
-    logoutCalls = 0;
+    expireCalls = 0;
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
@@ -41,13 +33,9 @@ describe('tokenInterceptor origin scoping', () => {
         {
           provide: AuthService,
           useValue: {
-            getAccessToken: () => 'cdk-token',
-            isTokenExpired: () => false,
-            refreshToken: () => {
-              refreshCalls++;
-              return refresh();
-            },
-            logout: () => { logoutCalls++; },
+            getAccessToken: () => token,
+            isTokenExpired: () => expired,
+            expireSession: () => { expireCalls++; },
           },
         },
         {
@@ -66,7 +54,7 @@ describe('tokenInterceptor origin scoping', () => {
     };
   }
 
-  it('does not refresh or log out when a third-party host answers 401', () => {
+  it('does not end the session when a third-party host answers 401', () => {
     const { http, httpMock } = setup();
 
     let capturedError: unknown = null;
@@ -77,10 +65,8 @@ describe('tokenInterceptor origin scoping', () => {
 
     httpMock.expectOne(PROXY_URL).flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
 
-    expect(refreshCalls).toBe(0);
-    expect(logoutCalls).toBe(0);
+    expect(expireCalls).toBe(0);
     expect((capturedError as { status?: number } | null)?.status).toBe(401);
-
     httpMock.verify();
   });
 
@@ -92,24 +78,21 @@ describe('tokenInterceptor origin scoping', () => {
     const req = httpMock.expectOne(PROXY_URL);
     expect(req.request.headers.has('Authorization')).toBe(false);
     req.flush({});
-
     httpMock.verify();
   });
 
-  it('still attaches the CDK token to our own API', () => {
+  it('attaches the CDK token to our own API', () => {
     const { http, httpMock } = setup();
 
-    const ownUrl = `${API_ORIGIN}/search/api/client/v7.0/items/knav/uuid:1/ocr/alto`;
-    http.get(ownUrl).subscribe({ error: () => {} });
+    http.get(OWN_URL).subscribe({ error: () => {} });
 
-    const req = httpMock.expectOne(ownUrl);
+    const req = httpMock.expectOne(OWN_URL);
     expect(req.request.headers.get('Authorization')).toBe('Bearer cdk-token');
     req.flush({});
-
     httpMock.verify();
   });
 
-  it('still attaches the CDK token to a relative URL', () => {
+  it('attaches the CDK token to a relative URL', () => {
     const { http, httpMock } = setup();
 
     http.get('/search/api/client/v7.0/user').subscribe({ error: () => {} });
@@ -117,50 +100,62 @@ describe('tokenInterceptor origin scoping', () => {
     const req = httpMock.expectOne('/search/api/client/v7.0/user');
     expect(req.request.headers.get('Authorization')).toBe('Bearer cdk-token');
     req.flush({});
-
     httpMock.verify();
   });
 
-  /**
-   * Once the refresh has succeeded the session is fine, so whatever the retried
-   * request answers — a 403 for a restricted page, a 404 for a missing
-   * datastream, even a second 401 — is that request's own failure, not a reason
-   * to end the session.
-   */
-  it('does not log out when the request retried after a successful refresh fails', () => {
-    const { http, httpMock } = setup(() => of({ accessToken: 'new-token' }));
+  it('ends the session and sends the request anonymously once the token has expired', () => {
+    const { http, httpMock } = setup({ expired: true });
 
-    const ownUrl = `${API_ORIGIN}/search/api/client/v7.0/items/knav/uuid:1/ocr/alto`;
+    http.get(OWN_URL).subscribe({ error: () => {} });
+
+    const req = httpMock.expectOne(OWN_URL);
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    expect(expireCalls).toBe(1);
+    req.flush({});
+    httpMock.verify();
+  });
+
+  it('ends the session when our API rejects the token with 401', () => {
+    const { http, httpMock } = setup();
+
     let capturedError: unknown = null;
-    http.get(ownUrl).subscribe({
-      next: () => fail('expected the retried request to fail'),
+    http.get(OWN_URL).subscribe({
+      next: () => fail('expected the 401 to surface as an error'),
       error: (err) => { capturedError = err; },
     });
 
-    httpMock.expectOne(ownUrl).flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+    httpMock.expectOne(OWN_URL).flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
 
-    const retry = httpMock.expectOne(ownUrl);
-    expect(retry.request.headers.get('Authorization')).toBe('Bearer new-token');
-    retry.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
-
-    expect(refreshCalls).toBe(1);
-    expect(logoutCalls).toBe(0);
-    expect((capturedError as { status?: number } | null)?.status).toBe(403);
-
+    expect(expireCalls).toBe(1);
+    expect((capturedError as { status?: number } | null)?.status).toBe(401);
     httpMock.verify();
   });
 
-  it('logs out when the refresh itself fails', () => {
-    const { http, httpMock } = setup(() => throwError(() => new Error('refresh failed')));
+  it('keeps the session on other errors from our API', () => {
+    const { http, httpMock } = setup();
 
-    const ownUrl = `${API_ORIGIN}/search/api/client/v7.0/user`;
-    http.get(ownUrl).subscribe({ error: () => {} });
+    http.get(OWN_URL).subscribe({ error: () => {} });
+    httpMock.expectOne(OWN_URL).flush('Forbidden', { status: 403, statusText: 'Forbidden' });
 
-    httpMock.expectOne(ownUrl).flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+    expect(expireCalls).toBe(0);
+    httpMock.verify();
+  });
 
-    expect(refreshCalls).toBe(1);
-    expect(logoutCalls).toBe(1);
+  it('passes a 401 through for an anonymous visitor without touching the session', () => {
+    const { http, httpMock } = setup({ token: null });
 
+    let capturedError: unknown = null;
+    http.get(OWN_URL).subscribe({
+      next: () => fail('expected the 401 to surface as an error'),
+      error: (err) => { capturedError = err; },
+    });
+
+    const req = httpMock.expectOne(OWN_URL);
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+    expect(expireCalls).toBe(0);
+    expect((capturedError as { status?: number } | null)?.status).toBe(401);
     httpMock.verify();
   });
 });

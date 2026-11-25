@@ -1,4 +1,4 @@
-import { Directive, EventEmitter, Output, Signal, signal, computed } from '@angular/core';
+import { Directive, EventEmitter, Output, Signal, computed } from '@angular/core';
 
 @Directive()
 export abstract class BasePaginatorComponent {
@@ -20,7 +20,6 @@ export abstract class BasePaginatorComponent {
 
   goToPage(p: number): void {
     const page = Math.max(1, Math.min(p, this.totalPages()));
-    console.log('gotopage', p, page)
     if (page !== this.page) {
       this.page = page;
       this.pageChange.emit(page);

@@ -14,6 +14,9 @@
   </div>
 }
 
+@if (!tracks.length && showEmptyState) {
+  <p class="track-list-empty">{{ 'music-tracks-empty' | translate }}</p>
+} @else {
 <!-- Phones: the table keeps readable column widths and scrolls sideways
      instead of squeezing the titles, as the search results list view does. -->
 <div class="track-table-wrapper">
@@ -50,6 +53,7 @@
   </tbody>
 </table>
 </div>
+}
 
 <!-- Favorites Popup positioned fixed to avoid overflow clipping -->
 @if (favoritesPopupState.showPopup()) {

@@ -78,7 +78,6 @@ export class ExportSelectedDialogComponent {
   }
 
   export() {
-    console.log('Export data:', this.csvSectionData);
     this.dialogRef.close({
       action: 'export',
       format: this.activeSection(),

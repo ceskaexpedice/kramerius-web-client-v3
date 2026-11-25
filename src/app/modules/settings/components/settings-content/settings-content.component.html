@@ -1,34 +1,20 @@
-<ng-container [ngSwitch]="activeSection()">
-
-  <ng-container *ngSwitchCase="'display'">
+@switch (activeSection()) {
+  @case ('display') {
     <app-settings-display-section [settings]="settings"
       (settingsChange)="settingsChange.emit($event)"></app-settings-display-section>
-  </ng-container>
+  }
 
-  <ng-container *ngSwitchCase="'account'">
+  @case ('account') {
     <app-settings-account-section>
     </app-settings-account-section>
-  </ng-container>
+  }
 
-  <ng-container *ngSwitchCase="'reading'">
+  @case ('reading') {
     <app-settings-read-section [settings]="settings"
       (settingsChange)="settingsChange.emit($event)"></app-settings-read-section>
-  </ng-container>
+  }
 
-  <ng-container *ngSwitchCase="'preferences'">
-    <app-settings-user-preferences-section></app-settings-user-preferences-section>
-  </ng-container>
-
-  <ng-container *ngSwitchCase="'accessibility'">
+  @case ('accessibility') {
     <app-settings-accessibility-section></app-settings-accessibility-section>
-  </ng-container>
-
-  <ng-container *ngSwitchCase="'experimental'">
-    <app-settings-experimental-section></app-settings-experimental-section>
-  </ng-container>
-
-  <ng-container *ngSwitchCase="'gdpr'">
-    <app-settings-gdpr-section></app-settings-gdpr-section>
-  </ng-container>
-
-</ng-container>
+  }
+}

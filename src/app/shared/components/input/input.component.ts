@@ -6,7 +6,7 @@ import {
   Input,
   ElementRef,
   ViewChild,
-  WritableSignal, effect, AfterViewInit, inject, EnvironmentInjector, runInInjectionContext, ChangeDetectorRef, OnChanges, SimpleChanges, OnDestroy,
+  WritableSignal, effect, AfterViewInit, inject, EnvironmentInjector, runInInjectionContext, ChangeDetectorRef, OnDestroy,
 } from '@angular/core';
 import {NgClass, NgIf} from '@angular/common';
 import {TranslatePipe} from '@ngx-translate/core';

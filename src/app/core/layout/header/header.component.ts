@@ -1,10 +1,7 @@
-import { Component, OnInit, OnDestroy, Injector, ChangeDetectorRef, signal, inject, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, Injector, ChangeDetectorRef, signal, inject, effect, isDevMode } from '@angular/core';
 import { Router, NavigationEnd, RouterLink } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription, filter, take } from 'rxjs';
-import { selectFoldersCount } from '../../../modules/saved-lists-page/state';
 import { LoginPromptDialogComponent } from '../../../shared/dialogs/login-prompt-dialog/login-prompt-dialog.component';
 import { BreakpointService } from '../../../shared/services/breakpoint.service';
 import { APP_ROUTES_ENUM } from '../../../app.routes';
@@ -89,7 +86,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private logoClickTimer: any = null;
 
   private uiState = inject(UiStateService);
-  private store = inject(Store);
   private dialog = inject(MatDialog);
   private breakpointService = inject(BreakpointService);
 
@@ -442,7 +438,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.libraryContext.prependLibraryPrefix(['/pages', page.id]);
   }
 
+  /**
+   * Prints build and environment details for the team, only on development
+   * builds and deployments flagged as dev (APP_DEV_MODE).
+   */
   logDevInfo(): void {
+    if (!isDevMode() && !this.envService.get('devMode')) {
+      return;
+    }
     const devInfo = {
       useStaticRuntimeConfig: this.envService.get('useStaticRuntimeConfig'),
       devMode: this.envService.get('devMode'),
@@ -455,16 +458,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
       gitCommitHash: this.envService.get('git_commit_hash'),
       gitTag: this.envService.get('git_tag'),
       buildDate: this.envService.get('build_date'),
-      gitCommitUrl: undefined as string | undefined,
     };
-    if (devInfo.gitCommitHash) {
-      const commitUrl = 'https://github.com/trineracz/CDK-klient/commit/' + devInfo.gitCommitHash;
-      devInfo.gitCommitUrl = commitUrl;
-      console.log('Git commit URL:', commitUrl);
-    } else {
-      delete devInfo.gitCommitHash;
-    }
-    console.log('Dev Info:', devInfo);
+    console.info('Build info:', devInfo);
   }
 
   protected readonly AppSettingsThemeEnum = AppSettingsThemeEnum;

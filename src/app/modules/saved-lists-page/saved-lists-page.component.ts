@@ -2,13 +2,12 @@ import { Component, signal, computed, inject, OnInit, OnDestroy } from '@angular
 import { DOCUMENT } from '@angular/common';
 import { Actions, ofType } from '@ngrx/effects';
 import { APP_ROUTES_ENUM } from '../../app.routes';
-import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { Store } from '@ngrx/store';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AppResultsViewType } from '../settings/settings.model';
 import * as FoldersActions from './state/folders.actions';
-import { selectActiveFolderItems, selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderPageSearchResults, selectFolderDetailsLoading, selectFolderSearchResultsLoading, selectFolderPageResultsLoading, selectFolderCombinedTotalCount, selectSortParams, selectUserOwnedFolders, selectFolderBannerState, FolderBannerState, selectFolderNonPageResults, selectFolderArticleResults, selectFolderAttachmentResults } from './state';
+import { selectAllFolders, selectFolderDetails, selectFolderSearchResults, selectFolderPageSearchResults, selectFolderDetailsLoading, selectFolderSearchResultsLoading, selectFolderPageResultsLoading, selectFolderCombinedTotalCount, selectSortParams, selectUserOwnedFolders, selectFolderBannerState, FolderBannerState, selectFolderNonPageResults, selectFolderArticleResults, selectFolderAttachmentResults } from './state';
 import { DontShowAgainService, DontShowDialogs } from '../../shared/services/dont-show-again.service';
 import { InfoBannerAction } from '../../shared/components/info-banner/info-banner.component';
 import { combineLatest, first, map, Observable, Subscription } from 'rxjs';

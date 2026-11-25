@@ -20,24 +20,26 @@ export class AppLoaderService {
   private appConfig = inject(AppConfigService);
   private env = inject(EnvironmentService);
   private settingsService = inject(SettingsService);
-  private pageTitle = inject(PageTitleService);
+
+  constructor() {
+    // Created eagerly for its side effect: it keeps document.title in sync with
+    // the route from the first navigation on.
+    inject(PageTitleService);
+  }
 
   /**
    * Main app initialization method
    * Handles all app startup logic in a coordinated way
    */
   async appInit(): Promise<void> {
-    console.log('AppLoaderService: Starting app initialization');
 
     try {
       // 1. Check if we're in OAuth callback flow
       if (this.isOAuthCallback()) {
-        console.log('AppLoaderService: OAuth callback detected, skipping auth status check');
         return;
       }
 
       // 2. Check authentication status for session restoration
-      console.log('AppLoaderService: Checking authentication status');
       this.checkAuthStatus();
 
       // 4. Other initialization tasks can be added here
@@ -65,7 +67,6 @@ export class AppLoaderService {
     if (urlParams.get('settings') === 'true') {
       const section = urlParams.get('settings_section') || undefined;
       const expandMoreInfo = urlParams.get('more_info') === 'true';
-      console.log('AppLoaderService: Opening settings dialog from URL params', { section, expandMoreInfo });
 
       // Small delay to ensure app is fully initialized before opening dialog
       setTimeout(() => {
@@ -86,8 +87,6 @@ export class AppLoaderService {
 
     // Check if we have an OAuth code parameter
     const hasCodeParam = urlParams.has('code');
-
-    console.log('OAuth detection:', { currentPath, hasCodeParam, isCallbackRoute });
 
     return isCallbackRoute || hasCodeParam;
   }

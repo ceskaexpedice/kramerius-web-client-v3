@@ -113,7 +113,6 @@ export const selectActiveFilters = createSelector(
   selectRouterQueryParams,
   (state) => {
     let filters: string[] = [];
-    console.log('state', state);
     if (state.fq) {
       const isArray = Array.isArray(state.fq);
 

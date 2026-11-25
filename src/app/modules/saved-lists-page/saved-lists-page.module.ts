@@ -13,7 +13,6 @@ import { NoResultsComponent } from '../../shared/components/no-results/no-result
 import { PaginatorInfoComponent } from '../../shared/components/paginator-info/paginator-info.component';
 import { RecordItemComponent } from '../../shared/components/record-item/record-item.component';
 import { RecordItemListComponent } from '../../shared/components/record-item-list/record-item-list.component';
-import { RecordTypeTabsComponent } from '../../shared/components/record-type-tabs/record-type-tabs.component';
 import { ResultsSortComponent } from '../search-results-page/components/results-sort/results-sort.component';
 import { SearchFiltersComponent } from '../search-results-page/components/search-filters/search-filters.component';
 import { SelectedTagsComponent } from '../../shared/components/selected-tags/selected-tags.component';
@@ -64,7 +63,6 @@ const routes: Routes = [
     PaginatorInfoComponent,
     RecordItemComponent,
     RecordItemListComponent,
-    RecordTypeTabsComponent,
     ResultsSortComponent,
     SearchFiltersComponent,
     SelectedTagsComponent,

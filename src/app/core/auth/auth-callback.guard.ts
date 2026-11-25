@@ -8,7 +8,6 @@ export const authCallbackGuard: CanActivateFn = (route, state) => {
 
   // If user is already authenticated, redirect them to home or their intended destination
   if (authService.hasValidToken()) {
-    console.log('AuthCallbackGuard: User already authenticated, redirecting away from callback');
     
     const originalRoute = authService.getOriginalRoute();
     if (originalRoute) {

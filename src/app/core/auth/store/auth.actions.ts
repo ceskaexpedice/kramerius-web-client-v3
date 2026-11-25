@@ -31,18 +31,14 @@ export const exchangeCodeForTokenFailure = createAction(
   props<{ error: string }>()
 );
 
-export const refreshToken = createAction(
-  '[Auth] Refresh Token'
-);
-
-export const refreshTokenSuccess = createAction(
-  '[Auth] Refresh Token Success',
-  props<{ tokens: AuthTokens }>()
-);
-
-export const refreshTokenFailure = createAction(
-  '[Auth] Refresh Token Failure',
-  props<{ error: string }>()
+/**
+ * The access token expired (or the API rejected it with 401). The backend has
+ * no token refresh, so the local session ends and the user is asked to log in
+ * again. Keycloak is not involved: its SSO session usually lets that next login
+ * finish without a password prompt.
+ */
+export const sessionExpired = createAction(
+  '[Auth] Session Expired'
 );
 
 export const logout = createAction(

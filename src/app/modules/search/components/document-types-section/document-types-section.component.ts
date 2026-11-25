@@ -3,20 +3,16 @@ import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {CategoryItemComponent} from '../../../../shared/components/category-item/category-item.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {Store} from '@ngrx/store';
-import {selectGenres, selectGenresLoading} from '../../state/genres/genres.selectors';
-import {loadGenres} from '../../state/genres/genres.actions';
 import {
   selectDocumentTypes,
   selectDocumentTypesLoading,
 } from '../../state/document-types/document-types.selectors';
 import {loadDocumentTypes} from '../../state/document-types/document-types.actions';
 import {SearchService} from '../../../../shared/services/search.service';
-import {DocumentTypeEnum} from '../../../constants/document-type';
-import {customDefinedFacetsEnum, facetKeysEnum} from '../../../search-results-page/const/facets';
+import {customDefinedFacetsEnum} from '../../../search-results-page/const/facets';
 import {APP_ROUTES_ENUM} from '../../../../app.routes';
 import {InlineLoaderComponent} from '../../../../shared/components/inline-loader/inline-loader.component';
 import {map} from 'rxjs';
-import {getModelIcon} from '../../../../shared/utils/filter-icons.utils';
 import {LibraryContextService} from '../../../../shared/services/library-context.service';
 
 @Component({

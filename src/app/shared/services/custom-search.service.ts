@@ -1,8 +1,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { UserService } from './user.service';
 import { QueryParamsService } from '../../core/services/QueryParamsManager';
-import {filter, take} from 'rxjs';
+import {take} from 'rxjs';
 import {
   getCustomDefinedFacets,
   customDefinedFacetsEnum,
@@ -19,7 +19,6 @@ export class CustomSearchService {
   filters = computed(() => this._appliedFilters());
 
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
   private userService = inject(UserService);
   private queryParamsService = inject(QueryParamsService);
 
@@ -311,6 +310,19 @@ export class CustomSearchService {
       customSearch: updated.length > 0 ? updated.join(',') : null,
       ...extraParams,
     });
+  }
+
+  /**
+   * Drops the facet's filters from local state without navigating, so the caller
+   * can fold the change into its own navigation. Returns the new `customSearch`
+   * param value (null = remove), or undefined when nothing was selected.
+   */
+  dropFacetFilters(facetKey: string): string | null | undefined {
+    const current = this._appliedFilters();
+    const updated = current.filter(k => !k.startsWith(facetKey + ':'));
+    if (updated.length === current.length) return undefined;
+    this._appliedFilters.set(updated);
+    return updated.length > 0 ? updated.join(',') : null;
   }
 
   setSingleFilterForFacet(facetKey: string, value: string, extraParams: Record<string, any> = {}): void {

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { Subject, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { DocumentSearchService } from './document-search.service';
 import { AltoService } from './alto.service';
 import { IIIFViewerService } from './iiif-viewer.service';
@@ -92,5 +92,64 @@ describe('DocumentSearchService OCR fallback', () => {
     service.clearSearch();
 
     expect(service.ocrFallbackPid()).toBeNull();
+  });
+});
+
+describe('DocumentSearchService restore from URL', () => {
+  let service: DocumentSearchService;
+  let detailView: any;
+  let queryParams: Record<string, string>;
+  // Solr returns hits by relevance, not in page order.
+  const hits = [{ pid: 'p45', highlightedText: 'b' }, { pid: 'p43', highlightedText: 'a' }];
+
+  beforeEach(() => {
+    queryParams = { fulltext: '21. prosince 1918' };
+    detailView = {
+      pages: [{ pid: 'p1' }, { pid: 'p43' }, { pid: 'p45' }],
+      currentPagePid: 'p1',
+      isPdf: false,
+      navigateToPage: jasmine.createSpy('navigateToPage'),
+    };
+
+    TestBed.configureTestingModule({
+      providers: [
+        DocumentSearchService,
+        { provide: AltoService, useValue: jasmine.createSpyObj('AltoService', ['fetchAltoXml', 'fetchOcrText']) },
+        { provide: DetailViewService, useValue: detailView },
+        { provide: IIIFViewerService, useValue: {
+          setSearchQuery: () => {},
+          imageLoaded$: new Subject<void>(),
+          nextPageFullyLoaded$: () => new Subject<void>(),
+        } },
+        { provide: SolrService, useValue: { getInDocumentSearchResults: () => of(hits) } },
+        { provide: CdkSourceService, useValue: { getCode: () => null } },
+        { provide: ActivatedRoute, useValue: { snapshot: { get queryParams() { return queryParams; } } } },
+      ]
+    });
+    service = TestBed.inject(DocumentSearchService);
+  });
+
+  it('jumps to the first match in page order when the current page has none', () => {
+    service.restoreSearchFromUrl('book');
+    expect(detailView.navigateToPage).toHaveBeenCalledWith('p43');
+  });
+
+  it('stays on the current page when it has a match', () => {
+    detailView.currentPagePid = 'p45';
+    service.restoreSearchFromUrl('book');
+    expect(detailView.navigateToPage).not.toHaveBeenCalled();
+  });
+
+  it('orders the hits by page, like the sidebar', () => {
+    let pids: string[] = [];
+    service.searchResults$.subscribe(r => pids = r.map(x => x.pid));
+    service.restoreSearchFromUrl('book');
+    expect(pids).toEqual(['p43', 'p45']);
+  });
+
+  it('keeps the article page', () => {
+    queryParams = { ...queryParams, article: 'art' };
+    service.restoreSearchFromUrl('book');
+    expect(detailView.navigateToPage).not.toHaveBeenCalled();
   });
 });

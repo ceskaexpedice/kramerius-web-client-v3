@@ -1,4 +1,4 @@
-import {Component, EventEmitter, HostListener, inject, Input, Output, signal} from '@angular/core';
+import {Component, EventEmitter, inject, Input, Output, signal} from '@angular/core';
 import {TranslatePipe} from '@ngx-translate/core';
 import {NgForOf, NgIf} from '@angular/common';
 import {BreakpointService} from '../../services/breakpoint.service';
@@ -86,14 +86,6 @@ export class SidebarDialogLayoutComponent {
 
   checkMobileView() {
     this.isMobile.set(this.breakpointService.isMobile());
-    //
-    // const wasMobile = this.isMobile();
-    // this.isMobile.set(window.innerWidth <= 768);
-    //
-    // // If transitioning from mobile to desktop, reset mobile content view
-    // if (wasMobile && !this.isMobile()) {
-    //   this.showMobileContent.set(false);
-    // }
   }
 
   setActiveSection(key: string) {

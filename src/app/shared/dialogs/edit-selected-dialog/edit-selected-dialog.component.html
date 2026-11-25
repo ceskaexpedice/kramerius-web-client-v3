@@ -1,4 +1,4 @@
-<app-sidebar-dialog-layout [config]="dialogConfig" (save)="save()" (close)="close()"
+<app-sidebar-dialog-layout [config]="dialogConfig" (close)="close()"
   (sectionChange)="onSectionChange($event)" (customButtonClick)="onCustomButtonClick($event)"
   (actionClick)="onActionClick($event)">
 
@@ -62,20 +62,6 @@
 
       }
 
-    </div>
-
-    <!--    &lt;!&ndash; Collections Section &ndash;&gt;-->
-    <!--    <div *ngIf="activeSection() === 'add-collection'" class="section-content">-->
-    <!--      <app-edit-collections-section-->
-    <!--        [selectedIds]="data.selectedIds"-->
-    <!--        (dataChange)="onCollectionsDataChange($event)">-->
-    <!--      </app-edit-collections-section>-->
-    <!--    </div>-->
-
-    <!-- Licence Section -->
-    <div *ngIf="activeSection() === 'licence'" class="section-content">
-      <app-edit-licence-section [selectedIds]="data.selectedIds" (dataChange)="onLicenceDataChange($event)">
-      </app-edit-licence-section>
     </div>
 
   </div>

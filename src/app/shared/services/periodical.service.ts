@@ -31,7 +31,6 @@ import {
 import { customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-results-page/const/facets';
 import { AdvancedSearchService } from './advanced-search.service';
 import { BaseFilterService } from './base-filter.service';
-import { SearchService } from './search.service';
 import { appendToAdvancedQuery, buildDateOverlapQuery, buildYearRangeQuery, normalizeDateRangeParams } from '../utils/date-range-query';
 import { ConfigService } from '../../core/config/config.service';
 import { ALL_SOURCES } from '../utils/cdk-source.constants';
@@ -63,18 +62,13 @@ export class PeriodicalService extends BaseFilterService {
   dateFilterBounds = signal<{ min: Date | null; max: Date | null }>({ min: null, max: null });
   private dateFilterBoundsPid: string | null = null;
 
-  // Debug wrapper for selectedYear.set to track when it changes
+  // Single write path for selectedYear, so specs can intercept the writes.
   private setSelectedYear(value: string | null) {
     this.selectedYear.set(value);
   }
 
   availableYears: PeriodicalItemYear[] = [];
   periodicalYears: PeriodicalItemYear[] = [];
-
-  // Lazy loading state for calendar months
-  private monthlyIssuesCache = new Map<string, any[]>();
-  private loadingMonths = new Set<string>();
-  monthlyIssuesLoading = signal(false);
 
   inputSearchTerm = '';
 
@@ -105,7 +99,6 @@ export class PeriodicalService extends BaseFilterService {
 
 
   override advancedSearchService = inject(AdvancedSearchService);
-  private searchService = inject(SearchService);
   private configService = inject(ConfigService);
 
   constructor(
@@ -114,7 +107,6 @@ export class PeriodicalService extends BaseFilterService {
     private recordHandler: RecordHandlerService,
   ) {
     super();
-    console.log('PeriodicalService initialized');
 
     this.load();
 
@@ -218,7 +210,6 @@ export class PeriodicalService extends BaseFilterService {
 
       const previousUuid = this.uuid;
       this.uuid = foundUuid;
-      console.log('URL changed. UUID:', this.uuid, 'QueryParams:', queryParams);
 
       if (this.uuid && this.uuid !== 'undefined' && currentRoute.includes(APP_ROUTES_ENUM.PERIODICAL_VIEW)) {
         // Opening a different periodical that carries no query: clear any stale search
@@ -243,7 +234,6 @@ export class PeriodicalService extends BaseFilterService {
       filter(Boolean),
       takeUntil(this.destroy$)
     ).subscribe(doc => {
-      console.log('document loaded:', doc);
       // Only handle document if we're not in search results mode to prevent conflicts
       const queryParams = this.route.snapshot.queryParams;
       const hasSearchQuery = queryParams && queryParams['query'] && queryParams['query'].length > 0;
@@ -258,8 +248,6 @@ export class PeriodicalService extends BaseFilterService {
 
 
   private dispatchPeriodicalSearch(params: any): void {
-
-    console.log('uuid:', this.uuid);
 
     if (!this.uuid || this.uuid === 'undefined') return;
 
@@ -307,8 +295,6 @@ export class PeriodicalService extends BaseFilterService {
       this.goToPage(page);
     }
 
-    console.log('baseFilters:', baseFilters);
-
     const pageSize = Number(params && params['pageSize']) || this._pageSize();
     const sortBy = params && params['sortBy'] || this._sortBy();
     const sortDirection = params && params['sortDirection'] || this._sortDirection();
@@ -323,8 +309,6 @@ export class PeriodicalService extends BaseFilterService {
 
     let filters: string[];
 
-    console.log('customFilters:', customFilters);
-
     filters = [...baseFilters, ...customFilters];
 
     // Date filter uses interval overlap on date.min/date.max so it matches both
@@ -338,9 +322,6 @@ export class PeriodicalService extends BaseFilterService {
       this.store.dispatch(loadPeriodical({ uuid: this.uuid, filters: filters, advancedQuery: finalAdvancedQuery, page: (page - 1) * pageSize, pageCount: pageSize, sortBy, sortDirection, cdkCollection }));
       return;
     }
-
-    console.log('query periodical:', query);
-    console.log('advanced query:', finalAdvancedQuery);
 
     // The search effect only loads results + facets, not the root periodical
     // document/metadata. On a fresh reload with a query in the URL the store is
@@ -391,7 +372,6 @@ export class PeriodicalService extends BaseFilterService {
   }
 
   getSuggestionsFn = (term: string): Observable<string[]> => {
-    console.log('[PeriodicalService] getting suggestions for:', term);
     return this.solrService.getAutocompleteSuggestions(term);
   }
 
@@ -419,7 +399,6 @@ export class PeriodicalService extends BaseFilterService {
   }
 
   search(query: string): void {
-    //this.initialize();
     this.router.navigate([`/${APP_ROUTES_ENUM.PERIODICAL_VIEW}/${this.uuid}`], {
       queryParams: {
         // null removes the param — a user-initiated search (or clear) takes over
@@ -665,7 +644,6 @@ export class PeriodicalService extends BaseFilterService {
 
   private navigateToRelativeYear(offset: number): void {
     if (!this.selectedYear() || this.availableYears.length === 0) {
-      console.log('Early return: no selected year or no available years');
       return;
     }
 
@@ -673,8 +651,6 @@ export class PeriodicalService extends BaseFilterService {
     const target = this.availableYears[currentIndex + offset];
     if (target) {
       this.selectYear(target.year);
-    } else {
-      console.log('No target found for offset:', offset);
     }
   }
 
@@ -722,7 +698,6 @@ export class PeriodicalService extends BaseFilterService {
   private generateYearsFromAvailable(): void {
     this.periodicalYears = [...this.availableYears]
       .map(y => ({ ...y, exists: true }))
-    //.sort((a, b) => parseInt(a.year) - parseInt(b.year));
   }
 
   private saveViewModeToLocalStorage(view: string): void {
@@ -733,26 +708,6 @@ export class PeriodicalService extends BaseFilterService {
     return this.localStorage.get<CalendarGridControl>(this.PERIODICAL_VIEW_LOCAL_STORAGE_KEY) ?? 'calendar';
   }
 
-
-  public goToNextPeriodicalYear() {
-    if (!this.selectedYear() || this.availableYears.length === 0) return;
-    const currentIndex = this.availableYears.findIndex(y => y.year === this.selectedYear());
-    if (currentIndex === -1 || currentIndex === this.availableYears.length - 1) return;
-    const nextYear = this.availableYears[currentIndex + 1];
-    if (nextYear) {
-      this.selectYear(nextYear.year);
-    }
-  }
-
-  public goToPreviousPeriodicalYear() {
-    if (!this.selectedYear() || this.availableYears.length === 0) return;
-    const currentIndex = this.availableYears.findIndex(y => y.year === this.selectedYear());
-    if (currentIndex <= 0) return;
-    const previousYear = this.availableYears[currentIndex - 1];
-    if (previousYear) {
-      this.selectYear(previousYear.year);
-    }
-  }
 
   public goToNextPeriodicalIssue() {
     if (!this.uuid) return;
@@ -776,60 +731,6 @@ export class PeriodicalService extends BaseFilterService {
     });
   }
 
-  public getCurrentPeriodicalYearPid(): string | null {
-    const year = this.selectedYear();
-    if (!year) return null;
-    const yearData = this.availableYears.find(y => y.year === year);
-    return yearData ? yearData.pid : null;
-  }
-
-  // Lazy loading methods for calendar months
-  loadMonthIssues(year: string, month: number): Observable<any[]> {
-    const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
-
-    if (this.monthlyIssuesCache.has(monthKey)) {
-      return of(this.monthlyIssuesCache.get(monthKey) || []);
-    }
-
-    if (this.loadingMonths.has(monthKey)) {
-      return of([]);
-    }
-
-    this.loadingMonths.add(monthKey);
-    this.monthlyIssuesLoading.set(true);
-
-    // TODO: Implement actual API call to load issues for specific month
-    // This is a skeleton - replace with real implementation
-    return this.fetchMonthIssuesFromAPI(year, month).pipe(
-      map(issues => {
-        this.monthlyIssuesCache.set(monthKey, issues);
-        this.loadingMonths.delete(monthKey);
-
-        if (this.loadingMonths.size === 0) {
-          this.monthlyIssuesLoading.set(false);
-        }
-
-        return issues;
-      })
-    );
-  }
-
-  private fetchMonthIssuesFromAPI(year: string, month: number): Observable<any[]> {
-    // TODO: Replace with actual API call
-    // For now, return empty array to maintain functionality
-    console.log(`Skeleton: Would fetch issues for ${year}-${month}`);
-    return of([]);
-  }
-
-  getMonthIssuesFromCache(year: string, month: number): any[] {
-    const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
-    return this.monthlyIssuesCache.get(monthKey) || [];
-  }
-
-  clearMonthlyCache(): void {
-    this.monthlyIssuesCache.clear();
-    this.loadingMonths.clear();
-  }
 }
 
 /** 'YYYY-MM-DD' -> local Date at midnight (avoids the UTC shift of new Date(iso)). */

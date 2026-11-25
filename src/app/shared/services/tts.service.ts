@@ -23,7 +23,6 @@ export class TtsService {
   private audio = new Audio();
   private prefetchedAudio: string | null = null;
   private prefetchingBlockIndex = -1;
-  private destroyed = false;
   private isPlayingBlock = false;
   /** True once playback has been unlocked by a user gesture (mobile autoplay policy). */
   private audioUnlocked = false;

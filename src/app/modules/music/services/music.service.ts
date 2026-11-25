@@ -1,10 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import {ActivatedRoute, Router} from "@angular/router";
+import {Router} from "@angular/router";
 import {
   selectMusicError,
   selectMusicLoading,
   selectMusicMetadata,
-  selectMusicTracks
+  selectMusicTracks,
+  selectMusicTracksSettled
 } from "../state/music-detail.selectors";
 import {Store} from "@ngrx/store";
 import {RecordHandlerService} from "../../../shared/services/record-handler.service";
@@ -33,7 +34,6 @@ import {BreakpointService} from '../../../shared/services/breakpoint.service';
 export class MusicService {
   uuid: string | null = null;
 
-  private route = inject(ActivatedRoute);
   private soundService = inject(SoundService);
   private solr = inject(SolrService);
   private fileService = inject(FileService);
@@ -47,6 +47,7 @@ export class MusicService {
   metadata$ = this.store.select(selectMusicMetadata);
   tracks$ = this.store.select(selectMusicTracks);
   loading$ = this.store.select(selectMusicLoading);
+  tracksSettled$ = this.store.select(selectMusicTracksSettled);
   error$ = this.store.select(selectMusicError);
 
   private metadataSignal = toSignal(this.metadata$, { initialValue: null });
@@ -93,7 +94,6 @@ export class MusicService {
   }
 
   trackSelected(track: SoundTrackModel) {
-    console.log('trackSelected', track);
     this.soundService.play(track)
   }
 
@@ -141,10 +141,6 @@ export class MusicService {
 
       this.toastService.show('track-downloaded');
     }
-  }
-
-  goBackClicked(): void {
-    //this.recordHandler.navi();
   }
 
   openMusicStopDialog() {

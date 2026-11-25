@@ -38,6 +38,4 @@ export const searchLicenses = createAction(
   props<{ query: string }>()
 );
 
-export const loadMoreLicenses = createAction('[Licenses] Load More');
-
 export const clearLicensesSearch = createAction('[Licenses] Clear Search');

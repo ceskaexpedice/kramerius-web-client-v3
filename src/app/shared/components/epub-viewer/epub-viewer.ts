@@ -2,7 +2,6 @@ import { Component, ElementRef, inject, Input, NgZone, OnDestroy, OnInit, ViewCh
 import ePub, { Book, Rendition } from 'epubjs';
 import { Metadata } from '../../models/metadata.model';
 import { EnvironmentService } from '../../services/environment.service';
-import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/auth/auth.service';
 import { skip, Subscription } from 'rxjs';
 import { InlineLoaderComponent } from '../inline-loader/inline-loader.component';
@@ -37,7 +36,6 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
   public isLoading = true;
 
   private env = inject(EnvironmentService);
-  private http = inject(HttpClient);
   private authService = inject(AuthService);
   private epubService = inject(EpubService);
   private zone = inject(NgZone);
@@ -260,7 +258,6 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
         spread: 'none',
         manager: 'continuous',
         flow: 'paginated',
-        allowScriptedContent: true,
       } as any);
 
       // Await standard EPUB parsing of the internal Table of Contents map

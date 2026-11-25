@@ -129,11 +129,6 @@ export class RecordItemListComponent implements OnInit, OnDestroy {
     });
   }
 
-  onClick(e: MouseEvent, record: SearchDocument) {
-    e.stopPropagation();
-    this.recordHandler.handleDocumentClick(record);
-  }
-
   onDownloadClicked(record: SearchDocument): void {
     this.exportRecord.emit(record);
   }

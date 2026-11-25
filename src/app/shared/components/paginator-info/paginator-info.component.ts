@@ -25,9 +25,4 @@ export class PaginatorInfoComponent {
     return Math.min(this.page * this.pageSize, this.totalCount);
   }
 
-  get formattedTotalCount(): string {
-    // format total count with space as thousands separator
-    return this.totalCount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-  }
-
 }

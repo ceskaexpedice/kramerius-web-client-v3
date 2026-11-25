@@ -2,7 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SolrService } from '../../../core/solr/solr.service';
-import { RecordHandlerService } from '../../services/record-handler.service';
 import { switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { APP_ROUTES_ENUM } from '../../../app.routes';
@@ -51,7 +50,6 @@ export class UuidRedirectComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private solrService = inject(SolrService);
-  private recordHandlerService = inject(RecordHandlerService);
   private libraryContext = inject(LibraryContextService);
 
   ngOnInit(): void {

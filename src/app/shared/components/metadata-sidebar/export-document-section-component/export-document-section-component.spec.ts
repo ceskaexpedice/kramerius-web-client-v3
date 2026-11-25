@@ -21,7 +21,7 @@ import { Router } from '@angular/router';
  *
  * There are two different PDF exports behind one section: the synchronous
  * `/pdf/selection` download (works at every library, capped by `pdfMaxRange`) and
- * the worker-backed job delivered by e-mail (KNAV/NKP only). They used to be shown
+ * the worker-backed job delivered by e-mail (only libraries in `export.publicWorkerLibraries`). They used to be shown
  * side by side as "Celý dokument (legacy)" and "Celý dokument", and the whole
  * section was hidden wherever the worker was missing — which removed the one PDF
  * export that would actually have worked there.

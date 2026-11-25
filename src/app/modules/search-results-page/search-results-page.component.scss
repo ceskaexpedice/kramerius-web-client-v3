@@ -11,6 +11,10 @@
   display: none;
 }
 
+.filters-toggle--hidden {
+  display: none;
+}
+
 :host ::ng-deep .action-toolbar--tabs-visible .action-toolbar {
   padding-left: 0;
 
@@ -53,36 +57,6 @@
     app-paginator-info {
       margin-right: auto;
     }
-  }
-}
-
-// Pinned to the screen bottom; the global mini-player rides on top of it
-// (styles.scss). Matches the .page-container calc() below (issue #172).
-app-mobile-nav-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  // Same timing as the app header slide in styles.scss.
-  transition: transform 0.3s ease-in-out;
-
-  // Hidden together with the header while the list scrolls down.
-  &.mobile-nav-bar--hidden {
-    transform: translateY(100%);
-    pointer-events: none;
-  }
-}
-
-:host:has(app-mobile-nav-bar) {
-  .page-container {
-    height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--header-height) - var(--playback-bar-height, 0px) - var(--mobile-nav-bar-height, 60px) - var(--mobile-nav-safe-bottom, 0px));
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  app-mobile-nav-bar {
-    transition: none;
   }
 }
 

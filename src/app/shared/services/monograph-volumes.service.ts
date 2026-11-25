@@ -9,6 +9,7 @@ import * as MonographVolumesSelectors from '../state/monograph-volumes/monograph
 import { getCustomDefinedFacets, customDefinedFacetsEnum, facetKeysEnum } from '../../modules/search-results-page/const/facets';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { SolrQueryBuilder } from '../../core/solr/solr-query-builder';
+import { SolrUtils } from '../../core/solr/solr-utils';
 import { SolrSortDirections, SolrSortFields } from '../../core/solr/solr-helpers';
 import { ConfigService } from '../../core/config/config.service';
 
@@ -38,7 +39,6 @@ export class MonographVolumesService extends BaseFilterService {
     override advancedSearchService: AdvancedSearchService
   ) {
     super();
-    console.log('MonographVolumesService initialized');
 
     this.load();
     this.initialize();
@@ -84,7 +84,6 @@ export class MonographVolumesService extends BaseFilterService {
       const queryParams = this.route.snapshot.queryParams;
 
       this.uuid = extractUuid(rawUrl);
-      console.log('MonographVolumes URL changed. UUID:', this.uuid, 'QueryParams:', queryParams);
 
       if (currentRoute.includes(APP_ROUTES_ENUM.MONOGRAPH_VIEW) && this.uuid) {
         this.dispatchLoadVolumes(Object.keys(queryParams).length ? queryParams : null);
@@ -96,8 +95,6 @@ export class MonographVolumesService extends BaseFilterService {
 
   private dispatchLoadVolumes(params: any): void {
     if (!this.uuid) return;
-
-    console.log('Dispatching load volumes with params:', params);
 
     // Accept ?fulltext as a query fallback, same as PeriodicalService — a search
     // term carried over from another page (e.g. saved lists) seeds the input.
@@ -132,13 +129,8 @@ export class MonographVolumesService extends BaseFilterService {
     // library. `cdk.collection` is a raw Solr field, so it is appended as-is.
     const cdkSource = params && params['source'];
     const filters = this.configService.isCdk() && cdkSource
-      ? [...baseFilters, ...customFilters, `cdk.collection:${cdkSource}`]
+      ? [...baseFilters, ...customFilters, `cdk.collection:"${SolrUtils.escapeSolrValue(String(cdkSource))}"`]
       : [...baseFilters, ...customFilters];
-
-    console.log('Base filters:', baseFilters);
-    console.log('Custom filters:', customFilters);
-    console.log('Combined filters:', filters);
-    console.log('Query:', query);
 
     // Snapshot for the "show more" dialog: same filters + own_parent.pid child
     // scope, mirroring the volume search (SolrService.getChildrenByModel). q stays
@@ -209,7 +201,6 @@ export class MonographVolumesService extends BaseFilterService {
   }
 
   toggleFilter(route: ActivatedRoute, fullValue: string): void {
-    console.log('MonographVolumesService - toggleFilter:', fullValue);
 
     // Check if facetKey is in customDefinedFacets
     const [facetKey, facetValue] = fullValue.split(':');
@@ -218,7 +209,6 @@ export class MonographVolumesService extends BaseFilterService {
     this.resetPage();
 
     if (isCustom) {
-      console.log('Custom facet detected, using customSearchService');
       this.customSearchService.toggleFilter(fullValue);
       return;
     }
@@ -273,7 +263,6 @@ export class MonographVolumesService extends BaseFilterService {
   }
 
   getSuggestionsFn = (term: string): Observable<string[]> => {
-    console.log('[MonographVolumesService] getting suggestions for:', term);
     return this.solrService.getAutocompleteSuggestions(term);
   }
 

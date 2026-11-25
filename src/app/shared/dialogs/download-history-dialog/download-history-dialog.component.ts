@@ -97,11 +97,6 @@ export class DownloadHistoryDialogComponent implements OnInit {
       error: () => {
         // The file was likely cleaned up server-side since the list was loaded.
         this.toast.show('download-history--download-error');
-        // this.rows.update((rows) =>
-        //   rows.map((r) =>
-        //     r.file.token === row.file.token ? { ...r, status: 'expired' } : r
-        //   )
-        // );
       }
     });
   }

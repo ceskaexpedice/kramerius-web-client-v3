@@ -40,7 +40,8 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     pdf: true,
     epub: true,
     txt: true,
-    enrichWithAI: true
+    enrichWithAI: true,
+    publicWorkerLibraries: ['knav', 'nkp']
   },
   viewer: {
     defaultMode: 'book',

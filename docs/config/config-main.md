@@ -268,7 +268,8 @@ Přepínače jednotlivých formátů v sekci „Export“ v postranním panelu d
   "pdf": true,
   "epub": true,
   "txt": true,
-  "enrichWithAI": true
+  "enrichWithAI": true,
+  "publicWorkerLibraries": ["knav", "nkp", "mzk"]
 }
 ```
 
@@ -280,6 +281,7 @@ Přepínače jednotlivých formátů v sekci „Export“ v postranním panelu d
 | `epub` | Export do EPUB. | `true`  |
 | `txt` | Export do prostého textu (TXT). | `true`  |
 | `enrichWithAI` | Přepínač „obohatit pomocí AI“ v dialogu pro odeslání EPUB/TXT exportu e-mailem. Když je `false`, přepínač se v dialogu nezobrazí. Není to samostatný formát exportu — neovlivňuje skrytí záložky „Export“. | `true`  |
+| `publicWorkerLibraries` | Kódy knihoven, jejichž backend provozuje public worker. Jen u nich se nabízí EPUB a TXT a PDF celého dokumentu se generuje workerem a posílá e-mailem. U ostatních knihoven se EPUB a TXT nezobrazí a PDF celého dokumentu se stahuje přímo přes `/pdf/selection` (s limitem `pdfMaxRange`). Na CDK rozhoduje vybraný zdroj (`cdk.collection`), jinde kód instance. | `["knav", "nkp"]` |
 
 Když se celý blok `export` vynechá, použijí se výchozí hodnoty z tabulky (`print`, `jpeg`, `pdf` zapnuté; `epub`, `txt` vypnuté). Když blok uvedete, ale některé pole vynecháte, doplní se z výchozích hodnot.
 

@@ -1,18 +1,20 @@
 <div class="auth-callback-container">
   <div class="auth-callback-content">
-    @if (loading) {
+    @if (loading()) {
       <div class="loading">
         <div class="spinner"></div>
         <h2>{{ 'completing-authentication' | translate }}</h2>
         <p>{{ 'authentication-wait' | translate }}</p>
       </div>
     }
-    
-    @if (error) {
-      <div class="error">
+
+    @if (failed()) {
+      <div class="error" role="alert">
         <h2>{{ 'authentication-error' | translate }}</h2>
-        <p>{{ error }}</p>
-        <p>{{ 'redirecting-home' | translate }}</p>
+        <p>{{ 'authentication-failed-message' | translate }}</p>
+        <button type="button" class="button primary" (click)="goHome()">
+          {{ 'error.not_found.return_button' | translate }}
+        </button>
       </div>
     }
   </div>

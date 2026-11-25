@@ -9,7 +9,6 @@ export function copyTextToClipboard(text: string): void {
 
   try {
     document.execCommand('copy');
-    console.log('Text copied to clipboard:', text);
   } catch (err) {
     console.error('Failed to copy text:', err);
   }

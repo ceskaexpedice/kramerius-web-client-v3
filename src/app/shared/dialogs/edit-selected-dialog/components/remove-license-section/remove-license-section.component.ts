@@ -66,7 +66,6 @@ export class RemoveLicenseSectionComponent implements OnInit, OnChanges {
         next: (response) => {
           // Preselect all licenses from the single item
           this.selectedLicenses = response.licenses || [];
-          console.log('Preselected licenses for single item:', this.selectedLicenses);
           this.emitChange();
         },
         error: (error) => {
@@ -91,15 +90,11 @@ export class RemoveLicenseSectionComponent implements OnInit, OnChanges {
         if (allEqual && licenseSets.length > 0) {
           // All items have the same licenses - preselect them
           this.selectedLicenses = Array.from(licenseSets[0]);
-          console.log('All items have the same licenses. Preselected:', this.selectedLicenses);
         } else {
           // Items have different licenses - find common licenses (intersection)
           const commonLicenses = this.findCommonLicenses(licenseSets);
           if (commonLicenses.length > 0) {
             this.selectedLicenses = commonLicenses;
-            console.log('Items have different licenses. Preselected common ones:', this.selectedLicenses);
-          } else {
-            console.log('Items have no common licenses. No preselection.');
           }
         }
 

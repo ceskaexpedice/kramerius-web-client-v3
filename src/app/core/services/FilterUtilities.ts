@@ -1,17 +1,10 @@
 import { Injectable } from "@angular/core";
-import { QueryParamsService } from "./QueryParamsManager";
-import { Store } from "@ngrx/store";
 import { FacetItem } from "../../modules/models/facet-item";
 
 @Injectable({
   providedIn: 'root'
 })
 export class FilterService {
-  constructor(
-    private queryParamsService: QueryParamsService,
-    private store: Store
-  ) {}
-
   /**
    * Group filters by field
    */

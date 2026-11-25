@@ -7,7 +7,6 @@ import { CitationResponse, CitationService } from '../../services/citation.servi
 import { EnvironmentService } from '../../services/environment.service';
 import { Metadata } from '../../models/metadata.model';
 import { DocumentHierarchySelectorComponent, DocumentHierarchyItem } from '../../components/document-hierarchy-selector/document-hierarchy-selector.component';
-import { RecordHandlerService } from '../../services/record-handler.service';
 import { ShareService } from '../../services/share.service';
 import { copyTextToClipboard } from '../../misc/misc-functions';
 import { ToastService } from '../../services/toast.service';
@@ -46,7 +45,6 @@ export class CitationDialogComponent {
   private citationService = inject(CitationService);
   private translationService = inject(TranslateService);
   private environmentService = inject(EnvironmentService);
-  private recordHandlerService = inject(RecordHandlerService);
   private shareService = inject(ShareService);
   private toastService = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);

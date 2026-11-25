@@ -2,7 +2,6 @@ import { Component, Input } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NgClass } from '@angular/common';
 import { DocumentTypeEnum } from '../../../modules/constants/document-type';
-import { getModelIcon } from "../../utils/filter-icons.utils";
 import { CdkTooltipDirective } from '../../directives/cdk-tooltip/cdk-tooltip.directive';
 
 const MODELS_WITH_SHORT_LABEL = new Set<string>([
@@ -82,11 +81,4 @@ export class ModelBadgeComponent {
     return '';
   }
 
-  hasDoubleBookIcon(): boolean {
-    if (!this.model) return false;
-    const modelKey = this.model.toLowerCase();
-    return modelKey === DocumentTypeEnum.monograph && this.monographUnitCount > 0;
-  }
-
-  protected readonly getModelIcon = getModelIcon;
 }

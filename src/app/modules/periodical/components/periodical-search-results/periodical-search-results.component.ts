@@ -6,7 +6,7 @@ import {PaginatorComponent} from '../../../../shared/components/paginator/pagina
 import {NoResultsComponent} from '../../../../shared/components/no-results/no-results.component';
 import {SolrSortFields} from '../../../../core/solr/solr-helpers';
 import {SearchDocument} from '../../../models/search-document';
-import {RecordItem, searchDocumentToRecordItem} from '../../../../shared/components/record-item/record-item.model';
+import {RecordItem} from '../../../../shared/components/record-item/record-item.model';
 import {RecordHandlerService} from '../../../../shared/services/record-handler.service';
 import { parseIssueDateStr } from '../../../../shared/utils/periodical-date';
 
@@ -25,15 +25,8 @@ import { parseIssueDateStr } from '../../../../shared/utils/periodical-date';
 })
 export class PeriodicalSearchResultsComponent {
 
-  currentSortBy = SolrSortFields.relevance;
-
   public periodicalService = inject(PeriodicalService);
   private recordHandlerService = inject(RecordHandlerService);
-
-  // Convert SearchDocument to RecordItem
-  toRecordItem(doc: SearchDocument): RecordItem {
-    return searchDocumentToRecordItem(doc);
-  }
 
   // Convert SearchDocument to RecordItem with badge layout consideration
   toRecordItemWithBadgeLayout(doc: SearchDocument, allDocs: SearchDocument[]): RecordItem {
@@ -43,10 +36,6 @@ export class PeriodicalSearchResultsComponent {
   // Cache for grouped results to avoid recomputation
   private cachedGroupedResults: { [year: string]: SearchDocument[] } | null = null;
   private cachedResultsHash: string | null = null;
-
-  sortChanged(sort: SolrSortFields) {
-    this.currentSortBy = sort;
-  }
 
   // Check if we should group by year
   shouldGroupByYear(): boolean {

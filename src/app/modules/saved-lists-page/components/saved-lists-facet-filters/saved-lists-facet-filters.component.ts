@@ -6,7 +6,6 @@ import { BaseFiltersComponent } from '../../../../shared/components/filters/base
 import {
   getCustomDefinedFacets,
   customDefinedFacetsEnum,
-  customDefinedFacetsKeys,
   FacetElementType,
   facetKeys,
   facetKeysEnum,

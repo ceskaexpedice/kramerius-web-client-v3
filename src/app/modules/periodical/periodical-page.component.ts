@@ -116,7 +116,6 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     popupPositioning: PopupPositioningService,
     router: Router
   ) {
-    //this.periodical.watchRouteParams();
     this.favoritesHelper = new FavoritesPopupHelper(favoritesService, popupPositioning, router);
   }
 
@@ -253,7 +252,6 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
     return bar > 0 ? bar + PeriodicalPageComponent.FILTER_TOGGLE_GAP : 0;
   }
 
-  /** Toolbar "more" menu > Info, for when there is no nav bar to open the description. */
   /** Info toggle (phones without the bottom nav): opens the description, or closes it. */
   toggleMobileInfo(): void {
     if (this.mobileSectionOpen()) {
@@ -304,12 +302,6 @@ export class PeriodicalPageComponent implements OnInit, OnDestroy {
       this.periodical.setView(ViewMode.GridIssues);
     }
     this.adminModeService.toggle();
-  }
-
-  onExportSelected(): void {
-  }
-
-  onEditSelected(selectedIds: string[]): void {
   }
 
   onFavoritesClicked(event: Event) {

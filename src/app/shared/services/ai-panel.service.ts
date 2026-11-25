@@ -281,12 +281,6 @@ export class AiPanelService {
   }
 
   /**
-   * Names the target language for the model. The language is identified by both
-   * its endonym and its code, so the model has an unambiguous target without a
-   * separate English-name table to keep in sync. Falls back to the original
-   * language, which is the previous behaviour.
-   */
-  /**
    * Human-readable text for a failed AI call.
    *
    * Quota exhaustion gets a localized explanation — it is an expected, recurring

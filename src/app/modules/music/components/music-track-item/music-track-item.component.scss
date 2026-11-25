@@ -12,9 +12,8 @@
 
 :host.disabled {
   color: var(--color-text-disable);
-  //opacity: 0.5;
 
-  .title, .page-ref {
+  .title {
     color: var(--color-text-disable);
   }
 
@@ -28,10 +27,6 @@
   color: var(--color-primary);
 
   td .title {
-    color: var(--color-primary);
-  }
-
-  .page-ref {
     color: var(--color-primary);
   }
 }
@@ -103,10 +98,6 @@ td {
   }
 }
 
-.page-ref {
-  color: var(--color-text-tertiary)
-}
-
 .duration {
   white-space: nowrap;
 }
@@ -114,7 +105,6 @@ td {
 .actions {
   display: flex;
   gap: var(--spacing-x2);
-  //justify-content: flex-end;
 }
 
 .icon-button.favorited {

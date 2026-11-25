@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { SKIP_ERROR_INTERCEPTOR } from '../../../core/services/http-context-tokens';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, shareReplay, switchMap, withLatestFrom } from 'rxjs/operators';
+import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { forkJoin, merge, of } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { SolrService } from '../../../core/solr/solr.service';
@@ -15,9 +15,7 @@ import {
   loadCollectionDetail,
   loadCollectionDetailFailure,
   loadCollectionDetailSuccess,
-  loadCollectionFacet,
   loadCollectionFacetsSuccess,
-  loadCollectionFacetSuccess,
   loadCollectionSearchResults,
   loadCollectionSearchResultsFailure,
   loadCollectionSearchResultsSuccess,
@@ -220,18 +218,7 @@ export class CollectionsEffects {
     ),
   );
 
-  loadCollectionFacet$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(loadCollectionFacet),
-      withLatestFrom(this.store.select(selectCollectionFacets)),
-      switchMap(([{ uuid, query, filters, facet, contains, ignoreCase, facetLimit, facetOffset }, currentFacets]) => {
-        return of(loadCollectionFacetSuccess({ facet, items: [] }));
-      }),
-    ),
-  );
-
   loadAllCollections$ = createEffect(() => {
-    console.log('Load Collections');
     return this.actions$.pipe(
       ofType(loadAllCollections),
       switchMap(() => {
@@ -252,7 +239,6 @@ export class CollectionsEffects {
           map(response => {
             const collections = response.response?.docs || [];
             const totalCount = response.response?.numFound || collections.length;
-            console.log(`Loaded ${collections.length} collections via NgRx`);
 
             const parsedResults = (response.response?.docs ?? []).map(doc => {
               return parseSearchDocument(doc);

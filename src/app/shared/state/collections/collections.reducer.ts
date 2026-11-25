@@ -72,14 +72,6 @@ export const collectionsReducer = createReducer(
     error,
   })),
 
-  on(CollectionsActions.loadCollectionFacetSuccess, (state, { facet, items }) => ({
-    ...state,
-    facets: {
-      ...state.facets,
-      [facet]: items,
-    },
-  })),
-
   on(CollectionsActions.loadCollectionDetail, (state) => ({
     ...state,
     detailLoading: true,

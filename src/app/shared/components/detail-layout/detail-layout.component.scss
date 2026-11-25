@@ -1,8 +1,6 @@
 @use "mixins";
 @use "_z-index.scss" as z;
 
-$top-toolbar-height: 56px;
-
 .detail-layout {
   height: calc(calc(100dvh / var(--ui-zoom, 1)) - var(--header-height) - var(--playback-bar-height, 0px) - var(--mobile-nav-bar-height, 0px));
   overflow: hidden;

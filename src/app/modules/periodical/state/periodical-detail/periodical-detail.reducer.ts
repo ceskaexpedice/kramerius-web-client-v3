@@ -7,7 +7,7 @@ import {
 } from './periodical-detail.actions';
 import {PeriodicalItem, PeriodicalItemChild, PeriodicalItemYear} from '../../../models/periodical-item';
 import {Metadata} from '../../../../shared/models/metadata.model';
-import {SolrOperators, SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
+import {SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
 import {monthCacheKey} from './periodical-detail.selectors';
 
 export interface PeriodicalDetailState {
@@ -79,14 +79,6 @@ export const periodicalDetailReducer = createReducer(
     monthLoading: {}
   })),
   on(setPeriodicalSearchParams, (state, { filters, advancedQuery, page, pageCount, sortBy, sortDirection, cdkCollection }) => {
-    console.log('setPeriodicalSearchParams reducer - filters:', {
-      filters,
-      advancedQuery,
-      page,
-      pageCount,
-      sortBy,
-      sortDirection
-    });
     return {
       ...state,
       searchParams: {

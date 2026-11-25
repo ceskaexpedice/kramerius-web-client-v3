@@ -127,11 +127,28 @@
       min-width: 0;
     }
 
-    // Cap the scope toggle at the row width so its pill group scrolls
-    // sideways instead of overhanging the screen edge.
+    // The scope toggle spans the row and all its scopes fit: labels wrap to
+    // two lines instead of the pill group scrolling sideways under the finger.
     app-toggle-button-group {
+      flex: 1 1 100%;
       max-width: 100%;
       min-width: 0;
+    }
+
+    app-toggle-button-group .toggle-group.variant-pill {
+      display: flex;
+      width: 100%;
+      overflow-x: visible;
+
+      // Doubled class: outranks the component's encapsulated .toggle-btn rule.
+      .toggle-btn.toggle-btn {
+        flex: 1 1 auto;
+        min-width: 0;
+        justify-content: center;
+        white-space: normal;
+        text-wrap: balance;
+        text-align: center;
+      }
     }
 
     app-selected-tags .mdc-evolution-chip-set__chips {

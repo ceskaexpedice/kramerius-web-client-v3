@@ -1,7 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 import {PeriodicalItem, PeriodicalItemYear} from '../../../models/periodical-item';
 import {Metadata} from '../../../../shared/models/metadata.model';
-import {SolrOperators, SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
+import {SolrSortDirections, SolrSortFields} from '../../../../core/solr/solr-helpers';
 import {FacetItem} from '../../../models/facet-item';
 
 export const loadPeriodical = createAction('[Periodical] Load', props<{ uuid: string; filters: string[], advancedQuery?: string, page: number, pageCount: number, sortBy: SolrSortFields, sortDirection: SolrSortDirections, cdkCollection?: string | null }>());

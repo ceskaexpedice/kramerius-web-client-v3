@@ -58,7 +58,6 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
       // When metadata changes to a new article, re-establish subscriptions
       // because ngOnInit won't be called again (component is not recreated)
       if (!isFirstChange && changes['metadata'].previousValue?.uuid !== this.metadata?.uuid) {
-        console.log('[PdfViewer] Re-establishing subscriptions for new article');
         this.setupSubscriptions();
       }
 
@@ -82,7 +81,6 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   }
 
   ngOnInit(): void {
-    console.log('[PdfViewer] ngOnInit - metadata.uuid:', this.metadata?.uuid);
     this.pdfService.uuid = this.metadata?.uuid || null;
 
     // Setup subscriptions on initial load
@@ -140,7 +138,6 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   }
 
   onPdfLoaded(event: any): void {
-    console.log('onPdfLoaded - event:', event);
 
     // Store the actual PDF document reference from the event
     // The event can contain the document in different ways depending on the library version
@@ -158,12 +155,10 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
 
   onPagesLoaded(event: any): void {
     // Pages are loaded - pass the component reference and mark as ready
-    console.log('Pages loaded, passing viewer component to service...');
 
     // Pass the ViewChild component reference to the service
     if (this.pdfViewer) {
       this.pdfService.setPdfViewerComponent(this.pdfViewer);
-      console.log('PDF viewer component set');
     }
 
     // Execute pending page navigation from URL
@@ -178,7 +173,6 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     // Wait 1 second for the component service to be fully initialized
     setTimeout(() => {
       this.pdfService.setPdfViewerReady();
-      console.log('PDF viewer marked as ready for search');
 
       // If the URL carried a ?fulltext= term, run the PDF search now that the viewer is ready.
       // const fulltextParam = this.route.snapshot.queryParams['fulltext'];
@@ -189,16 +183,9 @@ export class PdfViewer implements OnInit, AfterViewInit, OnDestroy, OnChanges {
     }, 1000);
   }
 
-  onTextLayerRendered(event: any): void {
-  }
-
   onPageChange(page: number | undefined): void {
     if (page === undefined) return;
     this.pdfService.setCurrentPage(page);
-  }
-
-  async onTextViewToggle(): Promise<void> {
-    await this.pdfService.extractCurrentPageText();
   }
 
   onWheel(event: WheelEvent): void {

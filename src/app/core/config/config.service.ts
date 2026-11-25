@@ -184,10 +184,7 @@ export class ConfigService {
     }
   }
 
-  /**
-   * Returns the URL to fetch libraries.json from.
-   * On localhost uses local file, on production uses the remote API.
-   */
+  /** URL of the remote library registry (libraries.json). */
   static getLibrariesUrl(): string {
     return LIBRARIES_API_URL;
   }
@@ -297,7 +294,6 @@ export class ConfigService {
     this.config$.next(config);
     this.envService.applyAppConfig(config.api?.baseUrl ?? null, switchEnabled, code);
     this.loaded = true;
-    console.log(`ConfigService: Configuration loaded for library '${code}'.`);
   }
 
   /** Neutral config (no CDK branding) used when no config could be loaded. */
@@ -481,17 +477,6 @@ export class ConfigService {
   }
 
   /**
-   * Library codes whose backend runs the public worker that generates the
-   * whole-document PDF and EPUB exports. Everywhere else those two formats are
-   * unavailable regardless of config, because the request would simply fail.
-   *
-   * Hardcoded deliberately (decision of 2026-08-27): the list tracks worker
-   * rollout, not per-instance preference. Extend it as libraries gain the worker
-   * — and once every library has it, drop this gate and let config decide again.
-   */
-  private static readonly PUBLIC_WORKER_LIBRARIES = ['knav', 'nkp'];
-
-  /**
    * Export formats that exist ONLY as a public-worker job — there is no other way
    * to produce them, so without the worker the format has to disappear entirely.
    *
@@ -514,10 +499,15 @@ export class ConfigService {
    * selected `cdk.collection` member — the library the document's data is being
    * loaded from, which is also the backend that would have to produce the export.
    * Off CDK there is no source, so the instance's own code decides.
+   *
+   * The list comes from `export.publicWorkerLibraries` in config-main.json; it
+   * tracks worker rollout on the backends. When the key is missing the default
+   * (knav, nkp) applies via the config merge.
    */
   hasPublicWorkerExports(): boolean {
     const code = this.cdkSource.getCode() || this.envService.getKrameriusId() || this.app?.code || '';
-    return ConfigService.PUBLIC_WORKER_LIBRARIES.some(lib => code.includes(lib));
+    const libraries = this.export.publicWorkerLibraries ?? DEFAULT_CONFIG.export.publicWorkerLibraries ?? [];
+    return libraries.some(lib => code.includes(lib));
   }
 
   /**

@@ -90,10 +90,17 @@ export interface ExportConfig {
    * exclusion from `ExportFormat`.
    */
   enrichWithAI?: boolean;
+  /**
+   * Library codes whose backend runs the public worker that generates the
+   * whole-document PDF and the EPUB/TXT exports. Matched against the library
+   * serving the document (on CDK the selected `cdk.collection` source).
+   * Elsewhere EPUB/TXT are hidden and PDF falls back to `/pdf/selection`.
+   */
+  publicWorkerLibraries?: string[];
 }
 
-// Export format keys (excludes non-format toggles like `enrichWithAI`)
-export type ExportFormat = Exclude<keyof ExportConfig, 'enrichWithAI'>;
+// Export format keys (excludes non-format settings like `enrichWithAI`)
+export type ExportFormat = Exclude<keyof ExportConfig, 'enrichWithAI' | 'publicWorkerLibraries'>;
 
 // Viewer mode type
 export type ViewerMode = 'book' | 'single';
@@ -306,7 +313,7 @@ export interface SuggestedSearchTagItem {
 
 // Home section configuration
 export interface HomepageSectionConfig {
-  type: 'periodicals' | 'books' | 'authors' | 'genres' | 'images' | 'document-types' | 'map' | 'institutions' | 'featured-documents' | 'link-tiles' | 'suggested-tags';
+  type: 'periodicals' | 'books' | 'genres' | 'document-types' | 'featured-documents' | 'link-tiles' | 'suggested-tags';
   title: string | LocalizedLabel;
   items?: Record<string, any>[];
   pids?: string[];

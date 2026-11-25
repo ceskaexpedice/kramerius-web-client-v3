@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit, OnChanges, SimpleChanges, signal, effect, OnDestroy} from '@angular/core';
+import {Component, inject, Input, OnInit, OnChanges, SimpleChanges, signal, OnDestroy} from '@angular/core';
 import { NgIf, AsyncPipe } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PageNavigatorComponent } from '../page-navigator/page-navigator.component';
@@ -172,7 +172,6 @@ export class DocumentSidebarComponent implements OnInit, OnChanges, OnDestroy {
    * Handles when a user selects a suggestion from the autocomplete
    */
   onSuggestionSelected(suggestion: string): void {
-    console.log('onSuggestionSelected', suggestion);
     if (!this.document?.uuid) {
       return;
     }

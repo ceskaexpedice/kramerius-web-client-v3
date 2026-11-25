@@ -73,18 +73,13 @@ export class DocumentSearchService {
    * NOTE: This only fetches suggestions for the dropdown, NOT the full search results
    */
   getSuggestions(documentUuid: string, term: string): Observable<string[]> {
-    console.log('getSuggestions called with term:', term);
 
     if (!documentUuid || !term || term.trim().length < 2) {
-      console.log('Skipping suggestions - invalid term or no document UUID');
       return of([]);
     }
 
-    console.log('Fetching suggestions for document:', documentUuid);
-
     return this.solrService.getInDocumentSuggestions(documentUuid, term, 10, this.cdkSource.getCode()).pipe(
       map(results => {
-        console.log('Received suggestions:', results.length, 'pages with matches');
 
         // Clear previous mapping
         this.suggestionToPidMap.clear();
@@ -105,8 +100,6 @@ export class DocumentSearchService {
             this.suggestionToPidMap.set(suggestion, result.pid);
           }
 
-          console.log('suggestionToPidMap::', this.suggestionToPidMap.values())
-
           return suggestion;
         })
         .filter((suggestion, index, self) => self.indexOf(suggestion) === index); // Remove duplicates
@@ -119,7 +112,6 @@ export class DocumentSearchService {
    * Fetches full search results and displays them in the search results list
    */
   selectSuggestion(documentUuid: string, suggestion: string): void {
-    console.log('Suggestion selected:', suggestion);
 
     // Find PID by comparing suggestion with map keys (both without interpunction)
     let pid: string | undefined;
@@ -130,8 +122,6 @@ export class DocumentSearchService {
         break;
       }
     }
-
-    console.log('Fetching full search results for term:', suggestion);
 
     // Set the search term for tracking (use the original term the user typed)
     this.searchTermSubject.next(suggestion);
@@ -171,12 +161,6 @@ export class DocumentSearchService {
     this.currentMatchedPageIndexSubject.next(nextIndex);
     const nextPid = this.allMatchedPages[nextIndex];
 
-    console.log('Navigating to next matched page:', {
-      pageIndex: nextIndex + 1,
-      totalPages: this.allMatchedPages.length,
-      pid: nextPid
-    });
-
     // Navigate to the page
     this.detailViewService.navigateToPage(nextPid);
 
@@ -200,12 +184,6 @@ export class DocumentSearchService {
     this.currentMatchedPageIndexSubject.next(prevIndex);
     const prevPid = this.allMatchedPages[prevIndex];
 
-    console.log('Navigating to previous matched page:', {
-      pageIndex: prevIndex + 1,
-      totalPages: this.allMatchedPages.length,
-      pid: prevPid
-    });
-
     // Navigate to the page
     this.detailViewService.navigateToPage(prevPid);
 
@@ -219,7 +197,6 @@ export class DocumentSearchService {
    * Handles when user clicks on a search result in the list
    */
   navigateToResult(result: SearchResult): void {
-    console.log('Search result clicked:', result.pid);
 
     // Find the index of this page
     const index = this.allMatchedPages.indexOf(result.pid);
@@ -257,7 +234,6 @@ export class DocumentSearchService {
     const fulltextParam = this.route.snapshot.queryParams['fulltext'];
 
     if (fulltextParam && fulltextParam.trim().length > 0) {
-      console.log('Restoring search from URL parameter:', fulltextParam);
       this.hasRestoredSearch = true;
 
       // Set the search term
@@ -291,9 +267,8 @@ export class DocumentSearchService {
   ): void {
     this.solrService.getInDocumentSearchResults(documentUuid, searchTerm, this.isCaseSensitive, this.cdkSource.getCode()).subscribe({
       next: (results) => {
-        console.log(`Received ${results.length} search results with highlights`);
 
-        const searchResults = this.mapAndSortResults(results);
+        const searchResults = this.mapResults(results);
         this.searchResultsSubject.next(searchResults);
         this.allMatchedPages = searchResults.map(r => r.pid);
 
@@ -305,25 +280,29 @@ export class DocumentSearchService {
         let pageIndex = 0;
 
         if (skipNavigation) {
-          // For restore from URL: stay on current page if it has matches
+          // Restore from URL: stay on the current page if it has matches.
+          // Otherwise jump to the first match like the legacy client did — a
+          // search result link opens the document without ?page, so the reader
+          // would land on the cover. Article views keep their own page.
           const currentPid = this.detailViewService.currentPagePid;
-          if (currentPid) {
-            const currentIndex = this.allMatchedPages.indexOf(currentPid);
-            this.currentMatchedPageIndexSubject.next(currentIndex);
-            console.log('Current page index in results:', currentIndex + 1, '/', this.allMatchedPages.length);
+          const currentIndex = currentPid ? this.allMatchedPages.indexOf(currentPid) : -1;
+          const keepCurrentPage = currentIndex !== -1
+            || this.allMatchedPages.length === 0
+            || this.detailViewService.isPdf
+            || !!this.route.snapshot.queryParams['article'];
 
-            // If current page has matches, display ALTO highlights.
+          if (keepCurrentPage) {
+            this.currentMatchedPageIndexSubject.next(currentIndex);
+
             // Restoring from URL: the image may already be loaded, so use the
             // existing imageLoaded$ which fires on each fully-loaded settle.
             if (currentIndex !== -1) {
               this.iiifViewerService.imageLoaded$.pipe(take(1)).subscribe(() => {
-                this.fetchAndDisplayHighlights(currentPid, searchTerm);
+                this.fetchAndDisplayHighlights(currentPid!, searchTerm);
               });
-            } else {
-              console.log('Current page not in search results');
             }
+            return;
           }
-          return;
         }
 
         if (targetPid && this.allMatchedPages.includes(targetPid)) {
@@ -362,33 +341,26 @@ export class DocumentSearchService {
   }
 
   /**
-   * Maps Solr results to SearchResult format and sorts by page number
+   * Maps Solr results to SearchResult format, adding each hit's page number.
+   * Hits follow the document's page order (like the legacy client), so the
+   * first jump, the counter and prev/next match the sidebar list. Hits whose
+   * page is not in the reader go last, in the order Solr returned them.
    */
-  private mapAndSortResults(results: any[]): SearchResult[] {
-    // Get pages array to map PIDs to page numbers
+  private mapResults(results: any[]): SearchResult[] {
     const pages = this.detailViewService.pages;
+    const indexByPid = new Map(pages.map((p, i) => [p.pid, i]));
+    const position = (pid: string) => indexByPid.get(pid) ?? Number.MAX_SAFE_INTEGER;
 
-    // Convert to SearchResult format and add page numbers
-    const searchResults: SearchResult[] = results.map(r => {
-      const pageIndex = pages.findIndex(p => p.pid === r.pid);
-      const page = pages[pageIndex];
-      return {
-        pid: r.pid,
-        highlightedText: r.highlightedText,
-        pageNumber: page?.['page.number'] !== undefined ? page['page.number'] : undefined
-      };
-    });
-
-    // Sort by page number
-    // searchResults.sort((a, b) => {
-    //   if (a.pageNumber === undefined) return 1;
-    //   if (b.pageNumber === undefined) return -1;
-    //   return a.pageNumber - b.pageNumber;
-    // });
-
-    console.log(`Search results sorted by page number (1-${searchResults.length})`);
-
-    return searchResults;
+    return results
+      .map(r => {
+        const page = pages[indexByPid.get(r.pid) ?? -1];
+        return {
+          pid: r.pid,
+          highlightedText: r.highlightedText,
+          pageNumber: page?.['page.number'] !== undefined ? page['page.number'] : undefined
+        };
+      })
+      .sort((a, b) => position(a.pid) - position(b.pid));
   }
 
   /**
@@ -414,11 +386,9 @@ export class DocumentSearchService {
       next: (altoXml) => {
         this.altoUnavailable.set(false);
         const count = this.iiifViewerService.displaySearchHighlights(altoXml, searchTerm);
-        if (count > 0) {
-          console.log(`Successfully displayed ${count} search result rectangles on this page`);
-        } else if (count === 0) {
+        if (count === 0) {
           console.warn('No matches found for search term on this page:', searchTerm);
-        } else {
+        } else if (count < 0) {
           console.error('Failed to display search results');
         }
       },

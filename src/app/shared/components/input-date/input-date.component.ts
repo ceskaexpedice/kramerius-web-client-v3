@@ -1,5 +1,5 @@
 import {Component, ElementRef, EventEmitter, Input, Output, ViewChild, WritableSignal} from '@angular/core';
-import {DatePipe, NgClass, NgIf} from '@angular/common';
+import {DatePipe, NgClass} from '@angular/common';
 
 @Component({
   selector: 'app-input-date',

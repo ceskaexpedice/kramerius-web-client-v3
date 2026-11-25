@@ -30,9 +30,9 @@ $filter-height: 44px;
     text-overflow: ellipsis;
   }
 
-  // MOB-2: text-overflow se na inline-flex kontejneru neuplatni, takze se
-  // popisek orezaval uprostred znaku misto "...". Prefix (ikona) drzime
-  // nescvrkavatelny a ellipsis resi az samotny text v .select-label.
+  // text-overflow does not apply to an inline-flex container, so the label was
+  // cut mid-character instead of getting "...". The prefix (icon) must not
+  // shrink; the ellipsis is handled by the text itself in .select-label.
   .select-value {
     display: flex;
     align-items: center;

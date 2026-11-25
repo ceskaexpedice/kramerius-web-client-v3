@@ -85,11 +85,6 @@ export class MusicTrackItemComponent implements OnInit {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
-  get pageReference(): string {
-    return ''
-    //return this.track?.['page.number'] ? `Strana ${this.track['page.number']}` : '';
-  }
-
   select(): void {
     this.trackSelected.emit(this.track);
   }

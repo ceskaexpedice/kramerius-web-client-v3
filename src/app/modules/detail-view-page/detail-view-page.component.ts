@@ -1,6 +1,5 @@
 import { Component, effect, untracked, inject, OnInit, OnDestroy, AfterViewInit, signal, HostBinding, computed, ViewChild, ElementRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { EnvironmentService } from '../../shared/services/environment.service';
 import { DetailViewService } from './services/detail-view.service';
 import { RecordHandlerService } from '../../shared/services/record-handler.service';
@@ -209,7 +208,8 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
 
     // Reload AI panel content when page changes
     effect(() => {
-      const pageIndex = this.detailViewService._currentPageIndex();
+      // Read for dependency tracking: re-run on every page change.
+      this.detailViewService._currentPageIndex();
       const panelVisible = this.aiPanelService.panelVisible();
       const contentType = this.aiPanelService.contentType();
 
@@ -239,11 +239,9 @@ export class DetailViewPageComponent implements OnInit, OnDestroy, AfterViewInit
       map(articleDetail => {
         if (articleDetail) {
           const metadata = fromSolrToMetadata(articleDetail);
-          console.log('New article metadata loaded - UUID:', metadata?.uuid);
           // Return new object reference to force change detection
           return { ...metadata };
         }
-        console.log('Article metadata cleared');
         return null;
       }),
       shareReplay(1)

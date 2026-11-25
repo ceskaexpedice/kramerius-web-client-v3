@@ -376,12 +376,6 @@ export class ViewerControls implements OnInit {
     }
   }
 
-  onTextView() {
-    if (this.type === 'pdf') {
-      this.pdfService.toggleTextLayerMode();
-    }
-  }
-
   onBookMode() {
     if (this.type === 'pdf') {
       this.pdfService.bookModeToggle();
@@ -389,18 +383,6 @@ export class ViewerControls implements OnInit {
       this.epubService.toggleBookMode();
     } else if (this.type === 'image') {
       this.iiifViewerService.toggleBookMode();
-    }
-  }
-
-  onResetView() {
-    if (this.type === 'image') {
-      this.iiifViewerService.resetView();
-    }
-  }
-
-  onDrawRectangle() {
-    if (this.type === 'image') {
-      this.iiifViewerService.addRectangleAtDefaultPosition();
     }
   }
 

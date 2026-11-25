@@ -1,6 +1,8 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
+import {Actions, ofType} from '@ngrx/effects';
 import * as AuthActions from '../store/auth.actions';
 import {AuthService} from '../auth.service';
 import {TranslatePipe} from '@ngx-translate/core';
@@ -19,26 +21,37 @@ export class AuthCallbackComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private store = inject(Store);
+  private actions$ = inject(Actions);
   private authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
 
-  loading = true;
-  error: string | null = null;
+  // Signals, not plain fields: the failure arrives asynchronously and the app
+  // runs without zone.js, so a field change would never reach the view.
+  readonly loading = signal(true);
+  readonly failed = signal(false);
 
   ngOnInit() {
     // Check if user is already authenticated to prevent unnecessary processing
     if (this.authService.hasValidToken()) {
-      console.log('User already authenticated, redirecting to home');
       this.navigateToTarget();
       return;
     }
 
-    this.route.queryParams.subscribe(params => {
+    // The exchange runs in an effect; without listening for its failure the
+    // page would keep showing the spinner forever.
+    this.actions$.pipe(
+      ofType(AuthActions.exchangeCodeForTokenFailure),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(({ error }) => this.handleError(error));
+
+    this.route.queryParams.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(params => {
       const code = params['code'];
       const error = params['error'];
-      const errorDescription = params['error_description'];
 
       if (error) {
-        this.cleanUrlAndHandleError(errorDescription || error);
+        this.cleanUrlAndHandleError(error);
         return;
       }
 
@@ -52,20 +65,23 @@ export class AuthCallbackComponent implements OnInit {
     });
   }
 
+  goHome() {
+    this.router.navigate(['/']);
+  }
+
   private exchangeCodeForToken(code: string) {
     this.store.dispatch(AuthActions.exchangeCodeForToken({ code }));
   }
 
+  /**
+   * The detail is logged for debugging only. The page shows a generic message:
+   * text from the URL (`error_description`) must never be rendered, otherwise a
+   * crafted link could put arbitrary text on the site.
+   */
   private handleError(errorMessage: string) {
-    this.loading = false;
-    this.error = errorMessage;
+    this.loading.set(false);
+    this.failed.set(true);
     console.error('Auth callback error:', errorMessage);
-
-    // setTimeout(() => {
-    //   this.router.navigate(['/'], {
-    //     queryParams: { authError: 'Authentication failed' }
-    //   });
-    // }, 3000);
   }
 
   private cleanUrl() {

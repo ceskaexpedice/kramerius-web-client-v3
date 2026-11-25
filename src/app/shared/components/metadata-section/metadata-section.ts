@@ -28,7 +28,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { AuthorsDialogComponent } from '../../dialogs/authors-dialog/authors-dialog.component';
 import { LicenseInfoDialogComponent } from '../../dialogs/license-info-dialog/license-info-dialog.component';
 import { SelectComponent } from '../select/select.component';
-import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { ConfigService } from '../../../core/config/config.service';
 import { shouldShowAccessibility, collapsesToPublic } from '../../../core/config/license-variants';
 import { pickCdkCollection, pickCdkSourceRecord } from '../../utils/cdk-collection';
@@ -62,7 +61,6 @@ import { MetadataPairDirective } from './metadata-pair.directive';
     ModelBadgeComponent,
     RouterLink,
     SelectComponent,
-    SafeHtmlPipe,
     CdkTooltipDirective,
     MetadataGroupComponent,
     CopyButtonComponent,
@@ -1206,7 +1204,6 @@ export class MetadataSection implements OnInit, OnChanges {
   }
 
   clickedLicense = (license: string): void => {
-    console.log('license clicked:', license);
     const url = `?fq=${facetKeysEnum.license}:${encodeURIComponent(license)}&${facetKeysEnum.license}_operator=OR`;
     this.searchService.redirectDirectlyToUrl(url);
   };
@@ -1320,9 +1317,9 @@ export class MetadataSection implements OnInit, OnChanges {
   private effectiveTheme = toSignal(this.settingsService.effectiveTheme$, { initialValue: 'light' as const });
 
   /**
-   * Logo donatora. V tmave teme se nejdriv zkusi varianta `<donator>-dark.png`;
-   * dark verzi ale nemaji vsichni donatori, takze kdyz se obrazek nenacte,
-   * `onDonatorImageError` prepne src zpet na normalni logo.
+   * Donor logo. The dark theme tries the `<donator>-dark.png` variant first;
+   * not every donor has one, so when it fails to load, `onDonatorImageError`
+   * switches the src back to the regular logo.
    */
   getDonatorImage(donator: string): string | null {
     const base = `/img/logo/donator/${donator.toLowerCase()}`;
@@ -1330,8 +1327,8 @@ export class MetadataSection implements OnInit, OnChanges {
   }
 
   /**
-   * Fallback pro donatory bez dark varianty: pri 404 na `-dark.png` se nacte
-   * normalni logo. Hlida se, aby se pri chybejicim normalnim logu necyklilo.
+   * Fallback for donors without a dark variant: a 404 on `-dark.png` loads the
+   * regular logo instead. Guarded so a missing regular logo cannot loop.
    */
   onDonatorImageError(event: Event, donator: string): void {
     const img = event.target as HTMLImageElement;

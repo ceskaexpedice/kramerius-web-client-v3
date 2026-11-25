@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
@@ -17,7 +17,7 @@ export const LOGOUT_RETURN_PATH = 'auth/logged-out';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
+export class AuthService implements OnDestroy {
 
   private readonly TOKEN_KEY = 'auth_tokens';
   private readonly USER_KEY = 'auth_user';
@@ -35,6 +35,12 @@ export class AuthService {
   // must be gone before anything (subjects, interceptor, user load) uses them.
   private readonly returnedFromLogout = this.completeLogoutIfReturning();
 
+  // Same ordering constraint: a session that expired while the app was closed
+  // must be gone before the subjects below report a stored user.
+  private readonly droppedExpiredSession = this.dropExpiredStoredSession();
+
+  private expiryTimer: ReturnType<typeof setTimeout> | null = null;
+
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
   private userSubject = new BehaviorSubject<User | null>(this.getStoredUser());
 
@@ -48,11 +54,66 @@ export class AuthService {
     // from the back/forward cache with its old in-memory state. If the stored
     // session changed meanwhile (e.g. it was cleared before a forced logout),
     // that snapshot is stale — reload so the UI matches the real session.
-    window.addEventListener('pageshow', (event: PageTransitionEvent) => {
-      if (event.persisted && this.isAuthenticatedSubject.value !== this.hasValidToken()) {
-        window.location.reload();
-      }
-    });
+    window.addEventListener('pageshow', this.onPageShow);
+
+    const tokens = this.getStoredTokens();
+    if (tokens && this.hasValidToken()) {
+      this.scheduleExpiry(tokens);
+    }
+  }
+
+  /**
+   * Ends the local session because the access token is no longer valid. The
+   * backend offers no token refresh, so this is the only honest outcome:
+   * without it the UI kept showing the user as logged in while every request
+   * already went out anonymously (licensed documents suddenly locked).
+   */
+  expireSession(): void {
+    if (!this.getStoredTokens()) {
+      return;
+    }
+    this.clearExpiryTimer();
+    this.clearStoredSession();
+    this.isAuthenticatedSubject.next(false);
+    this.userSubject.next(null);
+    this.userService.clearUserData();
+    this.store.dispatch(AuthActions.sessionExpired());
+  }
+
+  ngOnDestroy(): void {
+    this.clearExpiryTimer();
+    window.removeEventListener('pageshow', this.onPageShow);
+  }
+
+  private readonly onPageShow = (event: PageTransitionEvent): void => {
+    if (event.persisted && this.isAuthenticatedSubject.value !== this.hasValidToken()) {
+      window.location.reload();
+    }
+  };
+
+  private scheduleExpiry(tokens: AuthTokens): void {
+    this.clearExpiryTimer();
+    const remaining = tokens.expiresAt - Date.now();
+    // setTimeout overflows above ~24.8 days; such a token would be checked again
+    // by the interceptor on the next request anyway.
+    if (remaining > 0 && remaining < 2 ** 31) {
+      this.expiryTimer = setTimeout(() => this.expireSession(), remaining);
+    }
+  }
+
+  private clearExpiryTimer(): void {
+    if (this.expiryTimer !== null) {
+      clearTimeout(this.expiryTimer);
+      this.expiryTimer = null;
+    }
+  }
+
+  private dropExpiredStoredSession(): boolean {
+    if (this.getStoredTokens() && this.isTokenExpired()) {
+      this.clearStoredSession();
+      return true;
+    }
+    return false;
   }
 
   private get API_URL(): string {
@@ -113,8 +174,6 @@ export class AuthService {
       return;
     }
 
-    console.log('AuthService returnUrl', returnUrl);
-
     if (returnUrl) {
       this.storage.set(this.ORIGINAL_ROUTE_KEY, returnUrl);
     }
@@ -125,32 +184,22 @@ export class AuthService {
   exchangeCodeForToken(code: string): Observable<AuthTokens> {
     const redirectUri = `${window.location.origin}/auth/callback`;
 
-    return this.http.get<TokenResponse>(`${this.API_URL}/auth/token?code=${code}&redirect_uri=${redirectUri}`).pipe(
-      map(response => this.mapTokenResponse(response)),
+    const params = new HttpParams()
+      .set('code', code)
+      .set('redirect_uri', redirectUri);
+
+    return this.http.get<TokenResponse>(`${this.API_URL}/auth/token`, { params }).pipe(
+      // The backend reports a rejected code (expired, already used) as HTTP 200
+      // with an OAuth error body, so a missing access token is the failure signal.
+      map(response => {
+        if (!response?.access_token) {
+          throw new Error(response?.error || 'Token exchange failed');
+        }
+        return this.mapTokenResponse(response);
+      }),
       tap(tokens => this.handleSuccessfulAuth(tokens)),
       catchError(error => {
         console.error('Token exchange failed:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  refreshToken(): Observable<AuthTokens> {
-    const tokens = this.getStoredTokens();
-    if (!tokens?.refreshToken) {
-      return throwError(() => new Error('No refresh token available'));
-    }
-
-    const params = new HttpParams()
-      .set('refresh_token', tokens.refreshToken)
-      .set('grant_type', 'refresh_token');
-
-    return this.http.post<TokenResponse>(`${this.API_URL}/auth/token`, params).pipe(
-      map(response => this.mapTokenResponse(response)),
-      tap(newTokens => this.handleSuccessfulAuth(newTokens)),
-      catchError(error => {
-        // The refresh token is rejected — the session is dead either way.
-        this.logout(true);
         return throwError(() => error);
       })
     );
@@ -169,9 +218,9 @@ export class AuthService {
    * Keeping the in-memory state also avoids repainting every document with lock
    * icons before the browser leaves the page.
    *
-   * @param clearLocalSession Clear the stored session before redirecting. Used
-   *   when the session is already dead (failed token refresh): keeping the stale
-   *   tokens would only bounce a user who cancels straight back into logout.
+   * @param clearLocalSession Clear the stored session before redirecting, for a
+   *   session that is already dead: keeping the stale tokens would only bounce
+   *   a user who cancels straight back into logout.
    */
   logout(clearLocalSession = false) {
     if (clearLocalSession) {
@@ -217,7 +266,7 @@ export class AuthService {
 
   isTokenExpired(): boolean {
     const tokens = this.getStoredTokens();
-    if (!tokens) return true;
+    if (!tokens?.accessToken || !Number.isFinite(tokens.expiresAt)) return true;
     return Date.now() >= tokens.expiresAt;
   }
 
@@ -234,7 +283,6 @@ export class AuthService {
   }
 
   private mapTokenResponse(response: TokenResponse): AuthTokens {
-    console.log('response', response);
     return {
       accessToken: response.access_token,
       refreshToken: response.refresh_token,
@@ -246,6 +294,7 @@ export class AuthService {
   private handleSuccessfulAuth(tokens: AuthTokens) {
     this.storage.set(this.TOKEN_KEY, tokens);
     this.isAuthenticatedSubject.next(true);
+    this.scheduleExpiry(tokens);
     this.fetchUserInfo();
   }
 
@@ -270,11 +319,6 @@ export class AuthService {
 
         // Update NgRx store with user data
         this.store.dispatch(AuthActions.setUser({ user }));
-
-        // Reload to ensure all components display correct data based on new licenses
-        setTimeout(() => {
-          // window.location.reload();
-        }, 50);
       }
     } catch (error) {
       console.error('Failed to fetch user session:', error);

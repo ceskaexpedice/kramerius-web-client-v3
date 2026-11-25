@@ -111,12 +111,6 @@ export class SolrQueryBuilder {
     return `(${baseModels.join(' OR ')})`;
   }
 
-  // static baseFilters(): any {
-  //   return {
-  //     fq: `(level: 0) AND (accessibility:public)`
-  //   };
-  // }
-
   static filterByModel(model: string, valueOnly = false): any {
     if (valueOnly) return `${SolrFields.model}:${model}`;
 
@@ -254,7 +248,6 @@ export class SolrQueryBuilder {
   static escapeSolrQuery(input: string): string {
     // Escape special characters for Solr query syntax
     if (!input) return input;
-    //     input.replace(/([+\-!(){}\[\]^~:\\])/g, '\\$1');
     return input.replace(/([+\-!(){}\[\]^~:\\/*?"])/g, '\\$1');
 
   }

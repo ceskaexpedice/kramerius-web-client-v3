@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, isDevMode } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { EnvironmentService } from './environment.service';
 import { Observable } from 'rxjs';
@@ -23,10 +23,11 @@ export class UserService {
   // Dev override for admin status (null = no override)
   private _adminOverride = signal<boolean | null>(this.loadAdminOverride());
 
-  // Computed signal for admin status (respects dev override)
+  // Computed signal for admin status (respects the dev override only where the
+  // dev tools page itself is reachable, see devToolsGuard)
   private _isAdmin = computed(() => {
     const override = this._adminOverride();
-    if (override !== null) {
+    if (override !== null && (isDevMode() || this.env.isLibrarySwitchEnabled())) {
       return override;
     }
     const roles = this._roles();
@@ -96,7 +97,6 @@ export class UserService {
     // Clear cache if licenses changed (user logged in/out or got new licenses)
     if (!this.arraysEqual(previousLicenses, newLicenses)) {
       clearSimpleCache();
-      console.log('[UserService] Licenses changed, cache cleared');
     }
   }
 
@@ -180,7 +180,6 @@ export class UserService {
     this._roles.set([]);
     this._userSession.set(null);
     clearSimpleCache();
-    console.log('[UserService] User data cleared, cache cleared');
   }
 
   // Admin override for dev tools

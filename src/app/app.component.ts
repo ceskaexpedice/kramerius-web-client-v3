@@ -4,7 +4,6 @@ import { isChunkLoadError, reloadOnceForChunkError } from './shared/services/chu
 import { SoundService } from './shared/services/sound.service';
 import { AppLoaderService } from './shared/services/app-loader.service';
 import { AccessibilityService } from './shared/services/accessibility.service';
-import { ErrorDialogService } from './shared/services/error-dialog.service';
 import { UiStateService } from './shared/services/ui-state.service';
 import { LibraryContextService } from './shared/services/library-context.service';
 import { EnvironmentService } from './shared/services/environment.service';
@@ -27,8 +26,6 @@ export class AppComponent implements OnInit {
   private env = inject(EnvironmentService);
   private soundService = inject(SoundService);
   private appLoader = inject(AppLoaderService);
-  private accessibilityService = inject(AccessibilityService);
-  private errorDialogService = inject(ErrorDialogService);
   private uiState = inject(UiStateService);
   private appUpdate = inject(AppUpdateService);
   private lockService = inject(LockService);
@@ -40,6 +37,10 @@ export class AppComponent implements OnInit {
   playbackBarHeight = computed(() => this.showPlaybackBar() ? 'var(--playback-bar-height-value)' : '0px');
 
   constructor() {
+    // Created eagerly for its side effect: it applies the saved accessibility
+    // settings (contrast, colour filters, zoom) as soon as the app starts.
+    inject(AccessibilityService);
+
     // Immersive reading on phones (document detail): hide the global header and
     // take it out of the tab order / a11y tree while it is off-screen.
     effect(() => {
@@ -80,9 +81,6 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    //TODO: remove this for production. This is just for testing CI pipeline
-    console.log('AppComponent ngOnInit, branch: main');
-
     // Library switching is an internal-testing-only feature (off by default).
     // In the default single-Kramerius deployment we never seed the dev library
     // id nor rewrite navigations with a library prefix.
@@ -146,10 +144,5 @@ export class AppComponent implements OnInit {
         reloadOnceForChunkError();
       }
     });
-  }
-
-  // TEMPORARY: Test 500 error dialog
-  testErrorDialog() {
-    this.errorDialogService.openServerErrorDialog();
   }
 }

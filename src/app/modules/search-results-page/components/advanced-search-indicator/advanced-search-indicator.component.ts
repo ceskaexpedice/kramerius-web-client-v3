@@ -38,11 +38,6 @@ export class AdvancedSearchIndicatorComponent {
     this.advancedSearchService.openDialog();
   }
 
-  newSearch() {
-    this.advancedSearchService.clear();
-    this.advancedSearchService.openDialog();
-  }
-
   clearAll() {
     this.searchService.resetPage();
     this.advancedSearchService.clear();

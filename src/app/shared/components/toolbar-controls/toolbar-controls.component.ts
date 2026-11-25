@@ -221,31 +221,6 @@ export class ToolbarControlsComponent implements OnChanges {
     }
   }
 
-  // Legacy methods - maintained for backward compatibility
-  onFavorite() {
-    this.favoritesClicked.emit();
-  }
-
-  onShare() {
-    this.shareClicked.emit();
-  }
-
-  onQuote() {
-    this.quoteClicked.emit();
-  }
-
-  onInfo() {
-    this.infoClicked.emit();
-  }
-
-  onDelete() {
-    this.deleteClicked.emit();
-  }
-
-  onDownload() {
-    this.downloadClicked.emit();
-  }
-
   onMenuItemSelected(item: MenuItem) {
     const action = this.mergedActions.find(a => a.id === item.id);
     if (action) {

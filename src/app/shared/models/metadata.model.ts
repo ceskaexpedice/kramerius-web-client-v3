@@ -539,11 +539,8 @@ export function mergeMetadata(solrMetadata: Metadata, modsMetadata: Metadata): M
     }
   }
 
-  console.log('modsMetadata notes::', modsMetadata)
-
   // Notes
   if (modsMetadata.notes && modsMetadata.notes.length > 0) {
-    const existingNotes = new Set(merged.notes);
     const newNotes = new Set(modsMetadata.notes);
     merged.notes = [];
     for (const note of newNotes) {

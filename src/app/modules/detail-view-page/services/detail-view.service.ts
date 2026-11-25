@@ -14,7 +14,6 @@ import {
   selectDocumentDetailOnlyPages,
 } from '../../../shared/state/document-detail/document-detail.selectors';
 import {
-  clearArticleDetail,
   clearDocumentDetail,
   loadDocumentDetail,
 } from '../../../shared/state/document-detail/document-detail.actions';
@@ -34,7 +33,6 @@ import { SolrSortDirections, SolrSortFields } from '../../../core/solr/solr-help
 import { IIIFViewerService } from '../../../shared/services/iiif-viewer.service';
 import { IiifInfoPrefetchService } from '../../../shared/services/iiif-info-prefetch.service';
 import { DocumentInfoService } from '../../../shared/services/document-info.service';
-import { BreakpointService } from '../../../shared/services/breakpoint.service';
 import { UiStateService } from '../../../shared/services/ui-state.service';
 import { hasCalendarDisplayableChildren } from '../../models/periodical-item';
 import { PdfService } from '../../../shared/services/pdf.service';
@@ -52,7 +50,6 @@ import { reloadPagesForCdkCollectionSuccess } from '../../../shared/state/docume
   providedIn: 'root'
 })
 export class DetailViewService {
-  private breakpointService = inject(BreakpointService);
 
   // Plain detail state lives in DetailViewStateService so light consumers do
   // not import this viewer-heavy service; these are the very same signals.
@@ -103,7 +100,6 @@ export class DetailViewService {
 
   private documentSignal = toSignal(this.document$, { initialValue: null });
   private periodicalChildrenSignal = toSignal(this.periodicalChildren$, { initialValue: [] as any[] });
-  private pagesSignal = toSignal(this.pages$, { initialValue: [] as Page[] });
 
   /** True only when at least one sibling issue has day+month, making the date navigator meaningful */
   canShowDateNavigator = computed<boolean>(() => hasCalendarDisplayableChildren(this.periodicalChildrenSignal()));
@@ -161,7 +157,6 @@ export class DetailViewService {
           if (!this.isPdf) {
             this.pdfService.clearPdfData();
           }
-          //this.store.dispatch(clearArticleDetail());
         }
       }
     });
@@ -189,7 +184,6 @@ export class DetailViewService {
         this.checkAndSetCurrentArticleFromUrl();
       } else {
         this.pdfService.clearPdfData();
-       // this.store.dispatch(clearArticleDetail());
       }
     });
 
@@ -248,8 +242,6 @@ export class DetailViewService {
     return this.router.url.includes(`/${APP_ROUTES_ENUM.DETAIL_VIEW}`) ||
       this.router.url.includes(`/${APP_ROUTES_ENUM.MUSIC_VIEW}`);
   }
-
-  private _viewerMode = signal<'page' | 'audio' | 'article' | 'image'>('page');
 
   setSoundRecordingViewView(view: any): void {
     this.soundRecordingViewMode.set(view);
@@ -525,10 +517,6 @@ export class DetailViewService {
     return this.isEpubComputed();
   }
 
-  get viewerMode() {
-    return this._viewerMode();
-  }
-
   get currentPagePid(): string | null {
     // When viewing an article, use the foster-child page PID
     const articlePagePid = this._articlePagePid();
@@ -581,7 +569,6 @@ export class DetailViewService {
       skip(1),
       take(1)
     ).subscribe((doc) => {
-      console.log('Document loaded:', doc);
       this.loadPages(doc);
 
       // If document is from a periodical, proactively load periodical children data
@@ -644,13 +631,10 @@ export class DetailViewService {
         let safePages = pages ?? [];
         const model = doc?.model || this.document?.model;
 
-        console.log('loadPages: model=', model, 'doc?.model=', doc?.model, 'this.document?.model=', this.document?.model, 'pages count=', safePages.length, 'page models=', safePages.map((p: any) => p.model));
-
         // When the document is a periodicalvolume, children may include both
         // pages and periodicalitems. Keep only actual pages for the viewer.
         if (model === DocumentTypeEnum.periodicalvolume) {
           safePages = safePages.filter((p: any) => p.model === DocumentTypeEnum.page);
-          console.log('loadPages: filtered to pages only, count=', safePages.length);
         }
 
         this._pages.set(safePages);
@@ -771,10 +755,6 @@ export class DetailViewService {
     this._articles.set([]);
     this.pdfService.clearPdfData();
     this._currentPageIndex.set(0);
-  }
-
-  setViewerMode(mode: 'page' | 'audio' | 'article' | 'image') {
-    this._viewerMode.set(mode);
   }
 
   goToPage(index: number) {
@@ -1002,7 +982,6 @@ export class DetailViewService {
       }
 
       if (currentVolumeIndex >= availableYears.length - 1) {
-        console.log('Already at last volume');
         return;
       }
 
@@ -1069,7 +1048,6 @@ export class DetailViewService {
       }
 
       if (currentVolumeIndex <= 0) {
-        console.log('Already at first volume');
         return;
       }
 
@@ -1103,14 +1081,6 @@ export class DetailViewService {
   getCurrentArticle(): Page | null {
     const articles = this._articles();
     return articles[this._currentArticleIndex()] ?? null;
-  }
-
-  getCurrentPageDate(): string | null {
-    const currentPage = this.getCurrentPage();
-    if (currentPage && currentPage['date.str']) {
-      return currentPage['date.str'];
-    }
-    return null;
   }
 
   openRecordInfo() {
@@ -1174,7 +1144,6 @@ export class DetailViewService {
         filter(children => children && children.length > 0),
         take(1)
       ).subscribe(() => {
-        console.log(`Year ${year} data loaded, navigating to ${pid}`);
         this.router.navigate([APP_ROUTES_ENUM.DETAIL_VIEW, pid]);
       });
     });
@@ -1190,24 +1159,6 @@ export class DetailViewService {
 
   hideMetadataSidebar(): void {
     this.uiStateService.setMetadataSidebarState(false);
-  }
-
-  /**
-   * Check if a page index is currently active/selected
-   * In book mode, both the current page and the next page are considered active
-   * @param index - Page index to check
-   * @returns true if the page is active
-   */
-  isPageActive(index: number): boolean {
-    const currentIndex = this._currentPageIndex();
-
-    if (this.iiifViewerService.isBookMode()) {
-      // In book mode, both current and next page are active
-      return index === currentIndex || index === currentIndex + 1;
-    }
-
-    // In single page mode, only the current page is active
-    return index === currentIndex;
   }
 
   /**

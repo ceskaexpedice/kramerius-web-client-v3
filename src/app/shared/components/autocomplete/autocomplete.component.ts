@@ -8,7 +8,7 @@ import {
   EventEmitter,
   Output,
   ViewChild,
-  Signal, WritableSignal, inject, computed, OnChanges, SimpleChanges, ChangeDetectorRef,
+  WritableSignal, inject, computed,
 } from '@angular/core';
 import {NgIf} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';
@@ -26,6 +26,7 @@ import {InputComponent} from '../input/input.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {catchError} from 'rxjs/operators';
 import {SearchHistoryService} from '../../services/search-history.service';
+import {escapeHtml} from '../../utils/escape-html';
 
 @Component({
   selector: 'app-autocomplete',
@@ -223,7 +224,14 @@ export class AutocompleteComponent implements OnInit, OnDestroy {
     this.onCaseSensitiveEvent.emit();
   }
 
-  highlight(text: string, term: string): string {
+  /**
+   * Returns the suggestion as HTML with the matched part wrapped in a bold span.
+   * Both the suggestion and the term are HTML-escaped first, so markup coming
+   * from indexed data is shown as text and never interpreted.
+   */
+  highlight(rawText: string, rawTerm: string): string {
+    const text = escapeHtml(rawText);
+    const term = escapeHtml(rawTerm || '');
     if (!term) return text;
     const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const exactRegex = new RegExp(`(${escaped})`, 'gi');

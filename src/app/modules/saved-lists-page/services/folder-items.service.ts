@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, combineLatest, distinctUntilChanged, map } from 'rxjs';
 import * as FoldersSelectors from '../state/folders.selectors';
+import { AuthService } from '../../../core/auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +10,7 @@ import * as FoldersSelectors from '../state/folders.selectors';
 export class FolderItemsService {
 
   private store = inject(Store);
+  private authService = inject(AuthService);
 
   /**
    * Check if an item exists in any folder
@@ -94,8 +96,11 @@ export class FolderItemsService {
   private readonly STORAGE_KEY = 'cdk-folder-items-cache';
 
   saveCacheToStorage(itemsMapping: Map<string, Set<string>>): void {
+    const owner = this.currentOwner();
+    if (!owner) return;
     try {
       const cacheData = {
+        owner,
         itemsMapping: Array.from(itemsMapping.entries()).map(([key, set]) => [key, Array.from(set)]),
         savedAt: Date.now()
       };
@@ -115,8 +120,10 @@ export class FolderItemsService {
       const parsed = JSON.parse(cachedData);
       const now = Date.now();
 
-      // Check if cache is expired (24h TTL)
-      if (!parsed.savedAt || (now - parsed.savedAt) > this.CACHE_TTL) {
+      // Drop the cache when it is expired (24h TTL) or belongs to another user,
+      // e.g. a shared computer where the previous user did not log out.
+      const owner = this.currentOwner();
+      if (!owner || parsed.owner !== owner || !parsed.savedAt || (now - parsed.savedAt) > this.CACHE_TTL) {
         localStorage.removeItem(this.STORAGE_KEY);
         return null;
       }
@@ -131,6 +138,24 @@ export class FolderItemsService {
     } catch (error) {
       console.warn('[FolderItemsService] Failed to load cache from localStorage:', error);
       localStorage.removeItem(this.STORAGE_KEY);
+      return null;
+    }
+  }
+
+  /**
+   * Identifies the signed-in user by the `sub` claim of the access token, so the
+   * cache is never served to a different account. Returns null when unknown,
+   * which disables the cache rather than risking another user's data.
+   */
+  private currentOwner(): string | null {
+    const token = this.authService.getStoredTokens()?.accessToken;
+    const payload = token?.split('.')[1];
+    if (!payload) return null;
+    try {
+      const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      const sub = JSON.parse(json)?.sub;
+      return typeof sub === 'string' && sub ? sub : null;
+    } catch {
       return null;
     }
   }

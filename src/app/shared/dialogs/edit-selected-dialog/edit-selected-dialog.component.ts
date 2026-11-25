@@ -6,8 +6,6 @@ import {
   SidebarDialogLayoutComponent,
 } from '../sidebar-dialog-layout/sidebar-dialog-layout.component';
 import { EditReindexSectionComponent, ReindexSectionData } from './components/edit-reindex-section/edit-reindex-section.component';
-import { EditCollectionsSectionComponent, CollectionsSectionData } from './components/edit-collections-section/edit-collections-section.component';
-import { EditLicenceSectionComponent, LicenceSectionData } from './components/edit-licence-section/edit-licence-section.component';
 import { AddCollectionSectionComponent } from './components/add-collection-section/add-collection-section.component';
 import {
   RemoveCollectionSectionComponent
@@ -49,13 +47,18 @@ export enum EditSelectedDialogSections {
   admin = 'admin'
 }
 
+interface CollectionsSectionData {
+  selectedIds: string[];
+  selectedCollections?: string[];
+  action?: 'add' | 'remove' | 'replace';
+}
+
 @Component({
   selector: 'app-edit-selected-dialog',
   imports: [
     NgIf,
     SidebarDialogLayoutComponent,
     EditReindexSectionComponent,
-    EditLicenceSectionComponent,
     AddCollectionSectionComponent,
     RemoveCollectionSectionComponent,
     AddLicenseSectionComponent,
@@ -112,7 +115,6 @@ export class EditSelectedDialogComponent {
   // Data from section components
   reindexData: ReindexSectionData | null = null;
   collectionsData: CollectionsSectionData | null = null;
-  licenceData: LicenceSectionData | null = null;
   addLicenseData: AddLicenseSectionData | null = null;
   removeLicenseData: RemoveLicenseSectionData | null = null;
   representativePageData: RepresentativePageSectionData | null = null;
@@ -220,43 +222,6 @@ export class EditSelectedDialogComponent {
     this.selectedHierarchyItem.set(hierarchyItem);
   }
 
-  save() {
-    const currentSection = this.activeSection();
-    let sectionData = null;
-
-    switch (currentSection) {
-      case 'reindex':
-        sectionData = this.reindexData;
-        break;
-      case 'collections':
-        sectionData = this.collectionsData;
-        break;
-      case 'licence':
-        sectionData = this.licenceData;
-        break;
-      case EditSelectedDialogSections.addLicence:
-        sectionData = this.addLicenseData;
-        break;
-      case EditSelectedDialogSections.removeLicence:
-        sectionData = this.removeLicenseData;
-        break;
-    }
-
-    this.openActionConfirmationDialog({
-      title: 'save-confirmation-dialog--header',
-      message: 'save-confirmation-dialog--message',
-      confirmButtonLabel: 'yes-execute--button',
-      cancelButtonLabel: 'cancel'
-    }, () => {
-      console.log('Save changes for section:', currentSection, sectionData);
-      this.dialogRef.close({
-        action: 'yes-execute--button',
-        section: currentSection,
-        data: sectionData
-      });
-    });
-  }
-
   close() {
     if (!this.dontShowAgainService.shouldShowDialog(DontShowDialogs.EditSelectedDialogCloseConfirmation)) {
       this.dialogRef.close();
@@ -272,7 +237,6 @@ export class EditSelectedDialogComponent {
     });
 
     confirmationDialogRef.afterClosed().subscribe(confirmed => {
-      console.log('confirmed', confirmed);
       if (confirmed) {
         this.dialogRef.close();
       }
@@ -304,7 +268,7 @@ export class EditSelectedDialogComponent {
 
     const uuid = selectedIds[0];
     const url = `${adminClientUrl}/object/${uuid}/actions`;
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   openActionConfirmationDialog(data: ActionConfirmationDialogData, onConfirm: () => void) {
@@ -331,10 +295,6 @@ export class EditSelectedDialogComponent {
 
   onCollectionsDataChange(data: CollectionsSectionData) {
     this.collectionsData = data;
-  }
-
-  onLicenceDataChange(data: LicenceSectionData) {
-    this.licenceData = data;
   }
 
   onAddLicenseDataChange(data: AddLicenseSectionData) {
@@ -400,7 +360,6 @@ export class EditSelectedDialogComponent {
       confirmButtonLabel: 'yes-execute--button',
       cancelButtonLabel: 'cancel'
     }, () => {
-      console.log('Execute action for section:', currentSection, sectionData);
       // Close dialog and return the action data
       this.dialogRef.close({
         section: currentSection,

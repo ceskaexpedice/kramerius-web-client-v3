@@ -259,8 +259,6 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     edges: { left: false, right: false }
   };
 
-  private readonly TEST_FALLBACK = false;
-
   constructor() {
     // Watch TTS state and show/clear highlight overlay on matching page
     effect(() => {
@@ -339,7 +337,6 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
     this.subscriptions.push(
       this.iiifViewerService.selectedArea$.subscribe(rect => {
-        console.log('rect', rect)
         this.ngZone.run(() => {
           this.selectionControlsAutoCollapsed = false;
           if (rect) {
@@ -423,11 +420,9 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     if (this.viewerContainer.nativeElement.offsetHeight > 0 && this.viewerContainer.nativeElement.offsetWidth > 0) {
       this.initializeViewer();
     } else {
-      console.log('Viewer container has no dimensions, waiting for resize...');
       this.resizeObserver = new ResizeObserver((entries) => {
         for (const entry of entries) {
           if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
-            console.log('Viewer container resized, initializing viewer');
             this.initializeViewer();
             this.resizeObserver?.disconnect();
             this.resizeObserver = null;
@@ -469,9 +464,6 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
 
     // Release the direct-image blob after the viewer that displays it is gone.
     this.releaseFallbackObjectUrl();
-
-    // Disable test mode when component is destroyed
-    this.iiifViewerService.setTestFallbackMode(false);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -517,9 +509,6 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       return;
     }
 
-    // Enable test mode in service if TEST_FALLBACK is true
-    this.iiifViewerService.setTestFallbackMode(this.TEST_FALLBACK);
-
     // Set thumbnail as background placeholder (blur→sharp effect, single page only)
     if (this.iiifViewerService.isBookMode()) {
       this.clearThumbnailBackground();
@@ -531,7 +520,16 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // it for a loader), so the initial load must honour book mode too —
     // otherwise only the left page shows while book mode stays on.
     this.loadTileSources(pid).subscribe({
-      next: (tileSources) => this.createViewer(tileSources),
+      next: (tileSources) => {
+        // The page changed while its info.json loaded (e.g. a fulltext search
+        // jumping to the first hit). triggerViewerUpdate skips that change while
+        // no viewer exists yet, so open the page that is current now.
+        if ((this.imagePid || this.metadata?.uuid) !== pid) {
+          this.initializeViewer();
+          return;
+        }
+        this.createViewer(tileSources);
+      },
       error: (error) => {
         console.error('Failed to fetch IIIF info.json', error);
         this.handleOpenFailed();
@@ -976,14 +974,12 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
     // the thumbnail (always readable) rather than the full image, which 403s
     // for licensed pages and would render as a broken image.
     if (this.directImageFailedPids.has(currentPid)) {
-      console.log(`Both IIIF and direct image failed for PID: ${currentPid}. Showing thumbnail fallback.`);
       this.showThumbnailFallback(currentPid, this.accessDenied() ? 'forbidden' : 'unavailable');
       return;
     }
 
     // Check if IIIF already failed (meaning this is the direct image failing now)
     if (this.failedPids.has(currentPid)) {
-      console.log(`Direct image fallback also failed for PID: ${currentPid}. Showing thumbnail fallback.`);
       this.directImageFailedPids.add(currentPid);
       this.showThumbnailFallback(currentPid, 'unavailable');
 
@@ -1014,7 +1010,6 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
    */
   private loadDirectImageFallback(pid: string): void {
     const directImageUrl = this.iiifViewerService.getDirectImageUrl(pid);
-    console.log(`IIIF failed, attempting fallback image: ${directImageUrl}`);
 
     const authHeaders = this.iiifViewerService.getAuthHeaders();
     let headers = new HttpHeaders();
@@ -1054,9 +1049,7 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
         // 403 means the image is there but this user may not see it — a licence
         // prompt is the useful response, not a generic "image broken" fallback.
         const denied = error?.status === 403 || error?.status === 401;
-        if (denied) {
-          console.log(`Direct image denied (HTTP ${error.status}) for PID: ${pid}. User lacks licence access.`);
-        } else {
+        if (!denied) {
           console.error(`Direct image fallback failed for PID: ${pid}`, error);
         }
 
@@ -1118,16 +1111,6 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       URL.revokeObjectURL(this.fallbackObjectUrl);
       this.fallbackObjectUrl = null;
     }
-  }
-
-  private updateViewerSource(): void {
-    if (!this.viewer) return;
-
-    const pid = this.imagePid || this.metadata?.uuid;
-    if (!pid) return;
-
-    const infoUrl = this.iiifViewerService.getIIIFInfoUrl(pid);
-    this.viewer.open({ tileSource: infoUrl });
   }
 
   /**
@@ -1427,9 +1410,6 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
       const imageWidth = imageSize.x;
       const imageHeight = imageSize.y;
 
-      console.log('Image dimensions:', { imageWidth, imageHeight });
-      console.log('Selection rect (image coords):', this.currentImageRect);
-
       // Convert selection rect to the format expected by getTextInBox: [x1, y1, x2, y2]
       const box = [
         this.currentImageRect.x,
@@ -1438,16 +1418,11 @@ export class IIIFViewer implements OnInit, OnDestroy, OnChanges, AfterViewInit {
         this.currentImageRect.y + this.currentImageRect.height
       ];
 
-      console.log('Box coordinates [x1, y1, x2, y2]:', box);
-
       // Fetch ALTO XML and extract text
       this.altoService.fetchAltoXml(this.imagePid).subscribe({
         next: (altoXml) => {
-          const altoDims = this.altoService.getAltoDimensions(altoXml);
-          console.log('ALTO dimensions:', altoDims);
 
           const extractedText = this.altoService.getTextInBox(altoXml, box, imageWidth, imageHeight);
-          console.log('Extracted text from selection:', extractedText);
 
           if (!extractedText) {
             console.warn('No text found in selection. This might be due to coordinate mismatch.');

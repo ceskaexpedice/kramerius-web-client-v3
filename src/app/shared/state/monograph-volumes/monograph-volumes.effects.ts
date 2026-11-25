@@ -4,7 +4,6 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
 import * as MonographVolumesActions from './monograph-volumes.actions';
 import { SolrService } from '../../../core/solr/solr.service';
-import { Store } from '@ngrx/store';
 import { fromSolrToMetadata } from '../../models/metadata.model';
 import { UserService } from '../../services/user.service';
 import { handleFacetsWithOperators } from '../../utils/facet-utils';
@@ -17,7 +16,6 @@ export class MonographVolumesEffects {
   constructor(
     private actions$: Actions,
     private solr: SolrService,
-    private store: Store,
     private userService: UserService,
     private customSearchService: CustomSearchService,
   ) {}
@@ -34,8 +32,6 @@ export class MonographVolumesEffects {
           licenses: this.customSearchService.getUserAvailableLicenses(),
           userLicenses: this.userService.licenses
         };
-
-        console.log('Effect - Loading volumes with filters:', filters);
 
         return forkJoin({
           parent: this.solr.getDetailItem(uuid),
@@ -60,8 +56,6 @@ export class MonographVolumesEffects {
               this.userService.isLoggedIn
             );
 
-            console.log('Loaded monograph volumes with facets:', { parent, volumes, facets, filters });
-
             return MonographVolumesActions.loadMonographVolumesSuccess({
               parent: fromSolrToMetadata(parent),
               volumes,
@@ -69,7 +63,6 @@ export class MonographVolumesEffects {
             });
           }),
           catchError(error => {
-            console.log('Error loading monograph volumes:', error);
             return of(MonographVolumesActions.loadMonographVolumesFailure({ error }));
           })
         );
@@ -95,7 +88,6 @@ export class MonographVolumesEffects {
             return MonographVolumesActions.loadMonographVolumesSearchSuccess({ results, totalCount });
           }),
           catchError(error => {
-            console.log('Error searching monograph volumes:', error);
             return of(MonographVolumesActions.loadMonographVolumesSearchFailure({ error }));
           })
         );

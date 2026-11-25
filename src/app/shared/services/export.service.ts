@@ -2,7 +2,6 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SearchDocument } from '../../modules/models/search-document';
-import { SolrService } from '../../core/solr/solr.service';
 import { AdminModeService } from './admin-mode.service';
 import { Observable, of, Subscription } from 'rxjs';
 import { filter, switchMap, take } from 'rxjs/operators';
@@ -34,7 +33,6 @@ export class ExportService {
 
   private readonly allowedLicenses = ['public', 'onsite'];
 
-  private solrService = inject(SolrService);
   private adminModeService = inject(AdminModeService);
   private translateService = inject(TranslateService);
   private environmentService = inject(EnvironmentService);
@@ -102,14 +100,14 @@ export class ExportService {
   exportJpeg(pid: string): void {
     const baseUrl = this.environmentService.getBaseApiUrl();
     const url = `${baseUrl}/search/iiif/${pid}/full/max/0/default.jpg`;
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   exportJpegCrop(pid: string, rect: { x: number, y: number, width: number, height: number }): void {
     const baseUrl = this.environmentService.getBaseApiUrl();
     const region = `${Math.round(rect.x)},${Math.round(rect.y)},${Math.round(rect.width)},${Math.round(rect.height)}`;
     const url = `${baseUrl}/search/iiif/${pid}/${region}/max/0/default.jpg`;
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   /**
@@ -168,7 +166,7 @@ export class ExportService {
     const url = `${baseUrl}/search/localPrintPDF?pids=${pidsParam}&pagesize=${pageSize}&imgop=${imgOp}`;
 
     // Open in new tab to trigger print dialog
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
 
@@ -335,21 +333,6 @@ export class ExportService {
     }
 
     return exportItem;
-  }
-
-  private itemToCsvRow(item: SearchDocument): string {
-    const values = [
-      item.pid || '',
-      this.escapeCsvValue(item.title || ''),
-      this.escapeCsvValue(item.rootTitle || ''),
-      this.escapeCsvValue(item.authors?.join('; ') || ''),
-      item.date || '',
-      item.model || '',
-      item.accessibility || '',
-      this.escapeCsvValue(item.languages?.join('; ') || '')
-    ];
-
-    return values.join(',');
   }
 
   private itemToCsvRowWithFields(item: SearchDocument, selectedFields: any[]): string {

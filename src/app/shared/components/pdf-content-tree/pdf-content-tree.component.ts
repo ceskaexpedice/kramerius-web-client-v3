@@ -49,10 +49,6 @@ export class PdfContentTreeComponent implements OnInit, OnDestroy {
     this.pdfService.navigateToPage(item.page);
   }
 
-  toggleExpanded(item: PdfOutlineItem): void {
-    item.expanded = !item.expanded;
-  }
-
   // Check if this item is active (current page is within this section)
   isItemActive(item: PdfOutlineItem): boolean {
     if (!this.currentPage) return false;

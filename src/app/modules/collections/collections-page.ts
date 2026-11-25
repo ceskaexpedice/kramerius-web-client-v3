@@ -1,7 +1,6 @@
 import { METADATA_PANEL_ID } from '../../shared/components/detail-layout/metadata-panel-id';
 import { Component, computed, inject, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy, signal, afterNextRender, Injector, DOCUMENT } from '@angular/core';
 import { FixedPanelService } from '../../shared/components/fixed-panel/fixed-panel.service';
-import { InlineLoaderComponent } from '../../shared/components/inline-loader/inline-loader.component';
 import { AdminModeService } from '../../shared/services/admin-mode.service';
 import { CollectionsService } from '../../shared/services/collections.service';
 import { SearchDocument } from '../models/search-document';
@@ -234,12 +233,6 @@ export class CollectionsPage implements OnInit, AfterViewInit, OnDestroy {
 
     const currentLang = this.translationService.currentLanguage().code;
     return resolveLocalizedValue(metadata.collectionTitles, currentLang) || metadata.mainTitle || '';
-  }
-
-  onExportSelected(): void {
-  }
-
-  onEditSelected(selectedIds: string[]): void {
   }
 
   onSortChange(event: { value: SolrSortFields; direction: SolrSortDirections }) {

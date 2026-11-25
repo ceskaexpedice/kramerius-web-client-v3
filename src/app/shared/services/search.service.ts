@@ -2,6 +2,7 @@ import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { Location } from '@angular/common';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { ActivatedRoute, UrlSerializer } from '@angular/router';
+import { KEEP_SCROLL_STATE } from './scroll-position.service';
 import { distinctUntilChanged, filter, map, Observable, Subscription, takeUntil } from 'rxjs';
 import { Store } from '@ngrx/store';
 import {
@@ -12,9 +13,9 @@ import {
   selectFacetsLoading,
   selectNonPageSearchResults,
   selectPageSearchResults,
+  selectPageSearchResultsLoading,
   selectSearchResults,
   selectSearchResultsLoading,
-  selectSearchResultsTotalCount,
   selectUnifiedTotalCount,
 } from '../../modules/search-results-page/state/search.selectors';
 import { SearchDocument } from '../../modules/models/search-document';
@@ -23,7 +24,7 @@ import { SolrOperators, SolrSortFields } from '../../core/solr/solr-helpers';
 import { SolrService } from '../../core/solr/solr.service';
 import { AdvancedSearchService } from './advanced-search.service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { facetKeysEnum, mapFacetsToSearchFields, mapOperatorsToSearchFields } from '../../modules/search-results-page/const/facets';
+import { customDefinedFacetsEnum, facetKeysEnum, mapFacetsToSearchFields, mapOperatorsToSearchFields } from '../../modules/search-results-page/const/facets';
 import { BaseFilterService } from './base-filter.service';
 import { LibraryContextService } from './library-context.service';
 import { isMapTab } from '../../modules/search-results-page/const/map-utils';
@@ -42,7 +43,7 @@ export class SearchService extends BaseFilterService {
   private displayConfigService = inject(DisplayConfigService);
 
   // Tracks the effective grouped state so views (toggle button, etc.) re-render
-  // when setGroupResults runs without a router navigation. `null` means "fall
+  // right when setGroupResults runs, before its navigation lands. `null` means "fall
   // back to URL/settings"; populated after the first explicit toggle.
   private _groupedOverride = signal<boolean | null>(null);
   private _suppressGroupReload = false;
@@ -66,6 +67,7 @@ export class SearchService extends BaseFilterService {
   pageResults$: Observable<SearchDocument[]>;
   attachmentResults$: Observable<SearchDocument[]>;
   loading$: Observable<boolean>;
+  pageResultsLoading$: Observable<boolean>;
   override facetsLoading$: Observable<boolean>;
   totalCount$: Observable<number>;
   activeFilters$: Observable<string[]>;
@@ -106,7 +108,6 @@ export class SearchService extends BaseFilterService {
   }
 
   getSuggestionsFn = (term: string): Observable<string[]> => {
-    console.log('[SearchService] getting suggestions for:', term);
     return this.solrService.getAutocompleteSuggestions(term);
   }
 
@@ -158,6 +159,7 @@ export class SearchService extends BaseFilterService {
     this.pageResults$ = this.store.select(selectPageSearchResults);
     this.attachmentResults$ = this.store.select(selectAttachmentSearchResults);
     this.loading$ = this.store.select(selectSearchResultsLoading);
+    this.pageResultsLoading$ = this.store.select(selectPageSearchResultsLoading);
     this.facetsLoading$ = this.store.select(selectFacetsLoading);
 
     this.totalCount$ = this.store.select(selectUnifiedTotalCount);
@@ -213,8 +215,8 @@ export class SearchService extends BaseFilterService {
         if (newGroupDefault !== previousGroupDefault) {
           previousGroupDefault = newGroupDefault;
           // Skip reload when the change came from the inline toggle — it already
-          // updated the URL (via replaceState, which doesn't refresh
-          // route.snapshot) and reloaded only the pages section.
+          // updated the URL (its navigation has not refreshed route.snapshot
+          // yet) and reloaded only the pages section.
           if (this._suppressGroupReload) {
             this._suppressGroupReload = false;
           } else if (this.isOnSearchResultsRoute() && this.route.snapshot.queryParams['group'] === undefined) {
@@ -282,9 +284,13 @@ export class SearchService extends BaseFilterService {
     //this.initialize();
     // A fresh query always opens the All tab — explicitly clear tab + map coords
     // so a submit from the home hero or header search drops any prior map state.
+    // It also drops the advanced query: a new search starts fresh instead of
+    // staying silently scoped by the previous advanced search.
     this.router.navigate(this.libraryContext.prependLibraryPrefix([`/${APP_ROUTES_ENUM.SEARCH_RESULTS}`]), {
       queryParams: {
         query,
+        advSearch: null,
+        advOp: null,
         page: this._page(),
         pageSize: this._pageSize(),
         sortBy: this._sortBy(),
@@ -327,6 +333,22 @@ export class SearchService extends BaseFilterService {
     ).subscribe(params => {
       if (this.isOnSearchResultsRoute()) {
         this.customSearchService.initializeFromRoute();
+
+        // The map tab has no "where to search" toggle, so a page/article choice
+        // (e.g. from a shared link) would act as a hidden filter. Drop it; the
+        // rewritten URL re-enters this subscription.
+        if (isMapTab(params)) {
+          const customSearch = this.customSearchService.dropFacetFilters(customDefinedFacetsEnum.whereToSearchModel);
+          if (customSearch !== undefined) {
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { customSearch },
+              queryParamsHandling: 'merge',
+              replaceUrl: true,
+            });
+            return;
+          }
+        }
 
         this.advancedSearchService.resetFromParams(params);
 
@@ -375,17 +397,20 @@ export class SearchService extends BaseFilterService {
    * main paginator stay untouched. The pages-only request is re-issued.
    */
   public setGroupResults(grouped: boolean): void {
-    // Update the `group` URL param in-place via Location.replaceState so the
-    // router doesn't re-navigate (which would trigger scroll-to-top and
-    // refire the queryParams subscription). The pages-only effect is the
+    // Update the `group` URL param through the router, so later merging
+    // navigations (paging, sorting, filters) keep it — a Location.replaceState
+    // left the router holding the previous value, and the next page brought it
+    // back. `group` is not a search-relevant param, so no full search reruns;
+    // KEEP_SCROLL_STATE keeps the scroll position. The pages-only effect is the
     // only thing that needs to react to the change.
-    const tree = this.router.createUrlTree([], {
+    this._groupedOverride.set(grouped);
+    this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { group: grouped ? 'true' : 'false' },
       queryParamsHandling: 'merge',
+      replaceUrl: true,
+      state: { [KEEP_SCROLL_STATE]: true },
     });
-    this.location.replaceState(this.urlSerializer.serialize(tree));
-    this._groupedOverride.set(grouped);
     this.pageSearchService.reloadWithGrouped(grouped);
 
     // Persist the new default so it survives reloads and pre-selects in the
@@ -441,14 +466,8 @@ export class SearchService extends BaseFilterService {
     let baseFilters = this.queryParamsService.getFilters(params);
     let customFilters = this.customSearchService.getSolrFqFilters();
 
-    console.log('customFilters:', customFilters);
-
     // if we have license filter in both baseFilters and customFilters operator between them is AND
 
-
-    // if (baseFilters.some(f => f.includes(facetKeysEnum.license)) && customFilters.some(f => f.includes(facetKeysEnum.license))) {
-    //   customFilters = customFilters.filter(f => !f.includes(facetKeysEnum.license));
-    // }
 
     // secure check, if hasSubmittedQuery is false, there cannot be filter model:page, so we need to remove it from customFilters as well as baseFilters
     if (!this.hasSubmittedQuery()) {
@@ -596,9 +615,7 @@ export class SearchService extends BaseFilterService {
   }
 
   backupCurrentSearchUrl(url: string | null = null): void {
-    // Use Location.path() instead of router.url: the grouping toggle updates the
-    // `group` param via location.replaceState (see setGroupResults), which does
-    // not refresh router.url. location.path() reflects the real address bar.
+    // Use Location.path() instead of router.url: it reflects the real address bar.
     // Location.path() returns '' for the root URL ('/'). Persist '/' instead so
     // the value stays truthy: consumers test the backup with truthiness checks,
     // and an empty string is indistinguishable from "nothing stored".
@@ -640,18 +657,6 @@ export class SearchService extends BaseFilterService {
   getValueBySelectedFilter(facetKey: string): string | null {
     const filter = this._activeFiltersSignal().find(f => f.startsWith(`${facetKey}:`));
     return filter ? filter.split(':')[1] : null;
-  }
-
-  toggleRadioFilter(route: ActivatedRoute, facetKey: string, value: string) {
-    // Remove any existing filter for this facetKey
-    const currentFilters = this._activeFiltersSignal().filter(f => !f.startsWith(`${facetKey}:`));
-
-    // Add the new value
-    const updatedFilters = [...currentFilters, `${facetKey}:${value}`];
-
-    const operator = this.queryParamsService.getOperatorForFacet(route.snapshot.queryParams, facetKey);
-
-    this.queryParamsService.updateFilters(route, facetKey, [value], operator);
   }
 
 

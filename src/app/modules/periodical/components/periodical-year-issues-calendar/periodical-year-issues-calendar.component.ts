@@ -18,7 +18,6 @@ import { MatCalendar } from '@angular/material/datepicker';
 import { NgIf } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { selectPeriodicalChildren } from '../../state/periodical-detail/periodical-detail.selectors';
-import { Router } from '@angular/router';
 import { DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -63,7 +62,6 @@ interface CalendarIssue {
 })
 export class PeriodicalYearIssuesCalendarComponent implements OnChanges, AfterViewInit, OnDestroy {
   private store = inject(Store);
-  private router = inject(Router);
   private adapter = inject(DateAdapter);
   private translate = inject(TranslateService);
   public periodicalService = inject(PeriodicalService);
@@ -87,11 +85,6 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, AfterVi
   private pendingClickEvent: Event | null = null;
   private issuesPopupPortal = viewChild.required(CdkPortal);
   private issuesPopupOutlet: DomPortalOutlet | null = null;
-
-  // Lazy loading state
-  monthlyIssueMap = signal(new Map<number, CalendarIssue[]>());
-  visibleMonths = signal(new Set<number>([0, 1, 2])); // Initially show first 3 months
-  lazyLoadingEnabled = signal(false);
 
   months = Array.from({ length: 12 }, (_, i) => i);
 
@@ -221,11 +214,6 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, AfterVi
   hasIssueOnDate = (date: Date | null): boolean =>
     !!date && (this.issueMap().get(this.formatDateKey(date))?.length ?? 0) > 0;
 
-  getIssueCount(date: Date): number {
-    const issues = this.issueMap().get(this.formatDateKey(date));
-    return issues ? issues.length : 0;
-  }
-
   onDateSelected(date: Date | null): void {
     if (!date) return;
     const issues = this.issueMap().get(this.formatDateKey(date));
@@ -291,69 +279,6 @@ export class PeriodicalYearIssuesCalendarComponent implements OnChanges, AfterVi
       showFavoriteButton: false,
       showAccessibilityBadge: true,
     };
-  }
-
-  // Lazy loading methods
-  loadMonthIfNeeded(monthIndex: number): void {
-    if (!this.lazyLoadingEnabled() || this.visibleMonths().has(monthIndex)) {
-      return;
-    }
-
-    this.periodicalService.loadMonthIssues(this.year, monthIndex + 1).subscribe(issues => {
-      this.updateMonthInIssueMap(monthIndex, issues);
-      this.visibleMonths.update(months => new Set([...months, monthIndex]));
-    });
-  }
-
-  private updateMonthInIssueMap(monthIndex: number, items: any[]): void {
-    const currentMap = new Map(this.issueMap());
-
-    for (const item of items) {
-      const date = parseIssueStartDate(item);
-      if (!date || !item.pid || date.getMonth() !== monthIndex) continue;
-
-      const key = this.formatDateKey(date);
-      const issueData: CalendarIssue = {
-        pid: item.pid,
-        accessibility: item.accessibility || 'private',
-        licenses: item['licenses.facet'] || item.licenses || [],
-        model: item.model,
-        partNumber: item['part.number.str'],
-        issueTypeCode: normalizeIssueTypeCode(item['issue.type.code']),
-        dateStr: item['date.str'],
-        startDate: date,
-      };
-
-      if (currentMap.has(key)) {
-        currentMap.get(key)!.push(issueData);
-      } else {
-        currentMap.set(key, [issueData]);
-      }
-    }
-
-    this.issueMap.set(currentMap);
-    this.shouldShowCalendars.set(false);
-    setTimeout(() => this.shouldShowCalendars.set(true), 0);
-  }
-
-  onMonthIntersection(monthIndex: number, isIntersecting: boolean): void {
-    if (isIntersecting) {
-      this.loadMonthIfNeeded(monthIndex);
-    }
-  }
-
-  isMonthVisible(monthIndex: number): boolean {
-    return !this.lazyLoadingEnabled() || this.visibleMonths().has(monthIndex);
-  }
-
-  enableLazyLoading(): void {
-    this.lazyLoadingEnabled.set(true);
-    this.visibleMonths.set(new Set([0, 1, 2]));
-  }
-
-  disableLazyLoading(): void {
-    this.lazyLoadingEnabled.set(false);
-    this.visibleMonths.set(new Set(this.months));
   }
 
   ngOnDestroy(): void {

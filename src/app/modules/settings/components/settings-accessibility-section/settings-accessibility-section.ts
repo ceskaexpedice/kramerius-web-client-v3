@@ -2,7 +2,6 @@ import { Component, inject } from '@angular/core';
 import {
   ToggleButtonGroupComponent, ToggleOption,
 } from '../../../../shared/components/toggle-button-group/toggle-button-group.component';
-import { AppSettingsThemeEnum } from '../../settings.model';
 import { AccessibilityService } from '../../../../shared/services/accessibility.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
