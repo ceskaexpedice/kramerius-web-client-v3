@@ -2,6 +2,7 @@ import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { Location } from '@angular/common';
 import { APP_ROUTES_ENUM } from '../../app.routes';
 import { ActivatedRoute, UrlSerializer } from '@angular/router';
+import { KEEP_SCROLL_STATE } from './scroll-position.service';
 import { distinctUntilChanged, filter, map, Observable, Subscription, takeUntil } from 'rxjs';
 import { Store } from '@ngrx/store';
 import {
@@ -42,7 +43,7 @@ export class SearchService extends BaseFilterService {
   private displayConfigService = inject(DisplayConfigService);
 
   // Tracks the effective grouped state so views (toggle button, etc.) re-render
-  // when setGroupResults runs without a router navigation. `null` means "fall
+  // right when setGroupResults runs, before its navigation lands. `null` means "fall
   // back to URL/settings"; populated after the first explicit toggle.
   private _groupedOverride = signal<boolean | null>(null);
   private _suppressGroupReload = false;
@@ -214,8 +215,8 @@ export class SearchService extends BaseFilterService {
         if (newGroupDefault !== previousGroupDefault) {
           previousGroupDefault = newGroupDefault;
           // Skip reload when the change came from the inline toggle — it already
-          // updated the URL (via replaceState, which doesn't refresh
-          // route.snapshot) and reloaded only the pages section.
+          // updated the URL (its navigation has not refreshed route.snapshot
+          // yet) and reloaded only the pages section.
           if (this._suppressGroupReload) {
             this._suppressGroupReload = false;
           } else if (this.isOnSearchResultsRoute() && this.route.snapshot.queryParams['group'] === undefined) {
@@ -396,17 +397,20 @@ export class SearchService extends BaseFilterService {
    * main paginator stay untouched. The pages-only request is re-issued.
    */
   public setGroupResults(grouped: boolean): void {
-    // Update the `group` URL param in-place via Location.replaceState so the
-    // router doesn't re-navigate (which would trigger scroll-to-top and
-    // refire the queryParams subscription). The pages-only effect is the
+    // Update the `group` URL param through the router, so later merging
+    // navigations (paging, sorting, filters) keep it — a Location.replaceState
+    // left the router holding the previous value, and the next page brought it
+    // back. `group` is not a search-relevant param, so no full search reruns;
+    // KEEP_SCROLL_STATE keeps the scroll position. The pages-only effect is the
     // only thing that needs to react to the change.
-    const tree = this.router.createUrlTree([], {
+    this._groupedOverride.set(grouped);
+    this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { group: grouped ? 'true' : 'false' },
       queryParamsHandling: 'merge',
+      replaceUrl: true,
+      state: { [KEEP_SCROLL_STATE]: true },
     });
-    this.location.replaceState(this.urlSerializer.serialize(tree));
-    this._groupedOverride.set(grouped);
     this.pageSearchService.reloadWithGrouped(grouped);
 
     // Persist the new default so it survives reloads and pre-selects in the
@@ -611,9 +615,7 @@ export class SearchService extends BaseFilterService {
   }
 
   backupCurrentSearchUrl(url: string | null = null): void {
-    // Use Location.path() instead of router.url: the grouping toggle updates the
-    // `group` param via location.replaceState (see setGroupResults), which does
-    // not refresh router.url. location.path() reflects the real address bar.
+    // Use Location.path() instead of router.url: it reflects the real address bar.
     // Location.path() returns '' for the root URL ('/'). Persist '/' instead so
     // the value stays truthy: consumers test the backup with truthiness checks,
     // and an empty string is indistinguishable from "nothing stored".

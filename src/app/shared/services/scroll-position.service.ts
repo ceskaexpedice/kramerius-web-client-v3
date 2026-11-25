@@ -3,12 +3,19 @@ import { Router, NavigationEnd, NavigationStart } from '@angular/router';
 import { filter, throttleTime } from 'rxjs/operators';
 import { fromEvent } from 'rxjs';
 
+/**
+ * Navigation `state` flag: the navigation only rewrites a view param in place
+ * (e.g. the results grouping), so the page keeps its scroll position.
+ */
+export const KEEP_SCROLL_STATE = 'keepScroll';
+
 @Injectable({
   providedIn: 'root'
 })
 export class ScrollPositionService {
   private scrollPositions = new Map<string, number>();
   private isNavigatingBack = false;
+  private keepScroll = false;
   private pendingScrollRestoration: string | null = null;
   private scrollSubscription: any = null;
 
@@ -62,12 +69,15 @@ export class ScrollPositionService {
     ).subscribe((event: NavigationStart) => {
       this.saveCurrentScrollPosition();
       this.isNavigatingBack = event.navigationTrigger === 'popstate';
+      this.keepScroll = this.router.currentNavigation()?.extras.state?.[KEEP_SCROLL_STATE] === true;
     });
 
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      if (this.isNavigatingBack) {
+      if (this.keepScroll) {
+        this.keepScroll = false;
+      } else if (this.isNavigatingBack) {
         this.restoreScrollPosition(event.urlAfterRedirects);
       } else {
         setTimeout(() => {
