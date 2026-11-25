@@ -13,6 +13,7 @@ import {
   mapOperatorsToSearchFields,
 } from '../const/facets';
 import { SearchService } from '../../../shared/services/search.service';
+import { advancedFulltextTerm } from '../../../shared/utils/advanced-fulltext-term';
 import { UserService } from '../../../shared/services/user.service';
 import { handleFacetsWithOperators } from '../../../shared/utils/facet-utils';
 import { DisplayConfigService } from '../../../shared/services/display-config.service';
@@ -81,7 +82,7 @@ export class SearchEffects {
 
         const processResults$ = results$.pipe(
           map(resultsRes => {
-            const { results, totalCount } = parseSolrSearchResponse(resultsRes, this.searchService.submittedTerm);
+            const { results, totalCount } = parseSolrSearchResponse(resultsRes, this.forwardedTerm(advancedQuery));
             return SearchActions.loadSearchResultsSuccess({ results, totalCount });
           }),
           catchError(error => of(SearchActions.loadSearchResultsFailure({ error })))
@@ -225,7 +226,7 @@ export class SearchEffects {
           !!grouped,
         ).pipe(
           map(resultsRes => {
-            const { results, totalCount } = parseSolrSearchResponse(resultsRes, this.searchService.submittedTerm);
+            const { results, totalCount } = parseSolrSearchResponse(resultsRes, this.forwardedTerm(advancedQuery));
             return SearchActions.loadPageSearchResultsSuccess({ results, totalCount });
           }),
           catchError(error => of(SearchActions.loadPageSearchResultsFailure({ error })))
@@ -285,5 +286,14 @@ export class SearchEffects {
 
   private withCdkFacets(fields: string[]): string[] {
     return withCdkFacetFields(fields, this.configService.isCdk());
+  }
+
+  /**
+   * The term the result links carry as ?fulltext: the simple search query, or
+   * else the full-text condition of an advanced search (like the legacy client),
+   * so a hit opens on its pages instead of the bare title.
+   */
+  private forwardedTerm(advancedQuery: string | undefined): string {
+    return this.searchService.submittedTerm || advancedFulltextTerm(advancedQuery);
   }
 }

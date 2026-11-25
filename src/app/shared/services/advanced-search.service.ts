@@ -134,7 +134,9 @@ export class AdvancedSearchService {
     return this.pendingOperatorsSignal();
   }
 
-  private buildQueryPartForValue(filter: AdvancedFilterDefinition, value: string, caseSensitive?: boolean): string {
+  private buildQueryPartForValue(filter: AdvancedFilterDefinition, rawValue: string, caseSensitive?: boolean): string {
+    // The query adds its own quotes around a phrase; quotes typed by the reader would double them.
+    const value = stripWrappingQuotes(rawValue);
     const isRange = value.startsWith('[') && value.endsWith(']') && value.includes(' TO ');
     let useRaw = filter.userRawQueryFormat || false;
     const isEquals = filter.isEquals !== false;
@@ -194,7 +196,7 @@ export class AdvancedSearchService {
   private buildSolrQueryPartForValue(filter: AdvancedFilterDefinition, filterValue: FilterValue): string | string[] {
     const isEquals = filter.isEquals !== false;
     const fieldPrefix = isEquals ? '' : '-';
-    const value = filterValue.solrValue.trim();
+    let value = filterValue.solrValue.trim();
     let useRaw = filter.userRawQueryFormat || false;
 
     // Handle Date filter (with optional offset)
@@ -231,6 +233,7 @@ export class AdvancedSearchService {
       return `${isEquals ? '' : 'NOT '}(date_range_start.year:${value} OR date_range_end.year:${value})`;
     }
 
+    value = stripWrappingQuotes(value);
     if (value.startsWith('*') || value.endsWith('*')) {
       useRaw = true;
     }
@@ -533,9 +536,10 @@ export class AdvancedSearchService {
           value = value.slice(1, -1).trim();
         }
 
-        if (isQuoted) {
-          value = value.slice(1, -1).trim();
-        }
+        // A multi-word value is written as field:("two words"): drop the quotes
+        // left inside the parentheses too, or rebuilding the query would wrap the
+        // value in a second pair (field:(""two words"")), which Solr rejects.
+        value = stripWrappingQuotes(value);
 
         if (!solrField || !value) continue;
 
@@ -699,4 +703,13 @@ export class AdvancedSearchService {
     );
   }
 
+}
+
+/** `"two words"` → `two words`; anything else (incl. `"a" "b"`) stays as it is. */
+export function stripWrappingQuotes(value: string): string {
+  const v = value.trim();
+  if (v.length > 1 && v.startsWith('"') && v.endsWith('"') && !v.slice(1, -1).includes('"')) {
+    return v.slice(1, -1).trim();
+  }
+  return v;
 }
