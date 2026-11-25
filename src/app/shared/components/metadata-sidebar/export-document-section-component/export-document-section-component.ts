@@ -225,7 +225,7 @@ export class ExportDocumentSectionComponent implements OnInit, OnDestroy {
     const pagesLoaded = !!pages;
 
     // Two different exports produce a whole-document PDF: the worker-backed job
-    // delivered by e-mail (KNAV/NKP only) and the synchronous `/pdf/selection`
+    // delivered by e-mail (only libraries in `export.publicWorkerLibraries`) and the synchronous `/pdf/selection`
     // download (everywhere, capped by pdfMaxRange). Only one of them can work at a
     // given library, so only one is offered — and both are labelled plainly
     // "whole-document"; the distinct *value* is what routes onPdfSubmit to the

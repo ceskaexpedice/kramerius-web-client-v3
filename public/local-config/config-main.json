@@ -65,7 +65,8 @@
     "pdf": true,
     "epub": true,
     "txt": true,
-    "enrichWithAI": true
+    "enrichWithAI": true,
+    "publicWorkerLibraries": ["knav", "nkp", "mzk"]
   },
   "viewer": {
     "defaultMode": "single",

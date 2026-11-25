@@ -286,7 +286,7 @@ describe('ConfigService source-scoped license resolution — language-chain fall
 
 /**
  * EPUB and TXT exist only as backend "public worker" jobs delivered by e-mail, and
- * that worker currently runs only at KNAV and NKP (decision of 2026-08-27). PDF is
+ * that worker runs only at the libraries listed in `export.publicWorkerLibraries`. PDF is
  * deliberately NOT in that set: besides the worker-backed whole-document job there
  * is a synchronous `/pdf/selection` download that works at every library, so gating
  * the whole format on the worker used to hide a working export (see the PDF option
@@ -320,7 +320,7 @@ describe('ConfigService public-worker export gate', () => {
     (service as any).config$.next({
       ...service.getConfig(),
       app: { ...service.getConfig().app, code: krameriusId },
-      export: exportConfig,
+      export: { ...exportConfig, publicWorkerLibraries: ['knav', 'nkp', 'mzk'] },
     });
     return service;
   }
@@ -337,16 +337,22 @@ describe('ConfigService public-worker export gate', () => {
     expect(service.isExportFormatEnabled('txt')).toBe(true);
   });
 
+  it('allows epub and txt when the selected CDK source is mzk', () => {
+    const service = serviceFor({ source: 'mzk' });
+    expect(service.isExportFormatEnabled('epub')).toBe(true);
+    expect(service.isExportFormatEnabled('txt')).toBe(true);
+  });
+
   it('blocks epub and txt when the selected CDK source has no public worker', () => {
     // TXT is the same worker job as EPUB (`requests/special_needs_text` vs
     // `special_needs_ebook`), so a library without the worker cannot serve either.
-    const service = serviceFor({ source: 'mzk' });
+    const service = serviceFor({ source: 'vkol' });
     expect(service.isExportFormatEnabled('epub')).toBe(false);
     expect(service.isExportFormatEnabled('txt')).toBe(false);
   });
 
-  it('reflects a source switch: mzk blocks, switching to knav allows', () => {
-    const service = serviceFor({ source: 'mzk' });
+  it('reflects a source switch: vkol blocks, switching to knav allows', () => {
+    const service = serviceFor({ source: 'vkol' });
     expect(service.isExportFormatEnabled('epub')).toBe(false);
     TestBed.inject(CdkSourceService).setCode('knav');
     expect(service.isExportFormatEnabled('epub')).toBe(true);
@@ -363,15 +369,15 @@ describe('ConfigService public-worker export gate', () => {
     const knav = serviceFor({ source: null, krameriusId: 'knav' });
     expect(knav.isExportFormatEnabled('epub')).toBe(true);
 
-    const mzk = serviceFor({ source: null, krameriusId: 'mzk' });
-    expect(mzk.isExportFormatEnabled('epub')).toBe(false);
+    const vkol = serviceFor({ source: null, krameriusId: 'vkol' });
+    expect(vkol.isExportFormatEnabled('epub')).toBe(false);
   });
 
   it('leaves print, jpeg and pdf untouched by the gate', () => {
     // PDF stays available without a worker because the synchronous
     // `/pdf/selection` download covers it; only the whole-document *flavour*
     // offered in the UI differs (see hasPublicWorkerExports).
-    const service = serviceFor({ source: 'mzk' });
+    const service = serviceFor({ source: 'vkol' });
     expect(service.isExportFormatEnabled('print')).toBe(true);
     expect(service.isExportFormatEnabled('jpeg')).toBe(true);
     expect(service.isExportFormatEnabled('pdf')).toBe(true);
@@ -380,8 +386,23 @@ describe('ConfigService public-worker export gate', () => {
   it('reports whether the serving library has the worker, for the PDF option split', () => {
     expect(serviceFor({ source: 'knav' }).hasPublicWorkerExports()).toBe(true);
     expect(serviceFor({ source: 'nkp' }).hasPublicWorkerExports()).toBe(true);
-    expect(serviceFor({ source: 'mzk' }).hasPublicWorkerExports()).toBe(false);
+    expect(serviceFor({ source: 'mzk' }).hasPublicWorkerExports()).toBe(true);
+    expect(serviceFor({ source: 'vkol' }).hasPublicWorkerExports()).toBe(false);
     expect(serviceFor({ source: null }).hasPublicWorkerExports()).toBe(false);
+  });
+
+  it('falls back to knav and nkp when publicWorkerLibraries is not configured', () => {
+    const service = serviceFor({ source: 'knav' });
+    const setExport = (exp: object) =>
+      (service as any).config$.next({ ...service.getConfig(), export: exp });
+    const formats = { print: true, jpeg: true, pdf: true, epub: true, txt: true };
+
+    setExport(formats);
+    expect(service.hasPublicWorkerExports()).toBe(true);
+    TestBed.inject(CdkSourceService).setCode('nkp');
+    expect(service.hasPublicWorkerExports()).toBe(true);
+    TestBed.inject(CdkSourceService).setCode('mzk');
+    expect(service.hasPublicWorkerExports()).toBe(false);
   });
 
   it('still lets config disable pdf on a public-worker library', () => {
@@ -393,7 +414,7 @@ describe('ConfigService public-worker export gate', () => {
 
   it('hides the export tab when the gate removes the only configured formats', () => {
     const service = serviceFor({
-      source: 'mzk',
+      source: 'vkol',
       exportConfig: { print: false, jpeg: false, pdf: false, txt: true, epub: true },
     });
     expect(service.isAnyExportFormatEnabled()).toBe(false);
